@@ -45,6 +45,5 @@ protected:
 private:
 	void GenerateRoadSegment(const FVector& StartLocation, const FVector& StartTangent, const FVector& EndLocation, const FVector& EndTangent);
 	
-	UFUNCTION(BlueprintCallable)
 	void DestroyRoadSegments();
 };

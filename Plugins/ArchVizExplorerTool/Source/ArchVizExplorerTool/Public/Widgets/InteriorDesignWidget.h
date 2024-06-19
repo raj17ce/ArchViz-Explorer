@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "ControllerModeWidget.h"
 #include "UMG/Public/Components/CanvasPanel.h"
 #include "UMG/Public/Components/TextBlock.h"
 #include "InteriorDesignWidget.generated.h"

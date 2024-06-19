@@ -1,41 +1,42 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Widgets/ControllerModeWidget.h"
+#include "Widgets/ArchVizModeWidget.h"
 
-void UControllerModeWidget::HandleRoadModeButtonClick() {
-	OnControllerModeChange.Broadcast(EControllerMode::RoadConstruction);
+
+void UArchVizModeWidget::HandleRoadModeButtonClick() {
+	OnArchVizModeChange.Broadcast(EArchVizMode::RoadConstruction);
 }
 
-void UControllerModeWidget::HandleBuildingModeButtonClick() {
-	OnControllerModeChange.Broadcast(EControllerMode::BuildingConstruction);
+void UArchVizModeWidget::HandleBuildingModeButtonClick() {
+	OnArchVizModeChange.Broadcast(EArchVizMode::BuildingConstruction);
 }
 
-void UControllerModeWidget::HandleInteriorModeButtonClick() {
-	OnControllerModeChange.Broadcast(EControllerMode::InteriorDesign);
+void UArchVizModeWidget::HandleInteriorModeButtonClick() {
+	OnArchVizModeChange.Broadcast(EArchVizMode::InteriorDesign);
 }
 
-void UControllerModeWidget::NativeConstruct() {
+void UArchVizModeWidget::NativeConstruct() {
 	Super::NativeConstruct();
 
-	OnControllerModeChange.AddUObject(this, &UControllerModeWidget::HighlightSelectedColour);
+	OnArchVizModeChange.AddUObject(this, &UArchVizModeWidget::HighlightSelectedColour);
 
 	if (IsValid(RoadModeButton)) {
-		RoadModeButton->OnClicked.AddDynamic(this, &UControllerModeWidget::HandleRoadModeButtonClick);
+		RoadModeButton->OnClicked.AddDynamic(this, &UArchVizModeWidget::HandleRoadModeButtonClick);
 	}
 
 	if (IsValid(BuildingModeButton)) {
-		BuildingModeButton->OnClicked.AddDynamic(this, &UControllerModeWidget::HandleBuildingModeButtonClick);
+		BuildingModeButton->OnClicked.AddDynamic(this, &UArchVizModeWidget::HandleBuildingModeButtonClick);
 	}
 
 	if (IsValid(InteriorModeButton)) {
-		InteriorModeButton->OnClicked.AddDynamic(this, &UControllerModeWidget::HandleInteriorModeButtonClick);
+		InteriorModeButton->OnClicked.AddDynamic(this, &UArchVizModeWidget::HandleInteriorModeButtonClick);
 	}
 }
 
-void UControllerModeWidget::HighlightSelectedColour(EControllerMode NewControllerMode) {
-	switch (NewControllerMode) {
-	case EControllerMode::RoadConstruction:
+void UArchVizModeWidget::HighlightSelectedColour(EArchVizMode NewArchVizMode) {
+	switch (NewArchVizMode) {
+	case EArchVizMode::RoadConstruction:
 		if (IsValid(RoadModeButton)) {
 			FButtonStyle ButtonStyle = RoadModeButton->GetStyle();
 			SetHighlightedTint(ButtonStyle);
@@ -52,7 +53,7 @@ void UControllerModeWidget::HighlightSelectedColour(EControllerMode NewControlle
 			InteriorModeButton->SetStyle(ButtonStyle);
 		}
 		break;
-	case EControllerMode::BuildingConstruction:
+	case EArchVizMode::BuildingConstruction:
 		if (IsValid(RoadModeButton)) {
 			FButtonStyle ButtonStyle = RoadModeButton->GetStyle();
 			SetNormalTint(ButtonStyle);
@@ -69,7 +70,7 @@ void UControllerModeWidget::HighlightSelectedColour(EControllerMode NewControlle
 			InteriorModeButton->SetStyle(ButtonStyle);
 		}
 		break;
-	case EControllerMode::InteriorDesign:
+	case EArchVizMode::InteriorDesign:
 		if (IsValid(RoadModeButton)) {
 			FButtonStyle ButtonStyle = RoadModeButton->GetStyle();
 			SetNormalTint(ButtonStyle);
@@ -89,12 +90,12 @@ void UControllerModeWidget::HighlightSelectedColour(EControllerMode NewControlle
 	}
 }
 
-void UControllerModeWidget::SetNormalTint(FButtonStyle& ButtonStyle) {
+void UArchVizModeWidget::SetNormalTint(FButtonStyle& ButtonStyle) {
 	FSlateColor NewNormalTint = FSlateColor(FLinearColor(0.012983f, 0.012983f, 0.012983f));
 	ButtonStyle.Normal.TintColor = NewNormalTint;
 }
 
-void UControllerModeWidget::SetHighlightedTint(FButtonStyle& ButtonStyle) {
-	FSlateColor NewNormalTint = FSlateColor(FLinearColor(0.198028f, 0.198028f, 0.223958f));
+void UArchVizModeWidget::SetHighlightedTint(FButtonStyle& ButtonStyle) {
+	FSlateColor NewNormalTint = FSlateColor(FLinearColor(0.354167f, 0.354167f, 0.354167f));
 	ButtonStyle.Normal.TintColor = NewNormalTint;
 }

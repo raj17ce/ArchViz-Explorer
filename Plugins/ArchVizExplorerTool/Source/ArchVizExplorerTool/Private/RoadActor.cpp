@@ -57,7 +57,7 @@ void ARoadActor::GenerateRoad() {
 
 	int32 InstanceCount = FMath::FloorToInt(SplineLength / RoadMeshSizeX);
 
-	for (int32 i = 0; i < InstanceCount; ++i) {
+	for (int32 i = 0; i <= InstanceCount; ++i) {
 		FVector StartLocation = SplineComponent->GetLocationAtDistanceAlongSpline(i	* RoadMeshSizeX, ESplineCoordinateSpace::Local);
 		FVector StartTangent = SplineComponent->GetTangentAtDistanceAlongSpline(i * RoadMeshSizeX, ESplineCoordinateSpace::Local);
 

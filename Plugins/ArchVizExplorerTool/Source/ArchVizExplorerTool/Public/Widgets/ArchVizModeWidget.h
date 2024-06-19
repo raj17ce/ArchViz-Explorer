@@ -3,27 +3,27 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ControllerModeEnum.h"
 #include "Blueprint/UserWidget.h"
+#include "Enums/ArchVizModeEnum.h"
 #include "UMG/Public/Components/CanvasPanel.h"
 #include "UMG/Public/Components/Border.h"
 #include "UMG/Public/Components/HorizontalBox.h"
 #include "UMG/Public/Components/Button.h"
-#include "ControllerModeWidget.generated.h"
+#include "ArchVizModeWidget.generated.h"
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnControllerModeChange, EControllerMode)
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnArchVizModeChange, EArchVizMode)
 
 /**
  *
  */
 UCLASS()
-class ARCHVIZEXPLORERTOOL_API UControllerModeWidget : public UUserWidget {
+class ARCHVIZEXPLORERTOOL_API UArchVizModeWidget : public UUserWidget {
 	GENERATED_BODY()
 
 public:
 	virtual void NativeConstruct() override;
 
-	FOnControllerModeChange OnControllerModeChange;
+	FOnArchVizModeChange OnArchVizModeChange;
 
 	UFUNCTION()
 	void HandleRoadModeButtonClick();
@@ -35,7 +35,7 @@ public:
 	void HandleInteriorModeButtonClick();
 
 	UFUNCTION()
-	void HighlightSelectedColour(EControllerMode NewControllerMode);
+	void HighlightSelectedColour(EArchVizMode NewArchVizMode);
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))

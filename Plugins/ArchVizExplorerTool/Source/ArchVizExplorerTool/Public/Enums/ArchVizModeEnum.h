@@ -3,10 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ControllerModeEnum.generated.h"
+#include "ArchVizModeEnum.generated.h"
 
 UENUM(BlueprintType)
-enum class EControllerMode : uint8 {
+enum class EArchVizMode : uint8 {
 	RoadConstruction,
 	BuildingConstruction,
 	InteriorDesign

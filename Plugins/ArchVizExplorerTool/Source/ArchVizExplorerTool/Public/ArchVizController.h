@@ -6,9 +6,10 @@
 #include "GameFramework/PlayerController.h"
 #include "InputMappingContext.h"
 #include "RoadActor.h"
-#include "ControllerModeEnum.h"
+#include "WallActor.h"
+#include "Enums/ArchVizModeEnum.h"
 #include "UMG/Public/Blueprint/UserWidget.h"
-#include "Widgets/ControllerModeWidget.h"
+#include "Widgets/ArchVizModeWidget.h"
 #include "Widgets/RoadConstructionWidget.h"
 #include "Widgets/BuildingConstructionWidget.h"
 #include "Widgets/InteriorDesignWidget.h"
@@ -25,30 +26,51 @@ public:
 	AArchVizController();
 
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 	virtual void SetupInputComponent() override;
 
 	UFUNCTION()
-	void HandleControllerModeChange(EControllerMode NewControllerMode);
+	void HandleControllerModeChange(EArchVizMode NewArchVizMode);
 
 protected:
 	
+	//Road
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<ARoadActor> RoadActorClass;
 
+	//Wall
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AWallActor> WallActorClass;
+
 private:
+	FInputModeGameAndUI InputModeGameAndUI{};
+
+	EArchVizMode CurrentArchVizMode;
+
+	//Road
 	UPROPERTY(VisibleDefaultsOnly)
 	UInputMappingContext* RoadMappingContext;
 
 	UPROPERTY(VisibleDefaultsOnly)
 	ARoadActor* RoadActor;
 
-	FInputModeGameAndUI InputModeGameAndUI{};
+	void SetupRoadInputComponent();
 
+	//Wall
+	UPROPERTY(VisibleDefaultsOnly)
+	UInputMappingContext* WallMappingContext;
+
+	UPROPERTY(VisibleDefaultsOnly)
+	AWallActor* WallActor;
+
+	void SetupWallInputComponent();
+
+	//Widgets
 	UPROPERTY(EditDefaultsOnly, Category="Widget")
-	TSubclassOf<UControllerModeWidget> ControllerModeWidgetClass;
+	TSubclassOf<UArchVizModeWidget> ArchVizModeWidgetClass;
 
 	UPROPERTY(VisibleDefaultsOnly, Category="Widget")
-	UControllerModeWidget* ControllerModeWidget;
+	UArchVizModeWidget* ArchVizModeWidget;
 
 	UPROPERTY(EditDefaultsOnly, Category="Widget")
 	TSubclassOf<URoadConstructionWidget> RoadWidgetClass;
@@ -68,10 +90,18 @@ private:
 	UPROPERTY(VisibleDefaultsOnly, Category="Widget")
 	UInteriorDesignWidget* InteriorWidget;
 
+	//Road Input Handlers
 	void HandleRoadLeftMouseClick();
 
-	void UpdateUI(EControllerMode NewControllerMode);
-	void UpdateMappingContext(EControllerMode NewControllerMode);
+	//Wall Input Handlers
+	void HandleWallLeftMouseClick();
+	void HandleWallRKeyPress();
 
+	//Update Mode Helpers
+	void UpdateUI();
+	void UpdateMappingContext();
+
+	//Utility
 	FVector SnapToGrid(FVector WorldLocation);
+	FHitResult GetHitResult() const;
 };
