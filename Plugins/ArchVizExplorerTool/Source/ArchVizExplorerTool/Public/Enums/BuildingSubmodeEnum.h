@@ -3,12 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BuildingSubmodeEnum.generated.h"
+#include "BuildingSubModeEnum.generated.h"
 
 UENUM(BlueprintType)
-enum class EBuildingSubmode : uint8 {
-	WallGeneration,
-	DoorGeneration,
-	FloorGeneration,
-	RoofGeneration
+enum class EBuildingSubMode : uint8 {
+	WallConstruction,
+	DoorConstruction,
+	FloorConstruction,
+	RoofConstruction
 };

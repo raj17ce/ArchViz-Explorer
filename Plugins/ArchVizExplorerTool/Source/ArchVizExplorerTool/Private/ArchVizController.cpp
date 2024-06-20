@@ -15,6 +15,27 @@ AArchVizController::AArchVizController() : CurrentArchVizMode{EArchVizMode::Road
 void AArchVizController::BeginPlay() {
 	Super::BeginPlay();
 
+	if (RoadConstructionModeClass) {
+		RoadConstructionMode = NewObject<URoadConstructionMode>(this, RoadConstructionModeClass);
+		RoadConstructionMode->SetPlayerController(this);
+		RoadConstructionMode->SetupInputComponent();
+	}
+	if (BuildingConstructionModeClass) {
+		BuildingConstructionMode = NewObject<UBuildingConstructionMode>(this, BuildingConstructionModeClass);
+		BuildingConstructionMode->SetupSubModes();
+		BuildingConstructionMode->SetPlayerController(this);
+		BuildingConstructionMode->SetupInputComponent();
+	}
+	if (InteriorDesignModeClass) {
+		InteriorDesignMode = NewObject<UInteriorDesignMode>(this, InteriorDesignModeClass);
+		InteriorDesignMode->SetPlayerController(this);
+		InteriorDesignMode->SetupInputComponent();
+	}
+
+	if (RoadConstructionMode) {
+		SetArchVizMode(RoadConstructionMode);
+	}
+
 	if (IsValid(ArchVizModeWidgetClass)) {
 		ArchVizModeWidget = CreateWidget<UArchVizModeWidget>(this, ArchVizModeWidgetClass, "Controller Mode Widget");
 		ArchVizModeWidget->OnArchVizModeChange.AddUObject(this, &AArchVizController::HandleArchVizModeChange);
@@ -27,27 +48,12 @@ void AArchVizController::BeginPlay() {
 
 		if (IsValid(BuildingWidgetClass)) {
 			BuildingWidget = CreateWidget<UBuildingConstructionWidget>(this, BuildingWidgetClass, "Building Widget");
+			BuildingWidget->OnBuildingSubModeChange.AddUObject(BuildingConstructionMode, &UBuildingConstructionMode::HandleBuildingSubModeChange);
 		}
 
 		if (IsValid(InteriorWidgetClass)) {
 			InteriorWidget = CreateWidget<UInteriorDesignWidget>(this, InteriorWidgetClass, "Interior Widget");
 		}
-	}
-
-	if (RoadConstructionModeClass) {
-		RoadConstructionMode = NewObject<URoadConstructionMode>(this, RoadConstructionModeClass);
-		RoadConstructionMode->SetPlayerController(this);
-		RoadConstructionMode->SetupInputComponent();
-	}
-	if (BuildingConstructionModeClass) {
-		BuildingConstructionMode = NewObject<UBuildingConstructionMode>(this, BuildingConstructionModeClass);
-		BuildingConstructionMode->SetPlayerController(this);
-		BuildingConstructionMode->SetupInputComponent();
-	}
-	if (InteriorDesignModeClass) {
-		InteriorDesignMode = NewObject<UInteriorDesignMode>(this, InteriorDesignModeClass);
-		InteriorDesignMode->SetPlayerController(this);
-		InteriorDesignMode->SetupInputComponent();
 	}
 
 	SetInputMode(InputModeGameAndUI);
@@ -57,28 +63,28 @@ void AArchVizController::BeginPlay() {
 void AArchVizController::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
-	if (CurrentArchVizMode == EArchVizMode::BuildingConstruction) {
-		/*if (IsValid(WallActorClass) && !IsValid(WallActor)) {
-			WallActor = NewObject<AWallActor>(this, WallActorClass);
-		}*/
-		auto* WallActor = BuildingConstructionMode->GetWallActor();
+	//if (CurrentArchVizMode == EArchVizMode::BuildingConstruction) {
+	//	/*if (IsValid(WallActorClass) && !IsValid(WallActor)) {
+	//		WallActor = NewObject<AWallActor>(this, WallActorClass);
+	//	}*/
+	//	auto* WallActor = BuildingConstructionMode->GetWallActor();
 
-		if (IsValid(WallActor) && !IsValid(WallActor->PreviewWallSegment)) {
-			WallActor->PreviewWallSegment = NewObject<UStaticMeshComponent>();
-			WallActor->PreviewWallSegment->RegisterComponentWithWorld(GetWorld());
-		}
+	//	if (IsValid(WallActor) && !IsValid(WallActor->PreviewWallSegment)) {
+	//		WallActor->PreviewWallSegment = NewObject<UStaticMeshComponent>();
+	//		WallActor->PreviewWallSegment->RegisterComponentWithWorld(GetWorld());
+	//	}
 
-		FHitResult HitResult{};
-		GetHitResultUnderCursorByChannel(TraceTypeQuery1, true, HitResult);
-		HitResult.Location.Z = 0.0;
+	//	FHitResult HitResult{};
+	//	GetHitResultUnderCursorByChannel(TraceTypeQuery1, true, HitResult);
+	//	HitResult.Location.Z = 0.0;
 
-		if (IsValid(WallActor->PreviewWallSegment) && IsValid(WallActor->WallStaticMesh)) {
-			WallActor->PreviewWallSegment->SetStaticMesh(WallActor->WallStaticMesh);
+	//	if (IsValid(WallActor->PreviewWallSegment) && IsValid(WallActor->WallStaticMesh)) {
+	//		WallActor->PreviewWallSegment->SetStaticMesh(WallActor->WallStaticMesh);
 
-			WallActor->PreviewWallSegment->SetWorldLocation(ArchVizUtility::GetSnappedLocation(HitResult.Location));
-			WallActor->PreviewWallSegment->SetWorldRotation(WallActor->GetSegmentRotation());
-		}
-	}
+	//		WallActor->PreviewWallSegment->SetWorldLocation(ArchVizUtility::GetSnappedLocation(HitResult.Location));
+	//		WallActor->PreviewWallSegment->SetWorldRotation(WallActor->GetSegmentRotation());
+	//	}
+	//}
 }
 
 void AArchVizController::SetupInputComponent() {
@@ -144,12 +150,12 @@ void AArchVizController::UpdateArchVizMode() {
 	}
 }
 
-void AArchVizController::SetArchVizMode(IArchVizMode* NewArchVizMode) {
+void AArchVizController::SetArchVizMode(IArchVizMode* NewArchVizModePtr) {
 	if (CurrentArchVizModePtr) {
 		CurrentArchVizModePtr->ExitMode();
 	}
 
-	CurrentArchVizModePtr = NewArchVizMode;
+	CurrentArchVizModePtr = NewArchVizModePtr;
 
 	if (CurrentArchVizModePtr) {
 		CurrentArchVizModePtr->EnterMode();

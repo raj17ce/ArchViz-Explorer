@@ -89,5 +89,5 @@ private:
 	//Update Mode Helpers
 	void UpdateUI();
 	void UpdateArchVizMode();
-	void SetArchVizMode(IArchVizMode* NewArchVizMode);
+	void SetArchVizMode(IArchVizMode* NewArchVizModePtr);
 };
