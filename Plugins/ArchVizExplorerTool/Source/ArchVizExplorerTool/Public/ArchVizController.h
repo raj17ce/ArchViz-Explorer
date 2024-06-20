@@ -13,6 +13,10 @@
 #include "Widgets/RoadConstructionWidget.h"
 #include "Widgets/BuildingConstructionWidget.h"
 #include "Widgets/InteriorDesignWidget.h"
+#include "ArchVizModes/ArchVizMode.h"
+#include "ArchVizModes/RoadConstructionMode.h"
+#include "ArchVizModes/BuildingConstructionMode.h"
+#include "ArchVizModes/InteriorDesignMode.h"
 #include "ArchVizController.generated.h"
 
 /**
@@ -30,40 +34,32 @@ public:
 	virtual void SetupInputComponent() override;
 
 	UFUNCTION()
-	void HandleControllerModeChange(EArchVizMode NewArchVizMode);
-
-protected:
-	
-	//Road
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<ARoadActor> RoadActorClass;
-
-	//Wall
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<AWallActor> WallActorClass;
+	void HandleArchVizModeChange(EArchVizMode NewArchVizMode);
 
 private:
 	FInputModeGameAndUI InputModeGameAndUI{};
 
 	EArchVizMode CurrentArchVizMode;
+	IArchVizMode* CurrentArchVizModePtr;
 
-	//Road
-	UPROPERTY(VisibleDefaultsOnly)
-	UInputMappingContext* RoadMappingContext;
+	//Modes
+	UPROPERTY(EditDefaultsOnly, Category="Mode")
+	TSubclassOf<URoadConstructionMode> RoadConstructionModeClass;
 
-	UPROPERTY(VisibleDefaultsOnly)
-	ARoadActor* RoadActor;
+	UPROPERTY(VisibleDefaultsOnly, Category="Mode")
+	URoadConstructionMode* RoadConstructionMode;
 
-	void SetupRoadInputComponent();
+	UPROPERTY(EditDefaultsOnly, Category="Mode")
+	TSubclassOf<UBuildingConstructionMode> BuildingConstructionModeClass;
 
-	//Wall
-	UPROPERTY(VisibleDefaultsOnly)
-	UInputMappingContext* WallMappingContext;
+	UPROPERTY(VisibleDefaultsOnly, Category="Mode")
+	UBuildingConstructionMode* BuildingConstructionMode;
 
-	UPROPERTY(VisibleDefaultsOnly)
-	AWallActor* WallActor;
+	UPROPERTY(EditDefaultsOnly, Category="Mode")
+	TSubclassOf<UInteriorDesignMode> InteriorDesignModeClass;
 
-	void SetupWallInputComponent();
+	UPROPERTY(VisibleDefaultsOnly, Category="Mode")
+	UInteriorDesignMode* InteriorDesignMode;
 
 	//Widgets
 	UPROPERTY(EditDefaultsOnly, Category="Widget")
@@ -90,18 +86,8 @@ private:
 	UPROPERTY(VisibleDefaultsOnly, Category="Widget")
 	UInteriorDesignWidget* InteriorWidget;
 
-	//Road Input Handlers
-	void HandleRoadLeftMouseClick();
-
-	//Wall Input Handlers
-	void HandleWallLeftMouseClick();
-	void HandleWallRKeyPress();
-
 	//Update Mode Helpers
 	void UpdateUI();
-	void UpdateMappingContext();
-
-	//Utility
-	FVector SnapToGrid(FVector WorldLocation);
-	FHitResult GetHitResult() const;
+	void UpdateArchVizMode();
+	void SetArchVizMode(IArchVizMode* NewArchVizMode);
 };

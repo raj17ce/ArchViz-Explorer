@@ -6,8 +6,9 @@
 #include "InputAction.h"
 #include "InputCoreTypes.h"
 #include "EnhancedInputSubsystems.h"
+#include "ArchVizUtility.h"
 
-AArchVizController::AArchVizController() : CurrentArchVizMode{EArchVizMode::RoadConstruction}, RoadMappingContext{nullptr}, RoadActor{nullptr}, WallMappingContext{nullptr}, WallActor{nullptr}, ArchVizModeWidget{nullptr}, RoadWidget{nullptr}, BuildingWidget{nullptr}, InteriorWidget{nullptr} {
+AArchVizController::AArchVizController() : CurrentArchVizMode{EArchVizMode::RoadConstruction}, CurrentArchVizModePtr{nullptr}, RoadConstructionMode{nullptr}, BuildingConstructionMode{nullptr}, InteriorDesignMode{nullptr}, ArchVizModeWidget{nullptr}, RoadWidget{nullptr}, BuildingWidget{nullptr}, InteriorWidget{nullptr} {
 
 }
 
@@ -16,7 +17,7 @@ void AArchVizController::BeginPlay() {
 
 	if (IsValid(ArchVizModeWidgetClass)) {
 		ArchVizModeWidget = CreateWidget<UArchVizModeWidget>(this, ArchVizModeWidgetClass, "Controller Mode Widget");
-		ArchVizModeWidget->OnArchVizModeChange.AddUObject(this, &AArchVizController::HandleControllerModeChange);
+		ArchVizModeWidget->OnArchVizModeChange.AddUObject(this, &AArchVizController::HandleArchVizModeChange);
 		ArchVizModeWidget->AddToViewport(1);
 
 		if (IsValid(RoadWidgetClass)) {
@@ -33,6 +34,22 @@ void AArchVizController::BeginPlay() {
 		}
 	}
 
+	if (RoadConstructionModeClass) {
+		RoadConstructionMode = NewObject<URoadConstructionMode>(this, RoadConstructionModeClass);
+		RoadConstructionMode->SetPlayerController(this);
+		RoadConstructionMode->SetupInputComponent();
+	}
+	if (BuildingConstructionModeClass) {
+		BuildingConstructionMode = NewObject<UBuildingConstructionMode>(this, BuildingConstructionModeClass);
+		BuildingConstructionMode->SetPlayerController(this);
+		BuildingConstructionMode->SetupInputComponent();
+	}
+	if (InteriorDesignModeClass) {
+		InteriorDesignMode = NewObject<UInteriorDesignMode>(this, InteriorDesignModeClass);
+		InteriorDesignMode->SetPlayerController(this);
+		InteriorDesignMode->SetupInputComponent();
+	}
+
 	SetInputMode(InputModeGameAndUI);
 	SetShowMouseCursor(true);
 }
@@ -41,111 +58,37 @@ void AArchVizController::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
 	if (CurrentArchVizMode == EArchVizMode::BuildingConstruction) {
-		if (IsValid(WallActorClass) && !IsValid(WallActor)) {
+		/*if (IsValid(WallActorClass) && !IsValid(WallActor)) {
 			WallActor = NewObject<AWallActor>(this, WallActorClass);
-		}
+		}*/
+		auto* WallActor = BuildingConstructionMode->GetWallActor();
+
 		if (IsValid(WallActor) && !IsValid(WallActor->PreviewWallSegment)) {
 			WallActor->PreviewWallSegment = NewObject<UStaticMeshComponent>();
 			WallActor->PreviewWallSegment->RegisterComponentWithWorld(GetWorld());
 		}
-		FHitResult HitResult = GetHitResult();
+
+		FHitResult HitResult{};
+		GetHitResultUnderCursorByChannel(TraceTypeQuery1, true, HitResult);
 		HitResult.Location.Z = 0.0;
 
 		if (IsValid(WallActor->PreviewWallSegment) && IsValid(WallActor->WallStaticMesh)) {
 			WallActor->PreviewWallSegment->SetStaticMesh(WallActor->WallStaticMesh);
 
-			WallActor->PreviewWallSegment->SetWorldLocation(SnapToGrid(HitResult.Location));
+			WallActor->PreviewWallSegment->SetWorldLocation(ArchVizUtility::GetSnappedLocation(HitResult.Location));
 			WallActor->PreviewWallSegment->SetWorldRotation(WallActor->GetSegmentRotation());
 		}
 	}
 }
 
 void AArchVizController::SetupInputComponent() {
-
 	Super::SetupInputComponent();
-
-	SetupRoadInputComponent();
-	SetupWallInputComponent();
-
-	if (auto* LocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer())) {
-		LocalPlayerSubsystem->AddMappingContext(RoadMappingContext, 0);
-	}
 }
 
-void AArchVizController::SetupRoadInputComponent() {
-	if (auto* EIC = Cast<UEnhancedInputComponent>(InputComponent)) {
-
-		RoadMappingContext = NewObject<UInputMappingContext>();
-
-		//Left-Click
-		auto* RoadLeftMouseClickAction = NewObject<UInputAction>();
-		RoadLeftMouseClickAction->ValueType = EInputActionValueType::Boolean;
-
-		RoadMappingContext->MapKey(RoadLeftMouseClickAction, EKeys::LeftMouseButton);
-		EIC->BindAction(RoadLeftMouseClickAction, ETriggerEvent::Completed, this, &AArchVizController::HandleRoadLeftMouseClick);
-	}
-}
-
-void AArchVizController::SetupWallInputComponent() {
-	if (auto* EIC = Cast<UEnhancedInputComponent>(InputComponent)) {
-
-		WallMappingContext = NewObject<UInputMappingContext>();
-
-		//Left-Click
-		auto* WallLeftMouseClickAction = NewObject<UInputAction>();
-		WallLeftMouseClickAction->ValueType = EInputActionValueType::Boolean;
-
-		WallMappingContext->MapKey(WallLeftMouseClickAction, EKeys::LeftMouseButton);
-		EIC->BindAction(WallLeftMouseClickAction, ETriggerEvent::Completed, this, &AArchVizController::HandleWallLeftMouseClick);
-
-		//R-Key
-		auto* WallRKeyPressAction = NewObject<UInputAction>(this);
-		WallRKeyPressAction->ValueType = EInputActionValueType::Boolean;
-
-		WallMappingContext->MapKey(WallRKeyPressAction, EKeys::R);
-		EIC->BindAction(WallRKeyPressAction, ETriggerEvent::Completed, this, &AArchVizController::HandleWallRKeyPress);
-	}
-}
-
-void AArchVizController::HandleRoadLeftMouseClick() {
-	FHitResult HitResult = GetHitResult();
-
-	if (IsValid(RoadActorClass) && !IsValid(RoadActor)) {
-		RoadActor = NewObject<ARoadActor>(this, RoadActorClass);
-	}
-
-	RoadActor->AddSplinePoint(HitResult.Location);
-}
-
-void AArchVizController::HandleWallLeftMouseClick() {
-	auto* NewWallSegment = NewObject<UStaticMeshComponent>();
-
-	if (IsValid(WallActor) && IsValid(WallActor->WallStaticMesh)) {
-		NewWallSegment->SetStaticMesh(WallActor->WallStaticMesh);
-
-		NewWallSegment->RegisterComponentWithWorld(GetWorld());
-		NewWallSegment->SetWorldLocation(WallActor->PreviewWallSegment->GetComponentLocation());
-		NewWallSegment->SetWorldRotation(WallActor->GetSegmentRotation());
-
-		WallActor->WallSegments.Add(NewWallSegment);
-		WallActor->SetSegmentIndex(WallActor->GetSegmentIndex() + 1);
-	}
-}
-
-void AArchVizController::HandleWallRKeyPress() {
-	if (IsValid(WallActor)) {
-		double NewYaw = (WallActor->GetSegmentRotation().Yaw + 90);
-		if (NewYaw >= 360) {
-			NewYaw -= 360;
-		}
-		WallActor->SetSegmentRotation(FRotator{ 0.0, NewYaw, 0.0 });
-	}
-}
-
-void AArchVizController::HandleControllerModeChange(EArchVizMode NewArchVizMode) {
+void AArchVizController::HandleArchVizModeChange(EArchVizMode NewArchVizMode) {
 	CurrentArchVizMode = NewArchVizMode;
 
-	UpdateMappingContext();
+	UpdateArchVizMode();
 	UpdateUI();
 }
 
@@ -187,37 +130,28 @@ void AArchVizController::UpdateUI() {
 	}
 }
 
-void AArchVizController::UpdateMappingContext() {
-	
-	if (auto* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer())) {
-
-		Subsystem->ClearAllMappings();
-
-		switch (CurrentArchVizMode) {
-		case EArchVizMode::RoadConstruction:
-			Subsystem->AddMappingContext(RoadMappingContext, 0);
-			break;
-		case EArchVizMode::BuildingConstruction:
-			Subsystem->AddMappingContext(WallMappingContext, 0);
-			break;
-		case EArchVizMode::InteriorDesign:
-			break;
-		}
+void AArchVizController::UpdateArchVizMode() {
+	switch (CurrentArchVizMode) {
+	case EArchVizMode::RoadConstruction:
+		SetArchVizMode(RoadConstructionMode);
+		break;
+	case EArchVizMode::BuildingConstruction:
+		SetArchVizMode(BuildingConstructionMode);
+		break;
+	case EArchVizMode::InteriorDesign:
+		SetArchVizMode(InteriorDesignMode);
+		break;
 	}
 }
 
-FVector AArchVizController::SnapToGrid(FVector WorldLocation) {
-	float GridSpacing = 100.0f;
-	float SnapX = FMath::RoundToFloat(WorldLocation.X / GridSpacing) * GridSpacing;
-	float SnapY = FMath::RoundToFloat(WorldLocation.Y / GridSpacing) * GridSpacing;
-	float SnapZ = FMath::RoundToFloat(WorldLocation.Z / GridSpacing) * GridSpacing;
+void AArchVizController::SetArchVizMode(IArchVizMode* NewArchVizMode) {
+	if (CurrentArchVizModePtr) {
+		CurrentArchVizModePtr->ExitMode();
+	}
 
-	return FVector(SnapX, SnapY, SnapZ);
-}
+	CurrentArchVizModePtr = NewArchVizMode;
 
-FHitResult AArchVizController::GetHitResult() const {
-	FHitResult MouseHitResult{};
-	GetHitResultUnderCursorByChannel(TraceTypeQuery1, true, MouseHitResult);
-
-	return MouseHitResult;
+	if (CurrentArchVizModePtr) {
+		CurrentArchVizModePtr->EnterMode();
+	}
 }
