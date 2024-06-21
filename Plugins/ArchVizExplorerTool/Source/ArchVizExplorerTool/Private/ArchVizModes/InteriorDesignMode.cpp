@@ -4,14 +4,18 @@
 #include "ArchVizModes/InteriorDesignMode.h"
 
 void UInteriorDesignMode::Setup() {
-	//To-Do
+	if (IsValid(WidgetClass)) {
+		Widget = CreateWidget<UUserWidget>(GetWorld(), WidgetClass, "Interior Widget");
+	}
 }
 
 void UInteriorDesignMode::EnterMode() {
+	ShowWidget();
 	//To-Do
 }
 
 void UInteriorDesignMode::ExitMode() {
+	HideWidget();
 	//To-Do
 }
 

@@ -38,7 +38,9 @@ private:
 	FInputModeGameAndUI InputModeGameAndUI{};
 
 	EArchVizMode CurrentArchVizMode;
-	IArchVizMode* CurrentArchVizModePtr;
+
+	UPROPERTY()
+	UArchVizMode* CurrentArchVizModePtr;
 
 	//Modes
 	UPROPERTY(EditDefaultsOnly, Category="Mode")
@@ -66,26 +68,7 @@ private:
 	UPROPERTY(VisibleDefaultsOnly, Category="Widget")
 	UArchVizModeWidget* ArchVizModeWidget;
 
-	UPROPERTY(EditDefaultsOnly, Category="Widget")
-	TSubclassOf<URoadConstructionWidget> RoadWidgetClass;
-
-	UPROPERTY(VisibleDefaultsOnly, Category="Widget")
-	URoadConstructionWidget* RoadWidget;
-
-	UPROPERTY(EditDefaultsOnly, Category="Widget")
-	TSubclassOf<UBuildingConstructionWidget> BuildingWidgetClass;
-
-	UPROPERTY(VisibleDefaultsOnly, Category="Widget")
-	UBuildingConstructionWidget* BuildingWidget;
-
-	UPROPERTY(EditDefaultsOnly, Category="Widget")
-	TSubclassOf<UInteriorDesignWidget> InteriorWidgetClass;
-
-	UPROPERTY(VisibleDefaultsOnly, Category="Widget")
-	UInteriorDesignWidget* InteriorWidget;
-
 	//Update Mode Helpers
-	void UpdateUI();
 	void UpdateArchVizMode();
-	void SetArchVizMode(IArchVizMode* NewArchVizModePtr);
+	void SetArchVizMode(UArchVizMode* NewArchVizModePtr);
 };

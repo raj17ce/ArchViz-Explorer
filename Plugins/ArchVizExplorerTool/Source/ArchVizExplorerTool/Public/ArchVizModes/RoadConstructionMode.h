@@ -7,20 +7,20 @@
 #include "UObject/NoExportTypes.h"
 #include "ArchVizActors/RoadActor.h"
 #include "InputMappingContext.h"
+#include "Widgets/RoadConstructionWidget.h"
 #include "RoadConstructionMode.generated.h"
 
 /**
  * 
  */
 UCLASS(Blueprintable)
-class ARCHVIZEXPLORERTOOL_API URoadConstructionMode : public UObject, public IArchVizMode {
+class ARCHVIZEXPLORERTOOL_API URoadConstructionMode : public UArchVizMode {
 	GENERATED_BODY()
 
 public:
     virtual void Setup() override;
     virtual void EnterMode() override;
     virtual void ExitMode() override;
-    virtual void SetPlayerController(APlayerController* Controller) override;
     virtual void SetupInputComponent() override;
 
 protected:
@@ -28,12 +28,6 @@ protected:
 	TSubclassOf<ARoadActor> RoadActorClass;
 
 private:
-    UPROPERTY()
-    APlayerController* PlayerController;
-
-    UPROPERTY()
-	UInputMappingContext* MappingContext;
-
 	UPROPERTY()
     ARoadActor* RoadActor;
 

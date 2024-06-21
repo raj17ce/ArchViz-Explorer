@@ -5,8 +5,18 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Widgets/BuildingConstructionWidget.h"
 
 void UBuildingConstructionMode::Setup() {
+	
+	if (IsValid(WidgetClass)) {
+		Widget = CreateWidget<UUserWidget>(GetWorld(), WidgetClass, "Building Widget");
+		auto* BuildingWidget = Cast<UBuildingConstructionWidget>(Widget);
+		if (BuildingWidget) {
+			BuildingWidget->OnBuildingSubModeChange.AddUObject(this, &UBuildingConstructionMode::HandleBuildingSubModeChange);
+		}
+	}
+
 	if (WallSubModeClass) {
 		WallSubMode = NewObject<UWallSubMode>(this, WallSubModeClass);
 		WallSubMode->Setup();
@@ -31,12 +41,14 @@ void UBuildingConstructionMode::Setup() {
 }
 
 void UBuildingConstructionMode::EnterMode() {
+	ShowWidget();
 	if (CurrentBuildingSubModePtr) {
 		CurrentBuildingSubModePtr->EnterSubMode();
 	}
 }
 
 void UBuildingConstructionMode::ExitMode() {
+	HideWidget();
 	if (CurrentBuildingSubModePtr) {
 		CurrentBuildingSubModePtr->ExitSubMode();
 	}

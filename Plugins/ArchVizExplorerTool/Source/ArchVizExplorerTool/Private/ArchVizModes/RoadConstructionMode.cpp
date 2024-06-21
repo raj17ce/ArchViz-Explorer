@@ -9,12 +9,17 @@ void URoadConstructionMode::Setup() {
 	if (IsValid(RoadActorClass) && !IsValid(RoadActor)) {
 		RoadActor = GetWorld()->SpawnActor<ARoadActor>(RoadActorClass, FTransform {});
 	}
+
+	if (IsValid(WidgetClass) && !IsValid(Widget)) {
+		Widget = CreateWidget<URoadConstructionWidget>(GetWorld(), WidgetClass, "Road Widget");
+	}
 }
 
 void URoadConstructionMode::EnterMode() {
 	if (IsValid(PlayerController)) {
 		if (auto* LocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer())) {
 			LocalPlayerSubsystem->AddMappingContext(MappingContext, 0);
+			ShowWidget();
 		}
 	}
 }
@@ -23,12 +28,9 @@ void URoadConstructionMode::ExitMode() {
 	if (IsValid(PlayerController)) {
 		if (auto* LocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer())) {
 			LocalPlayerSubsystem->RemoveMappingContext(MappingContext);
+			HideWidget();
 		}
 	}
-}
-
-void URoadConstructionMode::SetPlayerController(APlayerController* Controller) {
-	PlayerController = Controller;
 }
 
 void URoadConstructionMode::SetupInputComponent() {

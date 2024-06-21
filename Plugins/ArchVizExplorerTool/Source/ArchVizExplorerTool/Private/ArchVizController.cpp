@@ -8,7 +8,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "ArchVizUtility.h"
 
-AArchVizController::AArchVizController() : CurrentArchVizMode{EArchVizMode::RoadConstruction}, CurrentArchVizModePtr{nullptr}, RoadConstructionMode{nullptr}, BuildingConstructionMode{nullptr}, InteriorDesignMode{nullptr}, ArchVizModeWidget{nullptr}, RoadWidget{nullptr}, BuildingWidget{nullptr}, InteriorWidget{nullptr} {
+AArchVizController::AArchVizController() : CurrentArchVizMode{EArchVizMode::RoadConstruction}, CurrentArchVizModePtr{nullptr}, RoadConstructionMode{nullptr}, BuildingConstructionMode{nullptr}, InteriorDesignMode{nullptr}, ArchVizModeWidget{nullptr} {
 
 }
 
@@ -42,20 +42,6 @@ void AArchVizController::BeginPlay() {
 		ArchVizModeWidget = CreateWidget<UArchVizModeWidget>(this, ArchVizModeWidgetClass, "Controller Mode Widget");
 		ArchVizModeWidget->OnArchVizModeChange.AddUObject(this, &AArchVizController::HandleArchVizModeChange);
 		ArchVizModeWidget->AddToViewport(1);
-
-		if (IsValid(RoadWidgetClass)) {
-			RoadWidget = CreateWidget<URoadConstructionWidget>(this, RoadWidgetClass, "Road Widget");
-			RoadWidget->AddToViewport();
-		}
-
-		if (IsValid(BuildingWidgetClass)) {
-			BuildingWidget = CreateWidget<UBuildingConstructionWidget>(this, BuildingWidgetClass, "Building Widget");
-			BuildingWidget->OnBuildingSubModeChange.AddUObject(BuildingConstructionMode, &UBuildingConstructionMode::HandleBuildingSubModeChange);
-		}
-
-		if (IsValid(InteriorWidgetClass)) {
-			InteriorWidget = CreateWidget<UInteriorDesignWidget>(this, InteriorWidgetClass, "Interior Widget");
-		}
 	}
 
 	SetInputMode(InputModeGameAndUI);
@@ -97,45 +83,6 @@ void AArchVizController::HandleArchVizModeChange(EArchVizMode NewArchVizMode) {
 	CurrentArchVizMode = NewArchVizMode;
 
 	UpdateArchVizMode();
-	UpdateUI();
-}
-
-void AArchVizController::UpdateUI() {
-	switch (CurrentArchVizMode) {
-	case EArchVizMode::RoadConstruction:
-		if (IsValid(BuildingWidget) && BuildingWidget->IsInViewport()) {
-			BuildingWidget->RemoveFromParent();
-		}
-		if (IsValid(InteriorWidget) && InteriorWidget->IsInViewport()) {
-			InteriorWidget->RemoveFromParent();
-		}
-		if (IsValid(RoadWidget)) {
-			RoadWidget->AddToViewport();
-		}
-		break;
-	case EArchVizMode::BuildingConstruction:
-		if (IsValid(RoadWidget) && RoadWidget->IsInViewport()) {
-			RoadWidget->RemoveFromParent();
-		}
-		if (IsValid(InteriorWidget) && InteriorWidget->IsInViewport()) {
-			InteriorWidget->RemoveFromParent();
-		}
-		if (IsValid(BuildingWidget)) {
-			BuildingWidget->AddToViewport();
-		}
-		break;
-	case EArchVizMode::InteriorDesign:
-		if (IsValid(RoadWidget) && RoadWidget->IsInViewport()) {
-			RoadWidget->RemoveFromParent();
-		}
-		if (IsValid(BuildingWidget) && BuildingWidget->IsInViewport()) {
-			BuildingWidget->RemoveFromParent();
-		}
-		if (IsValid(InteriorWidget)) {
-			InteriorWidget->AddToViewport();
-		}
-		break;
-	}
 }
 
 void AArchVizController::UpdateArchVizMode() {
@@ -152,7 +99,7 @@ void AArchVizController::UpdateArchVizMode() {
 	}
 }
 
-void AArchVizController::SetArchVizMode(IArchVizMode* NewArchVizModePtr) {
+void AArchVizController::SetArchVizMode(UArchVizMode* NewArchVizModePtr) {
 	if (CurrentArchVizModePtr) {
 		CurrentArchVizModePtr->ExitMode();
 	}

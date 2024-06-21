@@ -3,19 +3,42 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UObject/NoExportTypes.h"
+#include "UMG/Public/Blueprint/UserWidget.h"
+#include "ArchVizMode.generated.h"
 
+class UInputMappingContext;
 class APlayerController;
+
 
 /**
  *
  */
-class ARCHVIZEXPLORERTOOL_API IArchVizMode {
+UCLASS(ABSTRACT)
+class ARCHVIZEXPLORERTOOL_API UArchVizMode : public UObject {
+	GENERATED_BODY()
 public:
-	virtual ~IArchVizMode() = default;
+	//Pure Virtual Functions
+	virtual void Setup() PURE_VIRTUAL(UArchVizMode::Setup, );
+	virtual void EnterMode() PURE_VIRTUAL(UArchVizMode::EnterMode, );
+	virtual void ExitMode() PURE_VIRTUAL(UArchVizMode::ExitMode, );
+	virtual void SetupInputComponent() PURE_VIRTUAL(UArchVizMode::SetupInputComponent, );
 
-	virtual void Setup() = 0;
-	virtual void EnterMode() = 0;
-	virtual void ExitMode() = 0;
-	virtual void SetPlayerController(APlayerController* Controller) = 0;
-	virtual void SetupInputComponent() = 0;
+	//Virtual Functions
+	virtual void SetPlayerController(APlayerController* Controller);
+	virtual void ShowWidget();
+	virtual void HideWidget();
+protected:
+	UPROPERTY()
+	APlayerController* PlayerController;
+
+	UPROPERTY()
+	UInputMappingContext* MappingContext;
+
+	//Widget
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UUserWidget> WidgetClass;
+
+	UPROPERTY()
+	UUserWidget* Widget;
 };

@@ -12,7 +12,7 @@
  *
  */
 UCLASS(Blueprintable)
-class ARCHVIZEXPLORERTOOL_API UInteriorDesignMode : public UObject, public IArchVizMode {
+class ARCHVIZEXPLORERTOOL_API UInteriorDesignMode : public UArchVizMode {
 	GENERATED_BODY()
 
 public:
@@ -21,11 +21,4 @@ public:
     virtual void ExitMode() override;
     virtual void SetPlayerController(APlayerController* Controller) override;
     virtual void SetupInputComponent() override;
-
-private:
-    UPROPERTY()
-    APlayerController* PlayerController;
-
-    UPROPERTY()
-	UInputMappingContext* MappingContext;
 };

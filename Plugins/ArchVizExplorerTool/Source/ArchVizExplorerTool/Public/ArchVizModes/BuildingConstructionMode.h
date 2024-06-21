@@ -18,7 +18,7 @@
  *
  */
 UCLASS(Blueprintable)
-class ARCHVIZEXPLORERTOOL_API UBuildingConstructionMode : public UObject, public IArchVizMode {
+class ARCHVIZEXPLORERTOOL_API UBuildingConstructionMode : public UArchVizMode {
 	GENERATED_BODY()
 
 public:
