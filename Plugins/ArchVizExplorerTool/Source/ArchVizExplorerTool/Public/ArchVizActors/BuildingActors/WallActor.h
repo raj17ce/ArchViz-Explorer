@@ -12,20 +12,23 @@ class ARCHVIZEXPLORERTOOL_API AWallActor : public ABuildingActor {
 	GENERATED_BODY()
 
 public:
+	friend class UWallSubMode;
+
 	// Sets default values for this actor's properties
 	AWallActor();
+
+	void SetStartLocation(const FVector& NewStartLocation);
+	void SetEndLocation(const FVector& NewEndLocation);
+	void SetShowPreview(bool NewShowPreview);
 
 	int32 GetSegmentIndex() const;
 	void SetSegmentIndex(int32 Index);
 
-	FRotator GetSegmentRotation() const;
-	void SetSegmentRotation(const FRotator& Rotation);
-
-	UPROPERTY()
-	UStaticMeshComponent* PreviewWallSegment;
-
 	UPROPERTY()
 	TArray<UStaticMeshComponent*> WallSegments;
+
+	UPROPERTY()
+	USceneComponent* SceneComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Wall")
 	UStaticMesh* WallStaticMesh;
@@ -34,10 +37,14 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY()
-	USceneComponent* SceneComponent;
-
 private:
 	int32 WallSegmentIndex;
-	FRotator WallSegmentRotation;
+
+	FVector StartLocation;
+	FVector EndLocation;
+
+	bool bShowPreview;
+
+	void GenerateWallSegments(double Length);
+	void DestroyWallSegments();
 };

@@ -4,11 +4,11 @@
 #include "ArchVizModes/BuildingSubModes/WallSubMode.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "ArchVizUtility.h"
 
 void UWallSubMode::Setup() {
-	if (WallActorClass) {
-		WallActor = NewObject<AWallActor>(this, WallActorClass);
-	}
+	bIsFirstClick = false;
+	CurrentWallActor = nullptr;
 }
 
 void UWallSubMode::EnterSubMode() {
@@ -51,34 +51,35 @@ void UWallSubMode::SetupInputComponent() {
 }
 
 void UWallSubMode::HandleLeftMouseClick() {
+	if (IsValid(WallActorClass)) {
+		if (!bIsFirstClick) {
+			bIsFirstClick = true;
 
-	FHitResult HitResult{};
-	PlayerController->GetHitResultUnderCursorByChannel(TraceTypeQuery1, true, HitResult);
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-	if (IsValid(WallActor) && IsValid(WallActor->WallStaticMesh)) {
-		auto* NewWallSegment = NewObject<UStaticMeshComponent>();
-		NewWallSegment->SetStaticMesh(WallActor->WallStaticMesh);
+			CurrentWallActor = GetWorld()->SpawnActor<AWallActor>(WallActorClass, SpawnParams);
 
-		NewWallSegment->RegisterComponentWithWorld(GetWorld());
-		NewWallSegment->SetWorldLocation(HitResult.Location);
-		//NewWallSegment->SetWorldLocation(WallActor->PreviewWallSegment->GetComponentLocation());
-		NewWallSegment->SetWorldRotation(WallActor->GetSegmentRotation());
+			FHitResult HitResult = CurrentWallActor->GetHitResult(TArray<AActor*>{CurrentWallActor});
+			HitResult.Location = ArchVizUtility::GetSnappedLocation(HitResult.Location);
 
-		WallActor->WallSegments.Add(NewWallSegment);
-		WallActor->SetSegmentIndex(WallActor->GetSegmentIndex() + 1);
+			CurrentWallActor->SetActorLocation(HitResult.Location);
+			CurrentWallActor->SetStartLocation(HitResult.Location);
+			CurrentWallActor->SetShowPreview(bIsFirstClick);
+		}
+		else {
+			bIsFirstClick = false;
+
+			FHitResult HitResult = CurrentWallActor->GetHitResult(TArray<AActor*>{CurrentWallActor});
+			CurrentWallActor->SetEndLocation(HitResult.Location);
+			CurrentWallActor->SetShowPreview(bIsFirstClick);
+			//CurrentWallActor->GenerateWallSegments();
+		}
 	}
 }
 
 void UWallSubMode::HandleRKeyPress() {
-	if (IsValid(WallActor)) {
-		double NewYaw = (WallActor->GetSegmentRotation().Yaw + 90);
-		if (NewYaw >= 360) {
-			NewYaw -= 360;
-		}
-		WallActor->SetSegmentRotation(FRotator{ 0.0, NewYaw, 0.0 });
+	if (IsValid(CurrentWallActor)) {
+		CurrentWallActor->RotateActor(90.0);
 	}
-}
-
-AWallActor* UWallSubMode::GetWallActor() const {
-	return WallActor;
 }

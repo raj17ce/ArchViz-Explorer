@@ -24,16 +24,16 @@ public:
 	virtual void ExitSubMode() override;
 	virtual void SetupInputComponent() override;
 
-	AWallActor* GetWallActor() const;
-
 protected:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AWallActor> WallActorClass;
 
 private:
-	UPROPERTY()
-	AWallActor* WallActor;
-
 	void HandleLeftMouseClick();
 	void HandleRKeyPress();
+
+	UPROPERTY()
+	AWallActor* CurrentWallActor;
+
+	bool bIsFirstClick;
 };

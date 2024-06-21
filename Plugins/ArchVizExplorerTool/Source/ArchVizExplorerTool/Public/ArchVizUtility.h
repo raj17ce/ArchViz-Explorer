@@ -9,5 +9,5 @@
  */
 class ARCHVIZEXPLORERTOOL_API ArchVizUtility {
 public:
-	static FVector GetSnappedLocation(FVector WorldLocation);
+	static FVector GetSnappedLocation(const FVector& WorldLocation, const FVector& GridSpacing = FVector{100.0});
 };

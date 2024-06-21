@@ -25,3 +25,10 @@ void ABuildingActor::Tick(float DeltaTime)
 
 }
 
+void ABuildingActor::RotateActor(double Degree) {
+	FRotator CurrentRotation = GetActorRotation();
+	CurrentRotation.Yaw = static_cast<int32>(CurrentRotation.Yaw + Degree) % 360;
+	
+	SetActorRotation(CurrentRotation);
+}
+

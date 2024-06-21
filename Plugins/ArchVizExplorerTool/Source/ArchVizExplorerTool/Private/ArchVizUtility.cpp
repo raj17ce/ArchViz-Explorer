@@ -3,11 +3,10 @@
 
 #include "ArchVizUtility.h"
 
-FVector ArchVizUtility::GetSnappedLocation(FVector WorldLocation) {
-	float GridSpacing = 100.0f;
-	float SnapX = FMath::RoundToFloat(WorldLocation.X / GridSpacing) * GridSpacing;
-	float SnapY = FMath::RoundToFloat(WorldLocation.Y / GridSpacing) * GridSpacing;
-	float SnapZ = FMath::RoundToFloat(WorldLocation.Z / GridSpacing) * GridSpacing;
+FVector ArchVizUtility::GetSnappedLocation(const FVector& WorldLocation, const FVector& GridSpacing) {
+	float SnapX = FMath::RoundToFloat(WorldLocation.X / GridSpacing.X) * GridSpacing.X;
+	float SnapY = FMath::RoundToFloat(WorldLocation.Y / GridSpacing.Y) * GridSpacing.Y;
+	float SnapZ = FMath::RoundToFloat(WorldLocation.Z / GridSpacing.Z) * GridSpacing.Z;
 
 	return FVector(SnapX, SnapY, SnapZ);
 }
