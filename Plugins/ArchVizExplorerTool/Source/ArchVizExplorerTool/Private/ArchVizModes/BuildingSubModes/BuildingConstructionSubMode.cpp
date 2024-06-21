@@ -3,3 +3,6 @@
 
 #include "ArchVizModes/BuildingSubModes/BuildingConstructionSubMode.h"
 
+void UBuildingConstructionSubMode::SetPlayerController(APlayerController* Controller) {
+	PlayerController = Controller;
+}

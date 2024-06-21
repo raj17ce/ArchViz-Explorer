@@ -3,17 +3,33 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UObject/NoExportTypes.h"
+#include "BuildingConstructionSubMode.generated.h"
+
+class UInputMappingContext;
+class APlayerController;
 
 /**
- *
+ * 
  */
-class ARCHVIZEXPLORERTOOL_API IBuildingConstructionSubMode {
-public:
-	virtual ~IBuildingConstructionSubMode() = default;
+UCLASS(ABSTRACT)
+class ARCHVIZEXPLORERTOOL_API UBuildingConstructionSubMode : public UObject {
+	GENERATED_BODY()
 
-	virtual void Setup() = 0;
-	virtual void EnterSubMode() = 0;
-	virtual void ExitSubMode() = 0;
-	virtual void SetPlayerController(APlayerController* Controller) = 0;
-	virtual void SetupInputComponent() = 0;
+public:
+	//Pure-Virtual
+	virtual void Setup() PURE_VIRTUAL(UArchVizMode::Setup, );
+	virtual void EnterSubMode() PURE_VIRTUAL(UArchVizMode::EnterSubMode, );
+	virtual void ExitSubMode() PURE_VIRTUAL(UArchVizMode::ExitSubMode, );
+	virtual void SetupInputComponent() PURE_VIRTUAL(UArchVizMode::SetupInputComponent, );
+
+	//Virtual
+	virtual void SetPlayerController(APlayerController* Controller);
+
+protected:
+	UPROPERTY()
+	APlayerController* PlayerController;
+
+	UPROPERTY()
+	UInputMappingContext* MappingContext;
 };

@@ -107,7 +107,7 @@ void UBuildingConstructionMode::UpdateBuildingSubMode() {
 	}
 }
 
-void UBuildingConstructionMode::SetBuildingSubMode(IBuildingConstructionSubMode* NewBuildingSubModePtr) {
+void UBuildingConstructionMode::SetBuildingSubMode(UBuildingConstructionSubMode* NewBuildingSubModePtr) {
 	if (CurrentBuildingSubModePtr) {
 		CurrentBuildingSubModePtr->ExitSubMode();
 	}

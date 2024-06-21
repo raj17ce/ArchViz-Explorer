@@ -27,10 +27,6 @@ void UWallSubMode::ExitSubMode() {
 	}
 }
 
-void UWallSubMode::SetPlayerController(APlayerController* Controller) {
-	PlayerController = Controller;
-}
-
 void UWallSubMode::SetupInputComponent() {
 	if (IsValid(PlayerController)) {
 		if (auto* EIC = Cast<UEnhancedInputComponent>(PlayerController->InputComponent)) {

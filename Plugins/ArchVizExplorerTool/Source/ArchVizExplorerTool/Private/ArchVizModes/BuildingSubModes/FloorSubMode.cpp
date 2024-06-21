@@ -25,10 +25,6 @@ void UFloorSubMode::ExitSubMode() {
 	}
 }
 
-void UFloorSubMode::SetPlayerController(APlayerController* Controller) {
-	PlayerController = Controller;
-}
-
 void UFloorSubMode::SetupInputComponent() {
 	if (IsValid(PlayerController)) {
 		if (auto* EIC = Cast<UEnhancedInputComponent>(PlayerController->InputComponent)) {

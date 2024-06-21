@@ -12,22 +12,15 @@
  *
  */
 UCLASS(Blueprintable)
-class ARCHVIZEXPLORERTOOL_API URoofSubMode : public UObject, public IBuildingConstructionSubMode {
+class ARCHVIZEXPLORERTOOL_API URoofSubMode : public UBuildingConstructionSubMode {
 	GENERATED_BODY()
 
 public:
 	virtual void Setup() override;
 	virtual void EnterSubMode() override;
 	virtual void ExitSubMode() override;
-	virtual void SetPlayerController(APlayerController* Controller) override;
 	virtual void SetupInputComponent() override;
 
 private:
-	UPROPERTY()
-	APlayerController* PlayerController;
-
-	UPROPERTY()
-	UInputMappingContext* MappingContext;
-
 	void HandleLeftMouseClick();
 };

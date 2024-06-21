@@ -25,10 +25,6 @@ void UDoorSubMode::ExitSubMode() {
 	}
 }
 
-void UDoorSubMode::SetPlayerController(APlayerController* Controller) {
-	PlayerController = Controller;
-}
-
 void UDoorSubMode::SetupInputComponent() {
 	if (IsValid(PlayerController)) {
 		if (auto* EIC = Cast<UEnhancedInputComponent>(PlayerController->InputComponent)) {

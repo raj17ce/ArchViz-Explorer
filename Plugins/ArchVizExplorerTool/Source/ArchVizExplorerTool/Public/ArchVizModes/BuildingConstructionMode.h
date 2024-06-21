@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ //Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -7,11 +7,11 @@
 #include "UObject/NoExportTypes.h"
 #include "InputMappingContext.h"
 #include "Enums/BuildingSubModeEnum.h"
+#include "BuildingSubmodes/RoofSubmode.h"
 #include "BuildingSubmodes/BuildingConstructionSubmode.h"
 #include "BuildingSubmodes/WallSubmode.h"
 #include "BuildingSubmodes/DoorSubmode.h"
 #include "BuildingSubmodes/FloorSubmode.h"
-#include "BuildingSubmodes/RoofSubmode.h"
 #include "BuildingConstructionMode.generated.h"
 
 /**
@@ -33,7 +33,7 @@ public:
 
 private:
 	EBuildingSubMode CurrentBuildingSubMode;
-	IBuildingConstructionSubMode* CurrentBuildingSubModePtr;
+	UBuildingConstructionSubMode* CurrentBuildingSubModePtr;
 
 	//SubModes
 	UPROPERTY(EditDefaultsOnly, Category="SubMode")
@@ -62,5 +62,5 @@ private:
 
 	//Update Sub Mode Helpers
 	void UpdateBuildingSubMode();
-	void SetBuildingSubMode(IBuildingConstructionSubMode* NewBuildingSubModePtr);
+	void SetBuildingSubMode(UBuildingConstructionSubMode* NewBuildingSubModePtr);
 };

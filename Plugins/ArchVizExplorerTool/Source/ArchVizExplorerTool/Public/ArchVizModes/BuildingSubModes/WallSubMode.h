@@ -15,14 +15,13 @@ class APlayerController;
  *
  */
 UCLASS(Blueprintable)
-class ARCHVIZEXPLORERTOOL_API UWallSubMode : public UObject, public IBuildingConstructionSubMode {
+class ARCHVIZEXPLORERTOOL_API UWallSubMode : public UBuildingConstructionSubMode {
 	GENERATED_BODY()
 
 public:
 	virtual void Setup() override;
 	virtual void EnterSubMode() override;
 	virtual void ExitSubMode() override;
-	virtual void SetPlayerController(APlayerController* Controller) override;
 	virtual void SetupInputComponent() override;
 
 	AWallActor* GetWallActor() const;
@@ -32,12 +31,6 @@ protected:
 	TSubclassOf<AWallActor> WallActorClass;
 
 private:
-    UPROPERTY()
-    APlayerController* PlayerController;
-
-    UPROPERTY()
-	UInputMappingContext* MappingContext;
-
 	UPROPERTY()
 	AWallActor* WallActor;
 

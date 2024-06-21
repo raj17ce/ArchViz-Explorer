@@ -25,10 +25,6 @@ void URoofSubMode::ExitSubMode() {
 	}
 }
 
-void URoofSubMode::SetPlayerController(APlayerController* Controller) {
-	PlayerController = Controller;
-}
-
 void URoofSubMode::SetupInputComponent() {
 	if (IsValid(PlayerController)) {
 		if (auto* EIC = Cast<UEnhancedInputComponent>(PlayerController->InputComponent)) {
