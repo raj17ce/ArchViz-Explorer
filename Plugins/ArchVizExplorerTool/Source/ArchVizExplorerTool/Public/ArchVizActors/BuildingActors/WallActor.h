@@ -21,10 +21,10 @@ public:
 	FRotator GetSegmentRotation() const;
 	void SetSegmentRotation(const FRotator& Rotation);
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "Wall")
+	UPROPERTY()
 	UStaticMeshComponent* PreviewWallSegment;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "Wall")
+	UPROPERTY()
 	TArray<UStaticMeshComponent*> WallSegments;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Wall")
@@ -34,7 +34,7 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(VisibleDefaultsOnly)
+	UPROPERTY()
 	USceneComponent* SceneComponent;
 
 private:

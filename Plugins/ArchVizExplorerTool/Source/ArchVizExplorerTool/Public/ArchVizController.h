@@ -46,26 +46,26 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="Mode")
 	TSubclassOf<URoadConstructionMode> RoadConstructionModeClass;
 
-	UPROPERTY(VisibleDefaultsOnly, Category="Mode")
+	UPROPERTY()
 	URoadConstructionMode* RoadConstructionMode;
 
 	UPROPERTY(EditDefaultsOnly, Category="Mode")
 	TSubclassOf<UBuildingConstructionMode> BuildingConstructionModeClass;
 
-	UPROPERTY(VisibleDefaultsOnly, Category="Mode")
+	UPROPERTY()
 	UBuildingConstructionMode* BuildingConstructionMode;
 
 	UPROPERTY(EditDefaultsOnly, Category="Mode")
 	TSubclassOf<UInteriorDesignMode> InteriorDesignModeClass;
 
-	UPROPERTY(VisibleDefaultsOnly, Category="Mode")
+	UPROPERTY()
 	UInteriorDesignMode* InteriorDesignMode;
 
 	//Widgets
 	UPROPERTY(EditDefaultsOnly, Category="Widget")
 	TSubclassOf<UArchVizModeWidget> ArchVizModeWidgetClass;
 
-	UPROPERTY(VisibleDefaultsOnly, Category="Widget")
+	UPROPERTY()
 	UArchVizModeWidget* ArchVizModeWidget;
 
 	//Update Mode Helpers

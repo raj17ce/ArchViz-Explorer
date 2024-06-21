@@ -31,13 +31,13 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(VisibleDefaultsOnly)
+	UPROPERTY()
 	USceneComponent* SceneComponent;
 
-	UPROPERTY(VisibleDefaultsOnly)
+	UPROPERTY()
 	USplineComponent* SplineComponent;
 
-	UPROPERTY(VisibleDefaultsOnly)
+	UPROPERTY()
 	TArray<USplineMeshComponent*> SplineMeshComponents;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Road")
@@ -45,6 +45,5 @@ protected:
 
 private:
 	void GenerateRoadSegment(const FVector& StartLocation, const FVector& StartTangent, const FVector& EndLocation, const FVector& EndTangent);
-
 	void DestroyRoadSegments();
 };
