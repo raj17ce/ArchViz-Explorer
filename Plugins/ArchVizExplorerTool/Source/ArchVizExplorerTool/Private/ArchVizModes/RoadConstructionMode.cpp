@@ -5,6 +5,12 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 
+void URoadConstructionMode::Setup() {
+	if (IsValid(RoadActorClass) && !IsValid(RoadActor)) {
+		RoadActor = GetWorld()->SpawnActor<ARoadActor>(RoadActorClass, FTransform {});
+	}
+}
+
 void URoadConstructionMode::EnterMode() {
 	if (IsValid(PlayerController)) {
 		if (auto* LocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer())) {
@@ -40,12 +46,13 @@ void URoadConstructionMode::SetupInputComponent() {
 }
 
 void URoadConstructionMode::HandleLeftMouseClick() {
-	FHitResult HitResult{};
-	PlayerController->GetHitResultUnderCursorByChannel(TraceTypeQuery1, true, HitResult);
+	if (IsValid(RoadActor)) {
+		FHitResult HitResult{};
 
-	if (IsValid(RoadActorClass) && !IsValid(RoadActor)) {
-		RoadActor = NewObject<ARoadActor>(this, RoadActorClass);
+		TArray<AActor*> IgnoredActors;
+		IgnoredActors.Add(RoadActor);
+
+		HitResult = RoadActor->GetHitResult(IgnoredActors);
+		RoadActor->AddSplinePoint(HitResult.Location);
 	}
-
-	RoadActor->AddSplinePoint(HitResult.Location);
 }

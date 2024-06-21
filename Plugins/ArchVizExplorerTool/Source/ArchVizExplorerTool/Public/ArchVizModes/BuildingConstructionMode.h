@@ -6,7 +6,6 @@
 #include "ArchVizMode.h"
 #include "UObject/NoExportTypes.h"
 #include "InputMappingContext.h"
-#include "WallActor.h"
 #include "Enums/BuildingSubModeEnum.h"
 #include "BuildingSubmodes/BuildingConstructionSubmode.h"
 #include "BuildingSubmodes/WallSubmode.h"
@@ -23,12 +22,11 @@ class ARCHVIZEXPLORERTOOL_API UBuildingConstructionMode : public UObject, public
 	GENERATED_BODY()
 
 public:
+	virtual void Setup() override;
 	virtual void EnterMode() override;
 	virtual void ExitMode() override;
 	virtual void SetPlayerController(APlayerController* Controller) override;
 	virtual void SetupInputComponent() override;
-
-	void SetupSubModes();
 
 	UFUNCTION()
 	void HandleBuildingSubModeChange(EBuildingSubMode NewBuildingSubMode);

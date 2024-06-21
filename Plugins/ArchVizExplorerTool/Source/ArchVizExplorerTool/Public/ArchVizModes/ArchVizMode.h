@@ -13,6 +13,7 @@ class ARCHVIZEXPLORERTOOL_API IArchVizMode {
 public:
 	virtual ~IArchVizMode() = default;
 
+	virtual void Setup() = 0;
 	virtual void EnterMode() = 0;
 	virtual void ExitMode() = 0;
 	virtual void SetPlayerController(APlayerController* Controller) = 0;

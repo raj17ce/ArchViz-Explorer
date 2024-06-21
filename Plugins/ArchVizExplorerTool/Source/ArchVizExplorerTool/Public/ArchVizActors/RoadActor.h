@@ -9,10 +9,11 @@
 #include "ProceduralMeshComponent.h"
 #include "ProceduralMeshGenerator.h"
 #include "Components/SplineMeshComponent.h"
+#include "ArchVizActor.h"
 #include "RoadActor.generated.h"
 
 UCLASS()
-class ARCHVIZEXPLORERTOOL_API ARoadActor : public AActor {
+class ARCHVIZEXPLORERTOOL_API ARoadActor : public AArchVizActor {
 	GENERATED_BODY()
 
 public:
@@ -44,6 +45,6 @@ protected:
 
 private:
 	void GenerateRoadSegment(const FVector& StartLocation, const FVector& StartTangent, const FVector& EndLocation, const FVector& EndTangent);
-	
+
 	void DestroyRoadSegments();
 };

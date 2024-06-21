@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "ArchVizMode.h"
 #include "UObject/NoExportTypes.h"
-#include "RoadActor.h"
+#include "ArchVizActors/RoadActor.h"
 #include "InputMappingContext.h"
 #include "RoadConstructionMode.generated.h"
 
@@ -17,6 +17,7 @@ class ARCHVIZEXPLORERTOOL_API URoadConstructionMode : public UObject, public IAr
 	GENERATED_BODY()
 
 public:
+    virtual void Setup() override;
     virtual void EnterMode() override;
     virtual void ExitMode() override;
     virtual void SetPlayerController(APlayerController* Controller) override;
@@ -34,7 +35,7 @@ private:
 	UInputMappingContext* MappingContext;
 
 	UPROPERTY()
-	ARoadActor* RoadActor;
+    ARoadActor* RoadActor;
 
     void HandleLeftMouseClick();
 };

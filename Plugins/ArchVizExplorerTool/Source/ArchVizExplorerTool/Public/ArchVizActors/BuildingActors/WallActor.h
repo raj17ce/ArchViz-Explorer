@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "ArchVizActors/BuildingActor.h"
 #include "WallActor.generated.h"
 
 UCLASS()
-class ARCHVIZEXPLORERTOOL_API AWallActor : public AActor {
+class ARCHVIZEXPLORERTOOL_API AWallActor : public ABuildingActor {
 	GENERATED_BODY()
 
 public:

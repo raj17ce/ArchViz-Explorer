@@ -5,8 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "InputMappingContext.h"
-#include "RoadActor.h"
-#include "WallActor.h"
 #include "Enums/ArchVizModeEnum.h"
 #include "UMG/Public/Blueprint/UserWidget.h"
 #include "Widgets/ArchVizModeWidget.h"

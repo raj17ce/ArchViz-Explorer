@@ -3,18 +3,22 @@
 
 #include "ArchVizModes/InteriorDesignMode.h"
 
-void UInteriorDesignMode::EnterMode() {
+void UInteriorDesignMode::Setup() {
+	//To-Do
+}
 
+void UInteriorDesignMode::EnterMode() {
+	//To-Do
 }
 
 void UInteriorDesignMode::ExitMode() {
-
+	//To-Do
 }
 
 void UInteriorDesignMode::SetPlayerController(APlayerController* Controller) {
-
+	//To-Do
 }
 
 void UInteriorDesignMode::SetupInputComponent() {
-
+	//To-Do
 }

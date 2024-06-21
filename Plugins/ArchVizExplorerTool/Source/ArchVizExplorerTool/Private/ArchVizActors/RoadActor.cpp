@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "RoadActor.h"
+#include "ArchVizActors/RoadActor.h"
 #include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
-ARoadActor::ARoadActor() : RoadMesh{nullptr} {
+ARoadActor::ARoadActor() : RoadMesh{ nullptr } {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -58,7 +58,7 @@ void ARoadActor::GenerateRoad() {
 	int32 InstanceCount = FMath::FloorToInt(SplineLength / RoadMeshSizeX);
 
 	for (int32 i = 0; i <= InstanceCount; ++i) {
-		FVector StartLocation = SplineComponent->GetLocationAtDistanceAlongSpline(i	* RoadMeshSizeX, ESplineCoordinateSpace::Local);
+		FVector StartLocation = SplineComponent->GetLocationAtDistanceAlongSpline(i * RoadMeshSizeX, ESplineCoordinateSpace::Local);
 		FVector StartTangent = SplineComponent->GetTangentAtDistanceAlongSpline(i * RoadMeshSizeX, ESplineCoordinateSpace::Local);
 
 		FVector EndLocation = SplineComponent->GetLocationAtDistanceAlongSpline(FMath::Min((i + 1) * RoadMeshSizeX, SplineLength), ESplineCoordinateSpace::Local);

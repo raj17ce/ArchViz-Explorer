@@ -6,6 +6,30 @@
 #include "EnhancedInputComponent.h"
 #include "Components/StaticMeshComponent.h"
 
+void UBuildingConstructionMode::Setup() {
+	if (WallSubModeClass) {
+		WallSubMode = NewObject<UWallSubMode>(this, WallSubModeClass);
+		WallSubMode->Setup();
+	}
+	if (DoorSubModeClass) {
+		DoorSubMode = NewObject<UDoorSubMode>(this, DoorSubModeClass);
+		DoorSubMode->Setup();
+	}
+	if (FloorSubModeClass) {
+		FloorSubMode = NewObject<UFloorSubMode>(this, FloorSubModeClass);
+		FloorSubMode->Setup();
+	}
+	if (RoofSubModeClass) {
+		RoofSubMode = NewObject<URoofSubMode>(this, RoofSubModeClass);
+		RoofSubMode->Setup();
+	}
+
+	if (IsValid(WallSubMode)) {
+		CurrentBuildingSubMode = EBuildingSubMode::WallConstruction;
+		CurrentBuildingSubModePtr = WallSubMode;
+	}
+}
+
 void UBuildingConstructionMode::EnterMode() {
 	if (CurrentBuildingSubModePtr) {
 		CurrentBuildingSubModePtr->EnterSubMode();
@@ -45,30 +69,6 @@ void UBuildingConstructionMode::SetupInputComponent() {
 	}
 	if (IsValid(RoofSubMode)) {
 		RoofSubMode->SetupInputComponent();
-	}
-}
-
-void UBuildingConstructionMode::SetupSubModes() {
-	if (WallSubModeClass) {
-		WallSubMode = NewObject<UWallSubMode>(this, WallSubModeClass);
-		WallSubMode->Setup();
-	}
-	if (DoorSubModeClass) {
-		DoorSubMode = NewObject<UDoorSubMode>(this, DoorSubModeClass);
-		DoorSubMode->Setup();
-	}
-	if (FloorSubModeClass) {
-		FloorSubMode = NewObject<UFloorSubMode>(this, FloorSubModeClass);
-		FloorSubMode->Setup();
-	}
-	if (RoofSubModeClass) {
-		RoofSubMode = NewObject<URoofSubMode>(this, RoofSubModeClass);
-		RoofSubMode->Setup();
-	}
-
-	if (IsValid(WallSubMode)) {
-		CurrentBuildingSubMode = EBuildingSubMode::WallConstruction;
-		CurrentBuildingSubModePtr = WallSubMode;
 	}
 }
 

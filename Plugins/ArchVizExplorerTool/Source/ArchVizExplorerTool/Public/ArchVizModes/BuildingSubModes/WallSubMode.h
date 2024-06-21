@@ -6,7 +6,7 @@
 #include "UObject/NoExportTypes.h"
 #include "BuildingConstructionSubmode.h"
 #include "InputMappingContext.h"
-#include "WallActor.h"
+#include "ArchVizActors/BuildingActors/WallActor.h"
 #include "WallSubMode.generated.h"
 
 class APlayerController;

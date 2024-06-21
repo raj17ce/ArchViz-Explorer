@@ -17,17 +17,19 @@ void AArchVizController::BeginPlay() {
 
 	if (RoadConstructionModeClass) {
 		RoadConstructionMode = NewObject<URoadConstructionMode>(this, RoadConstructionModeClass);
+		RoadConstructionMode->Setup();
 		RoadConstructionMode->SetPlayerController(this);
 		RoadConstructionMode->SetupInputComponent();
 	}
 	if (BuildingConstructionModeClass) {
 		BuildingConstructionMode = NewObject<UBuildingConstructionMode>(this, BuildingConstructionModeClass);
-		BuildingConstructionMode->SetupSubModes();
+		BuildingConstructionMode->Setup();
 		BuildingConstructionMode->SetPlayerController(this);
 		BuildingConstructionMode->SetupInputComponent();
 	}
 	if (InteriorDesignModeClass) {
 		InteriorDesignMode = NewObject<UInteriorDesignMode>(this, InteriorDesignModeClass);
+		InteriorDesignMode->Setup();
 		InteriorDesignMode->SetPlayerController(this);
 		InteriorDesignMode->SetupInputComponent();
 	}

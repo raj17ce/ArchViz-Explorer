@@ -16,6 +16,7 @@ class ARCHVIZEXPLORERTOOL_API UInteriorDesignMode : public UObject, public IArch
 	GENERATED_BODY()
 
 public:
+    virtual void Setup() override;
     virtual void EnterMode() override;
     virtual void ExitMode() override;
     virtual void SetPlayerController(APlayerController* Controller) override;
