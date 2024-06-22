@@ -4,23 +4,20 @@
 #include "ArchVizActors/ArchVizActor.h"
 
 // Sets default values
-AArchVizActor::AArchVizActor()
-{
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+AArchVizActor::AArchVizActor() {
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 }
 
 // Called when the game starts or when spawned
-void AArchVizActor::BeginPlay()
-{
+void AArchVizActor::BeginPlay() {
 	Super::BeginPlay();
-	
+
 }
 
 // Called every frame
-void AArchVizActor::Tick(float DeltaTime)
-{
+void AArchVizActor::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
 }

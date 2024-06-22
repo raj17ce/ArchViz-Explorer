@@ -8,45 +8,45 @@ ProceduralMeshGenerator::ProceduralMeshGenerator() {
 
 }
 
-void ProceduralMeshGenerator::GenerateCube(UProceduralMeshComponent* ProceduralMeshComponent, int32 Section, const FVector& CubeDimensions, float ZOffset) {
+void ProceduralMeshGenerator::GenerateCube(UProceduralMeshComponent* ProceduralMeshComponent, int32 Section, const FVector& CubeDimensions, FVector Offset) {
 	//Vertices
 	TArray<FVector> Vertices;
 
 	//Front
-	Vertices.Add(FVector{ -CubeDimensions.X / 2, -CubeDimensions.Y / 2, ZOffset + (CubeDimensions.Z / 2) }); //0
-	Vertices.Add(FVector{ -CubeDimensions.X / 2, -CubeDimensions.Y / 2, ZOffset - (CubeDimensions.Z / 2) }); //1
-	Vertices.Add(FVector{ -CubeDimensions.X / 2, CubeDimensions.Y / 2, ZOffset - (CubeDimensions.Z / 2) }); //2
-	Vertices.Add(FVector{ -CubeDimensions.X / 2, CubeDimensions.Y / 2, ZOffset + (CubeDimensions.Z / 2) }); //3
+	Vertices.Add(FVector{ Offset.X - (CubeDimensions.X / 2), Offset.Y - (CubeDimensions.Y / 2), Offset.Z + (CubeDimensions.Z / 2) }); //0
+	Vertices.Add(FVector{ Offset.X - (CubeDimensions.X / 2), Offset.Y - (CubeDimensions.Y / 2), Offset.Z - (CubeDimensions.Z / 2) }); //1
+	Vertices.Add(FVector{ Offset.X - (CubeDimensions.X / 2), Offset.Y + (CubeDimensions.Y / 2), Offset.Z - (CubeDimensions.Z / 2) }); //2
+	Vertices.Add(FVector{ Offset.X - (CubeDimensions.X / 2), Offset.Y + (CubeDimensions.Y / 2), Offset.Z + (CubeDimensions.Z / 2) }); //3
 
 	//Right
-	Vertices.Add(FVector{ -CubeDimensions.X / 2, CubeDimensions.Y / 2, ZOffset + (CubeDimensions.Z / 2) }); //4
-	Vertices.Add(FVector{ -CubeDimensions.X / 2, CubeDimensions.Y / 2, ZOffset - (CubeDimensions.Z / 2) }); //5
-	Vertices.Add(FVector{ CubeDimensions.X / 2, CubeDimensions.Y / 2, ZOffset - (CubeDimensions.Z / 2) }); //6
-	Vertices.Add(FVector{ CubeDimensions.X / 2, CubeDimensions.Y / 2, ZOffset + (CubeDimensions.Z / 2) }); //7
+	Vertices.Add(FVector{ Offset.X - (CubeDimensions.X / 2), Offset.Y + (CubeDimensions.Y / 2), Offset.Z + (CubeDimensions.Z / 2) }); //4
+	Vertices.Add(FVector{ Offset.X - (CubeDimensions.X / 2), Offset.Y + (CubeDimensions.Y / 2), Offset.Z - (CubeDimensions.Z / 2) }); //5
+	Vertices.Add(FVector{ Offset.X + (CubeDimensions.X / 2), Offset.Y + (CubeDimensions.Y / 2), Offset.Z - (CubeDimensions.Z / 2) }); //6
+	Vertices.Add(FVector{ Offset.X + (CubeDimensions.X / 2), Offset.Y + (CubeDimensions.Y / 2), Offset.Z + (CubeDimensions.Z / 2) }); //7
 
 	//Back
-	Vertices.Add(FVector{ CubeDimensions.X / 2, CubeDimensions.Y / 2, ZOffset + (CubeDimensions.Z / 2) }); //8
-	Vertices.Add(FVector{ CubeDimensions.X / 2, CubeDimensions.Y / 2, ZOffset - (CubeDimensions.Z / 2) }); //9
-	Vertices.Add(FVector{ CubeDimensions.X / 2, -CubeDimensions.Y / 2, ZOffset - (CubeDimensions.Z / 2) }); //10
-	Vertices.Add(FVector{ CubeDimensions.X / 2, -CubeDimensions.Y / 2, ZOffset + (CubeDimensions.Z / 2) }); //11
+	Vertices.Add(FVector{ Offset.X + (CubeDimensions.X / 2), Offset.Y + (CubeDimensions.Y / 2), Offset.Z + (CubeDimensions.Z / 2) }); //8
+	Vertices.Add(FVector{ Offset.X + (CubeDimensions.X / 2), Offset.Y + (CubeDimensions.Y / 2), Offset.Z - (CubeDimensions.Z / 2) }); //9
+	Vertices.Add(FVector{ Offset.X + (CubeDimensions.X / 2), Offset.Y - (CubeDimensions.Y / 2), Offset.Z - (CubeDimensions.Z / 2) }); //10
+	Vertices.Add(FVector{ Offset.X + (CubeDimensions.X / 2), Offset.Y - (CubeDimensions.Y / 2), Offset.Z + (CubeDimensions.Z / 2) }); //11
 
 	//Left
-	Vertices.Add(FVector{ CubeDimensions.X / 2, -CubeDimensions.Y / 2, ZOffset + (CubeDimensions.Z / 2) }); //12
-	Vertices.Add(FVector{ CubeDimensions.X / 2, -CubeDimensions.Y / 2, ZOffset - (CubeDimensions.Z / 2) }); //13
-	Vertices.Add(FVector{ -CubeDimensions.X / 2, -CubeDimensions.Y / 2, ZOffset - (CubeDimensions.Z / 2) }); //14
-	Vertices.Add(FVector{ -CubeDimensions.X / 2, -CubeDimensions.Y / 2, ZOffset + (CubeDimensions.Z / 2) }); //15
+	Vertices.Add(FVector{ Offset.X + (CubeDimensions.X / 2), Offset.Y - (CubeDimensions.Y / 2), Offset.Z + (CubeDimensions.Z / 2) }); //12
+	Vertices.Add(FVector{ Offset.X + (CubeDimensions.X / 2), Offset.Y - (CubeDimensions.Y / 2), Offset.Z - (CubeDimensions.Z / 2) }); //13
+	Vertices.Add(FVector{ Offset.X - (CubeDimensions.X / 2), Offset.Y - (CubeDimensions.Y / 2), Offset.Z - (CubeDimensions.Z / 2) }); //14
+	Vertices.Add(FVector{ Offset.X - (CubeDimensions.X / 2), Offset.Y - (CubeDimensions.Y / 2), Offset.Z + (CubeDimensions.Z / 2) }); //15
 
 	//Top
-	Vertices.Add(FVector{ CubeDimensions.X / 2, -CubeDimensions.Y / 2, ZOffset + (CubeDimensions.Z / 2) }); //16
-	Vertices.Add(FVector{ -CubeDimensions.X / 2, -CubeDimensions.Y / 2, ZOffset + (CubeDimensions.Z / 2) }); //17
-	Vertices.Add(FVector{ -CubeDimensions.X / 2, CubeDimensions.Y / 2, ZOffset + (CubeDimensions.Z / 2) }); //18
-	Vertices.Add(FVector{ CubeDimensions.X / 2, CubeDimensions.Y / 2, ZOffset + (CubeDimensions.Z / 2) }); //19
+	Vertices.Add(FVector{ Offset.X + (CubeDimensions.X / 2), Offset.Y - (CubeDimensions.Y / 2), Offset.Z + (CubeDimensions.Z / 2) }); //16
+	Vertices.Add(FVector{ Offset.X - (CubeDimensions.X / 2), Offset.Y - (CubeDimensions.Y / 2), Offset.Z + (CubeDimensions.Z / 2) }); //17
+	Vertices.Add(FVector{ Offset.X - (CubeDimensions.X / 2), Offset.Y + (CubeDimensions.Y / 2), Offset.Z + (CubeDimensions.Z / 2) }); //18
+	Vertices.Add(FVector{ Offset.X + (CubeDimensions.X / 2), Offset.Y + (CubeDimensions.Y / 2), Offset.Z + (CubeDimensions.Z / 2) }); //19
 
 	//Bottom
-	Vertices.Add(FVector{ -CubeDimensions.X / 2, -CubeDimensions.Y / 2, ZOffset - (CubeDimensions.Z / 2) }); //20
-	Vertices.Add(FVector{ CubeDimensions.X / 2, -CubeDimensions.Y / 2, ZOffset - (CubeDimensions.Z / 2) }); //21
-	Vertices.Add(FVector{ CubeDimensions.X / 2, CubeDimensions.Y / 2, ZOffset - (CubeDimensions.Z / 2) }); //22
-	Vertices.Add(FVector{ -CubeDimensions.X / 2, CubeDimensions.Y / 2, ZOffset - (CubeDimensions.Z / 2) }); //23
+	Vertices.Add(FVector{ Offset.X - (CubeDimensions.X / 2), Offset.Y - (CubeDimensions.Y / 2), Offset.Z - (CubeDimensions.Z / 2) }); //20
+	Vertices.Add(FVector{ Offset.X + (CubeDimensions.X / 2), Offset.Y - (CubeDimensions.Y / 2), Offset.Z - (CubeDimensions.Z / 2) }); //21
+	Vertices.Add(FVector{ Offset.X + (CubeDimensions.X / 2), Offset.Y + (CubeDimensions.Y / 2), Offset.Z - (CubeDimensions.Z / 2) }); //22
+	Vertices.Add(FVector{ Offset.X - (CubeDimensions.X / 2), Offset.Y + (CubeDimensions.Y / 2), Offset.Z - (CubeDimensions.Z / 2) }); //23
 
 	//Triangles
 	TArray<int32> Triangles;

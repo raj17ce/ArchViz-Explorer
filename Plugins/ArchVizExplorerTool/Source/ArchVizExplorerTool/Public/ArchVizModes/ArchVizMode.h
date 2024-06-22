@@ -28,6 +28,8 @@ public:
 	virtual void SetPlayerController(APlayerController* Controller);
 	virtual void ShowWidget();
 	virtual void HideWidget();
+
+	FHitResult GetHitResult(const TArray<AActor*>& ActorsToIgnore = TArray<AActor*>{}) const;
 protected:
 	UPROPERTY()
 	APlayerController* PlayerController;

@@ -9,6 +9,13 @@
 #include "ArchVizActors/BuildingActors/WallActor.h"
 #include "WallSubMode.generated.h"
 
+UENUM(BlueprintType)
+enum class EWallSubModeState : uint8 {
+	Free,
+	OldWall,
+	NewWall
+};
+
 class APlayerController;
 
 /**
@@ -31,9 +38,12 @@ protected:
 private:
 	void HandleLeftMouseClick();
 	void HandleRKeyPress();
+	void HandleMKeyPress();
 
 	UPROPERTY()
 	AWallActor* CurrentWallActor;
 
-	bool bIsFirstClick;
+	bool bNewWallStart;
+
+	EWallSubModeState SubModeState;
 };

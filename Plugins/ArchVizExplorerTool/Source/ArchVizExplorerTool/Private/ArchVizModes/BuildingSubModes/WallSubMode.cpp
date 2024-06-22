@@ -7,8 +7,9 @@
 #include "ArchVizUtility.h"
 
 void UWallSubMode::Setup() {
-	bIsFirstClick = false;
+	bNewWallStart = false;
 	CurrentWallActor = nullptr;
+	SubModeState = EWallSubModeState::Free;
 }
 
 void UWallSubMode::EnterSubMode() {
@@ -31,10 +32,10 @@ void UWallSubMode::SetupInputComponent() {
 	if (IsValid(PlayerController)) {
 		if (auto* EIC = Cast<UEnhancedInputComponent>(PlayerController->InputComponent)) {
 
-			MappingContext = NewObject<UInputMappingContext>();
+			MappingContext = NewObject<UInputMappingContext>(this);
 
 			//Left-Click
-			auto* LeftMouseClickAction = NewObject<UInputAction>();
+			auto* LeftMouseClickAction = NewObject<UInputAction>(this);
 			LeftMouseClickAction->ValueType = EInputActionValueType::Boolean;
 
 			MappingContext->MapKey(LeftMouseClickAction, EKeys::LeftMouseButton);
@@ -46,34 +47,69 @@ void UWallSubMode::SetupInputComponent() {
 
 			MappingContext->MapKey(RKeyPressAction, EKeys::R);
 			EIC->BindAction(RKeyPressAction, ETriggerEvent::Completed, this, &UWallSubMode::HandleRKeyPress);
+
+			//M-Key
+			auto* MKeyPressAction = NewObject<UInputAction>(this);
+			MKeyPressAction->ValueType = EInputActionValueType::Boolean;
+
+			MappingContext->MapKey(MKeyPressAction, EKeys::M);
+			EIC->BindAction(MKeyPressAction, ETriggerEvent::Completed, this, &UWallSubMode::HandleMKeyPress);
 		}
 	}
 }
 
 void UWallSubMode::HandleLeftMouseClick() {
+
 	if (IsValid(WallActorClass)) {
-		if (!bIsFirstClick) {
-			bIsFirstClick = true;
-
-			FActorSpawnParameters SpawnParams;
-			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-			CurrentWallActor = GetWorld()->SpawnActor<AWallActor>(WallActorClass, SpawnParams);
-
-			FHitResult HitResult = CurrentWallActor->GetHitResult(TArray<AActor*>{CurrentWallActor});
+	
+		switch (SubModeState) {
+		case EWallSubModeState::Free:
+		{
+			FHitResult HitResult = GetHitResult();
 			HitResult.Location = ArchVizUtility::GetSnappedLocation(HitResult.Location);
 
-			CurrentWallActor->SetActorLocation(HitResult.Location);
-			CurrentWallActor->SetStartLocation(HitResult.Location);
-			CurrentWallActor->SetShowPreview(bIsFirstClick);
-		}
-		else {
-			bIsFirstClick = false;
+			if (HitResult.GetActor() && HitResult.GetActor()->IsA(AWallActor::StaticClass())) {
+				CurrentWallActor = Cast<AWallActor>(HitResult.GetActor());
+				CurrentWallActor->SetState(EWallActorState::Selected);
+				//To-Do Display Widget
+			}
+			else {
+				FActorSpawnParameters SpawnParams;
+				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-			FHitResult HitResult = CurrentWallActor->GetHitResult(TArray<AActor*>{CurrentWallActor});
-			CurrentWallActor->SetEndLocation(HitResult.Location);
-			CurrentWallActor->SetShowPreview(bIsFirstClick);
-			//CurrentWallActor->GenerateWallSegments();
+				CurrentWallActor = GetWorld()->SpawnActor<AWallActor>(WallActorClass, SpawnParams);
+				CurrentWallActor->GenerateWallSegments();
+				CurrentWallActor->SetState(EWallActorState::Preview);
+				SubModeState = EWallSubModeState::NewWall;
+				//To-Do Preview Material
+			}
+		}
+			break;
+		case EWallSubModeState::OldWall:
+			SubModeState = EWallSubModeState::Free;
+			CurrentWallActor->SetState(EWallActorState::Selected);
+			break;
+		case EWallSubModeState::NewWall:
+			if (IsValid(CurrentWallActor)) {
+
+				FHitResult HitResult = GetHitResult(TArray<AActor*> {CurrentWallActor});
+				HitResult.Location = ArchVizUtility::GetSnappedLocation(HitResult.Location);
+
+				if (!bNewWallStart) {
+					bNewWallStart = true;
+
+					CurrentWallActor->SetActorLocation(HitResult.Location);
+					CurrentWallActor->SetStartLocation(HitResult.Location);
+					CurrentWallActor->SetState(EWallActorState::Generating);
+				}
+				else {
+					bNewWallStart = false;
+					CurrentWallActor->SetEndLocation(HitResult.Location);
+					CurrentWallActor->SetState(EWallActorState::Selected);
+					SubModeState = EWallSubModeState::Free;
+				}
+			}
+			break;
 		}
 	}
 }
@@ -81,5 +117,12 @@ void UWallSubMode::HandleLeftMouseClick() {
 void UWallSubMode::HandleRKeyPress() {
 	if (IsValid(CurrentWallActor)) {
 		CurrentWallActor->RotateActor(90.0);
+	}
+}
+
+void UWallSubMode::HandleMKeyPress() {
+	if (IsValid(CurrentWallActor)) {
+		CurrentWallActor->SetState(EWallActorState::Moving);
+		SubModeState = EWallSubModeState::OldWall;
 	}
 }

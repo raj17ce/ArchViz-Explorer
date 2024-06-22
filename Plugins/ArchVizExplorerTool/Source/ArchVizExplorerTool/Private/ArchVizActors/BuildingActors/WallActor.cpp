@@ -5,7 +5,7 @@
 #include "ArchVizUtility.h"
 
 // Sets default values
-AWallActor::AWallActor() : WallSegmentIndex{ -1 } {
+AWallActor::AWallActor() : WallStaticMesh{nullptr}, State{EWallActorState::Preview} {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -13,7 +13,7 @@ AWallActor::AWallActor() : WallSegmentIndex{ -1 } {
 	SetRootComponent(SceneComponent);
 	SceneComponent->SetMobility(EComponentMobility::Movable);
 
-	PrimaryActorTick.TickInterval = 0.1;
+	PrimaryActorTick.TickInterval = 0.3;
 }
 
 // Called when the game starts or when spawned
@@ -25,14 +25,47 @@ void AWallActor::BeginPlay() {
 void AWallActor::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
-	if (bShowPreview) {
+	if (State == EWallActorState::Preview) {
 		FHitResult HitResult = GetHitResult(TArray<AActor*>{this});
 		HitResult.Location = ArchVizUtility::GetSnappedLocation(HitResult.Location);
-		//SetActorLocation(HitResult.Location);
+
+		SetActorLocation(HitResult.Location);
+	}
+	else if (State == EWallActorState::Moving) {
+		FHitResult HitResult = GetHitResult(TArray<AActor*>{this});
+		HitResult.Location = ArchVizUtility::GetSnappedLocation(HitResult.Location);
+
+		SetActorLocation(HitResult.Location);
+	}
+	else if (State == EWallActorState::Generating) {
+		FHitResult HitResult = GetHitResult(TArray<AActor*>{this});
+		HitResult.Location = ArchVizUtility::GetSnappedLocation(HitResult.Location);
 		SetEndLocation(HitResult.Location);
 
-		if(EndLocation != StartLocation) {
-			GenerateWallSegments(EndLocation.X - StartLocation.X);
+		double XDistance = EndLocation.X - StartLocation.X;
+		double YDistance = EndLocation.Y - StartLocation.Y;
+
+		if (EndLocation != StartLocation) {
+			if (abs(XDistance) >= abs(YDistance)) {
+				GenerateWallSegments(abs(XDistance));
+				
+				if (XDistance >= 0) {
+					SetActorRotation(FRotator{ 0.0 });
+				}
+				else {
+					SetActorRotation(FRotator{0.0, 180.0, 0.0});
+				}
+			}
+			else {
+				GenerateWallSegments(abs(YDistance));
+
+				if (YDistance >= 0) {
+					SetActorRotation(FRotator{ 0.0, 90.0, 0.0 });
+				}
+				else {
+					SetActorRotation(FRotator{ 0.0, 270.0, 0.0 });
+				}
+			}
 		}
 	}
 }
@@ -49,7 +82,7 @@ void AWallActor::GenerateWallSegments(double Length) {
 	}
 
 	for (int32 SegmentIndex = 0; SegmentIndex < NumberOfSegments; ++SegmentIndex) {
-		UStaticMeshComponent* WallMeshComponent = NewObject<UStaticMeshComponent>();
+		UStaticMeshComponent* WallMeshComponent = NewObject<UStaticMeshComponent>(this);
 		WallMeshComponent->AttachToComponent(SceneComponent, FAttachmentTransformRules::KeepRelativeTransform);
 		WallMeshComponent->RegisterComponentWithWorld(GetWorld());
 		WallMeshComponent->SetMobility(EComponentMobility::Movable);
@@ -76,18 +109,22 @@ void AWallActor::SetStartLocation(const FVector& NewStartLocation) {
 	StartLocation = NewStartLocation;
 }
 
+const FVector& AWallActor::GetStartLocation() const{
+	return StartLocation;
+}
+
 void AWallActor::SetEndLocation(const FVector& NewEndLocation) {
 	EndLocation = NewEndLocation;
 }
 
-void AWallActor::SetShowPreview(bool NewShowPreview) {
-	bShowPreview = NewShowPreview;
+const FVector& AWallActor::GetEndLocation() const {
+	return EndLocation;
 }
 
-int32 AWallActor::GetSegmentIndex() const {
-	return WallSegmentIndex;
+void AWallActor::SetState(EWallActorState NewState) {
+	State = NewState;
 }
 
-void AWallActor::SetSegmentIndex(int32 Index) {
-	WallSegmentIndex = Index;
+EWallActorState AWallActor::GetState() const {
+	return State;
 }

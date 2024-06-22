@@ -7,6 +7,14 @@
 #include "ArchVizActors/BuildingActor.h"
 #include "WallActor.generated.h"
 
+UENUM(BlueprintType)
+enum class EWallActorState : uint8 {
+	Selected,
+	Preview,
+	Generating,
+	Moving
+};
+
 UCLASS()
 class ARCHVIZEXPLORERTOOL_API AWallActor : public ABuildingActor {
 	GENERATED_BODY()
@@ -18,11 +26,13 @@ public:
 	AWallActor();
 
 	void SetStartLocation(const FVector& NewStartLocation);
-	void SetEndLocation(const FVector& NewEndLocation);
-	void SetShowPreview(bool NewShowPreview);
+	const FVector& GetStartLocation() const;
 
-	int32 GetSegmentIndex() const;
-	void SetSegmentIndex(int32 Index);
+	void SetEndLocation(const FVector& NewEndLocation);
+	const FVector& GetEndLocation() const;
+
+	void SetState(EWallActorState NewState);
+	EWallActorState GetState() const;
 
 	UPROPERTY()
 	TArray<UStaticMeshComponent*> WallSegments;
@@ -38,13 +48,11 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-	int32 WallSegmentIndex;
-
 	FVector StartLocation;
 	FVector EndLocation;
 
-	bool bShowPreview;
+	EWallActorState State;
 
-	void GenerateWallSegments(double Length);
+	void GenerateWallSegments(double Length = 0.0);
 	void DestroyWallSegments();
 };

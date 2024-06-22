@@ -26,6 +26,7 @@ public:
 	//Virtual
 	virtual void SetPlayerController(APlayerController* Controller);
 
+	FHitResult GetHitResult(const TArray<AActor*>& ActorsToIgnore = TArray<AActor*>{}) const;
 protected:
 	UPROPERTY()
 	APlayerController* PlayerController;

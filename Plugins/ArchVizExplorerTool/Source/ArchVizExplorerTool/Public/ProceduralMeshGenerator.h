@@ -12,7 +12,7 @@ class ARCHVIZEXPLORERTOOL_API ProceduralMeshGenerator {
 public:
 	ProceduralMeshGenerator();
 
-	static void GenerateCube(UProceduralMeshComponent* ProceduralMeshComponent, int32 Section, const FVector& CubeDimensions, float ZOffset);
+	static void GenerateCube(UProceduralMeshComponent* ProceduralMeshComponent, int32 Section, const FVector& CubeDimensions, FVector Offset);
 	
 private:
 	static void AddTriangle(TArray<int32>& Triangles, int32 Index1, int32 Index2, int32 Index3);
