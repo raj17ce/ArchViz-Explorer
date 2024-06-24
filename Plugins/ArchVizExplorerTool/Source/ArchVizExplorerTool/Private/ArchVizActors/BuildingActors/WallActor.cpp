@@ -26,47 +26,13 @@ void AWallActor::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
 	if (State == EWallActorState::Preview) {
-		FHitResult HitResult = GetHitResult(TArray<AActor*>{this});
-		HitResult.Location = ArchVizUtility::GetSnappedLocation(HitResult.Location);
-
-		SetActorLocation(HitResult.Location);
+		HandlePreviewState();
 	}
 	else if (State == EWallActorState::Moving) {
-		FHitResult HitResult = GetHitResult(TArray<AActor*>{this});
-		HitResult.Location = ArchVizUtility::GetSnappedLocation(HitResult.Location);
-
-		SetActorLocation(HitResult.Location);
+		HandleMovingState();
 	}
 	else if (State == EWallActorState::Generating) {
-		FHitResult HitResult = GetHitResult(TArray<AActor*>{this});
-		HitResult.Location = ArchVizUtility::GetSnappedLocation(HitResult.Location);
-		SetEndLocation(HitResult.Location);
-
-		double XDistance = EndLocation.X - StartLocation.X;
-		double YDistance = EndLocation.Y - StartLocation.Y;
-
-		if (EndLocation != StartLocation) {
-			if (abs(XDistance) >= abs(YDistance)) {
-				GenerateWallSegments(abs(XDistance));
-				
-				if (XDistance >= 0) {
-					SetActorRotation(FRotator{ 0.0 });
-				}
-				else {
-					SetActorRotation(FRotator{0.0, 180.0, 0.0});
-				}
-			}
-			else {
-				GenerateWallSegments(abs(YDistance));
-
-				if (YDistance >= 0) {
-					SetActorRotation(FRotator{ 0.0, 90.0, 0.0 });
-				}
-				else {
-					SetActorRotation(FRotator{ 0.0, 270.0, 0.0 });
-				}
-			}
-		}
+		HandleGeneratingState();
 	}
 }
 
@@ -103,6 +69,75 @@ void AWallActor::DestroyWallSegments() {
 	}
 
 	WallSegments.Empty();
+}
+
+void AWallActor::HandlePreviewState() {
+	FHitResult HitResult = GetHitResult(TArray<AActor*>{this});
+	HitResult.Location = ArchVizUtility::GetSnappedLocation(HitResult.Location);
+
+	SetActorLocation(HitResult.Location);
+}
+
+void AWallActor::HandleGeneratingState() {
+	FHitResult HitResult = GetHitResult(TArray<AActor*>{this});
+	HitResult.Location = ArchVizUtility::GetSnappedLocation(HitResult.Location);
+	SetEndLocation(HitResult.Location);
+
+	double XDistance = EndLocation.X - StartLocation.X;
+	double YDistance = EndLocation.Y - StartLocation.Y;
+
+	if (EndLocation != StartLocation) {
+		if (abs(XDistance) >= abs(YDistance)) {
+			GenerateWallSegments(abs(XDistance));
+
+			if (XDistance >= 0) {
+				SetActorRotation(FRotator{ 0.0 });
+			}
+			else {
+				SetActorRotation(FRotator{ 0.0, 180.0, 0.0 });
+			}
+		}
+		else {
+			GenerateWallSegments(abs(YDistance));
+
+			if (YDistance >= 0) {
+				SetActorRotation(FRotator{ 0.0, 90.0, 0.0 });
+			}
+			else {
+				SetActorRotation(FRotator{ 0.0, -90, 0.0 });
+			}
+		}
+
+		HandleEdgeOffset();
+	}
+}
+
+void AWallActor::HandleMovingState() {
+	FHitResult HitResult = GetHitResult(TArray<AActor*>{this});
+	HitResult.Location = ArchVizUtility::GetSnappedLocation(HitResult.Location);
+
+	SetActorLocation(HitResult.Location);
+	SetStartLocation(HitResult.Location);
+	HandleEdgeOffset();
+}
+
+void AWallActor::HandleEdgeOffset() {
+	FRotator ActorRotation = GetActorRotation();
+
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Magenta, ActorRotation.ToString());
+
+	if (ActorRotation.Yaw >= -5 && ActorRotation.Yaw <= 5) {
+		SetActorLocation(FVector{ StartLocation.X + 10, StartLocation.Y, StartLocation.Z });
+	}
+	else if (ActorRotation.Yaw >= 85 && ActorRotation.Yaw <= 95) {
+		SetActorLocation(FVector{ StartLocation.X, StartLocation.Y + 10, StartLocation.Z });
+	}
+	else if (ActorRotation.Yaw >= 175 && ActorRotation.Yaw <= 185) {
+		SetActorLocation(FVector{ StartLocation.X - 10, StartLocation.Y, StartLocation.Z });
+	}
+	else if (ActorRotation.Yaw >= -95 && ActorRotation.Yaw <= -85) {
+		SetActorLocation(FVector{ StartLocation.X, StartLocation.Y - 10, StartLocation.Z });
+	}
 }
 
 void AWallActor::SetStartLocation(const FVector& NewStartLocation) {

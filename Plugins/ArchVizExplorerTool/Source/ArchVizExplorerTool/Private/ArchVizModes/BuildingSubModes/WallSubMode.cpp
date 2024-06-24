@@ -117,6 +117,7 @@ void UWallSubMode::HandleLeftMouseClick() {
 void UWallSubMode::HandleRKeyPress() {
 	if (IsValid(CurrentWallActor)) {
 		CurrentWallActor->RotateActor(90.0);
+		CurrentWallActor->HandleEdgeOffset();
 	}
 }
 

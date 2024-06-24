@@ -55,4 +55,10 @@ private:
 
 	void GenerateWallSegments(double Length = 0.0);
 	void DestroyWallSegments();
+
+	void HandlePreviewState();
+	void HandleGeneratingState();
+	void HandleMovingState();
+
+	void HandleEdgeOffset();
 };
