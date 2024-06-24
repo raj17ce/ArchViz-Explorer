@@ -6,6 +6,7 @@
 #include "UObject/NoExportTypes.h"
 #include "BuildingConstructionSubmode.h"
 #include "InputMappingContext.h"
+#include "ArchVizActors/BuildingActors/FloorActor.h"
 #include "FloorSubMode.generated.h"
 
 /**
@@ -21,6 +22,17 @@ public:
 	virtual void ExitSubMode() override;
 	virtual void SetupInputComponent() override;
 
+protected:
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AFloorActor> FloorActorClass;
+
 private:
 	void HandleLeftMouseClick();
+	void HandleRKeyPress();
+	void HandleMKeyPress();
+
+	UPROPERTY()
+	AFloorActor* CurrentFloorActor;
+
+	bool bNewFloorStart;
 };

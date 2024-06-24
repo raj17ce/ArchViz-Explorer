@@ -7,6 +7,14 @@
 #include "ArchVizActor.h"
 #include "BuildingActor.generated.h"
 
+UENUM(BlueprintType)
+enum class EBuildingActorState : uint8 {
+	Selected,
+	Preview,
+	Generating,
+	Moving
+};
+
 UCLASS()
 class ARCHVIZEXPLORERTOOL_API ABuildingActor : public AArchVizActor {
 	GENERATED_BODY()
@@ -15,13 +23,19 @@ public:
 	// Sets default values for this actor's properties
 	ABuildingActor();
 
+	void SetState(EBuildingActorState NewState);
+	EBuildingActorState GetState() const;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
 
 	void RotateActor(double Degree);
 
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	EBuildingActorState State;
+
+private:
+	
 };

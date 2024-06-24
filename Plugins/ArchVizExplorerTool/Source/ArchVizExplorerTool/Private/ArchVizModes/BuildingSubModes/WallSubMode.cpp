@@ -9,13 +9,15 @@
 void UWallSubMode::Setup() {
 	bNewWallStart = false;
 	CurrentWallActor = nullptr;
-	SubModeState = EWallSubModeState::Free;
+	SubModeState = EBuildingSubModeState::Free;
 }
 
 void UWallSubMode::EnterSubMode() {
 	if (IsValid(PlayerController)) {
 		if (auto* LocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer())) {
 			LocalPlayerSubsystem->AddMappingContext(MappingContext, 0);
+
+			Setup();
 		}
 	}
 }
@@ -24,6 +26,10 @@ void UWallSubMode::ExitSubMode() {
 	if (IsValid(PlayerController)) {
 		if (auto* LocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer())) {
 			LocalPlayerSubsystem->RemoveMappingContext(MappingContext);
+
+			if (IsValid(CurrentWallActor) && CurrentWallActor->GetState() == EBuildingActorState::Preview) {
+				CurrentWallActor->Destroy();
+			}
 		}
 	}
 }
@@ -63,14 +69,14 @@ void UWallSubMode::HandleLeftMouseClick() {
 	if (IsValid(WallActorClass)) {
 	
 		switch (SubModeState) {
-		case EWallSubModeState::Free:
+		case EBuildingSubModeState::Free:
 		{
 			FHitResult HitResult = GetHitResult();
 			HitResult.Location = ArchVizUtility::GetSnappedLocation(HitResult.Location);
 
 			if (HitResult.GetActor() && HitResult.GetActor()->IsA(AWallActor::StaticClass())) {
 				CurrentWallActor = Cast<AWallActor>(HitResult.GetActor());
-				CurrentWallActor->SetState(EWallActorState::Selected);
+				CurrentWallActor->SetState(EBuildingActorState::Selected);
 				//To-Do Display Widget
 			}
 			else {
@@ -79,17 +85,17 @@ void UWallSubMode::HandleLeftMouseClick() {
 
 				CurrentWallActor = GetWorld()->SpawnActor<AWallActor>(WallActorClass, SpawnParams);
 				CurrentWallActor->GenerateWallSegments();
-				CurrentWallActor->SetState(EWallActorState::Preview);
-				SubModeState = EWallSubModeState::NewWall;
+				CurrentWallActor->SetState(EBuildingActorState::Preview);
+				SubModeState = EBuildingSubModeState::NewObject;
 				//To-Do Preview Material
 			}
 		}
 			break;
-		case EWallSubModeState::OldWall:
-			SubModeState = EWallSubModeState::Free;
-			CurrentWallActor->SetState(EWallActorState::Selected);
+		case EBuildingSubModeState::OldObject:
+			SubModeState = EBuildingSubModeState::Free;
+			CurrentWallActor->SetState(EBuildingActorState::Selected);
 			break;
-		case EWallSubModeState::NewWall:
+		case EBuildingSubModeState::NewObject:
 			if (IsValid(CurrentWallActor)) {
 
 				FHitResult HitResult = GetHitResult(TArray<AActor*> {CurrentWallActor});
@@ -100,13 +106,13 @@ void UWallSubMode::HandleLeftMouseClick() {
 
 					CurrentWallActor->SetActorLocation(HitResult.Location);
 					CurrentWallActor->SetStartLocation(HitResult.Location);
-					CurrentWallActor->SetState(EWallActorState::Generating);
+					CurrentWallActor->SetState(EBuildingActorState::Generating);
 				}
 				else {
 					bNewWallStart = false;
 					CurrentWallActor->SetEndLocation(HitResult.Location);
-					CurrentWallActor->SetState(EWallActorState::Selected);
-					SubModeState = EWallSubModeState::Free;
+					CurrentWallActor->SetState(EBuildingActorState::Selected);
+					SubModeState = EBuildingSubModeState::Free;
 				}
 			}
 			break;
@@ -123,7 +129,7 @@ void UWallSubMode::HandleRKeyPress() {
 
 void UWallSubMode::HandleMKeyPress() {
 	if (IsValid(CurrentWallActor)) {
-		CurrentWallActor->SetState(EWallActorState::Moving);
-		SubModeState = EWallSubModeState::OldWall;
+		CurrentWallActor->SetState(EBuildingActorState::Moving);
+		SubModeState = EBuildingSubModeState::OldObject;
 	}
 }

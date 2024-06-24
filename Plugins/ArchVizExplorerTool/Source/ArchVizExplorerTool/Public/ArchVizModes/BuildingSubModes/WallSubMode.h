@@ -9,13 +9,6 @@
 #include "ArchVizActors/BuildingActors/WallActor.h"
 #include "WallSubMode.generated.h"
 
-UENUM(BlueprintType)
-enum class EWallSubModeState : uint8 {
-	Free,
-	OldWall,
-	NewWall
-};
-
 class APlayerController;
 
 /**
@@ -44,6 +37,4 @@ private:
 	AWallActor* CurrentWallActor;
 
 	bool bNewWallStart;
-
-	EWallSubModeState SubModeState;
 };

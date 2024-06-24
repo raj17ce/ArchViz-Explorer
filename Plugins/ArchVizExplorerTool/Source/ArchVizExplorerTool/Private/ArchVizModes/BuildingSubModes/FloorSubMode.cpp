@@ -4,15 +4,20 @@
 #include "ArchVizModes/BuildingSubModes/FloorSubMode.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "ArchVizUtility.h"
 
 void UFloorSubMode::Setup() {
-	//To-Do
+	bNewFloorStart = false;
+	CurrentFloorActor = nullptr;
+	SubModeState = EBuildingSubModeState::Free;
 }
 
 void UFloorSubMode::EnterSubMode() {
 	if (IsValid(PlayerController)) {
 		if (auto* LocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer())) {
 			LocalPlayerSubsystem->AddMappingContext(MappingContext, 0);
+
+			Setup();
 		}
 	}
 }
@@ -21,6 +26,10 @@ void UFloorSubMode::ExitSubMode() {
 	if (IsValid(PlayerController)) {
 		if (auto* LocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer())) {
 			LocalPlayerSubsystem->RemoveMappingContext(MappingContext);
+
+			if (IsValid(CurrentFloorActor) && CurrentFloorActor->GetState() == EBuildingActorState::Preview) {
+				CurrentFloorActor->Destroy();
+			}
 		}
 	}
 }
@@ -37,10 +46,88 @@ void UFloorSubMode::SetupInputComponent() {
 
 			MappingContext->MapKey(LeftMouseClickAction, EKeys::LeftMouseButton);
 			EIC->BindAction(LeftMouseClickAction, ETriggerEvent::Completed, this, &UFloorSubMode::HandleLeftMouseClick);
+
+			//R-Key
+			auto* RKeyPressAction = NewObject<UInputAction>(this);
+			RKeyPressAction->ValueType = EInputActionValueType::Boolean;
+
+			MappingContext->MapKey(RKeyPressAction, EKeys::R);
+			EIC->BindAction(RKeyPressAction, ETriggerEvent::Completed, this, &UFloorSubMode::HandleRKeyPress);
+
+			//M-Key
+			auto* MKeyPressAction = NewObject<UInputAction>(this);
+			MKeyPressAction->ValueType = EInputActionValueType::Boolean;
+
+			MappingContext->MapKey(MKeyPressAction, EKeys::M);
+			EIC->BindAction(MKeyPressAction, ETriggerEvent::Completed, this, &UFloorSubMode::HandleMKeyPress);
 		}
 	}
 }
 
 void UFloorSubMode::HandleLeftMouseClick() {
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Magenta, "Floor Left Clicked");
+	if (IsValid(FloorActorClass)) {
+
+		switch (SubModeState) {
+		case EBuildingSubModeState::Free:
+		{
+			FHitResult HitResult = GetHitResult();
+			HitResult.Location = ArchVizUtility::GetSnappedLocation(HitResult.Location);
+
+			if (HitResult.GetActor() && HitResult.GetActor()->IsA(AFloorActor::StaticClass())) {
+				CurrentFloorActor = Cast<AFloorActor>(HitResult.GetActor());
+				CurrentFloorActor->SetState(EBuildingActorState::Selected);
+				//To-Do Display Widget
+			}
+			else {
+				FActorSpawnParameters SpawnParams;
+				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+				CurrentFloorActor = GetWorld()->SpawnActor<AFloorActor>(FloorActorClass, SpawnParams);
+				CurrentFloorActor->GenerateFloor(FVector{100.0,100.0,0.0}, FVector{50.0,50.0,0.0});
+				CurrentFloorActor->SetState(EBuildingActorState::Preview);
+				SubModeState = EBuildingSubModeState::NewObject;
+				//To-Do Preview Material
+			}
+		}
+		break;
+		case EBuildingSubModeState::OldObject:
+			SubModeState = EBuildingSubModeState::Free;
+			CurrentFloorActor->SetState(EBuildingActorState::Selected);
+			break;
+		case EBuildingSubModeState::NewObject:
+			if (IsValid(CurrentFloorActor)) {
+
+				FHitResult HitResult = GetHitResult(TArray<AActor*> {CurrentFloorActor});
+				HitResult.Location = ArchVizUtility::GetSnappedLocation(HitResult.Location);
+
+				if (!bNewFloorStart) {
+					bNewFloorStart = true;
+
+					CurrentFloorActor->SetActorLocation(HitResult.Location);
+					CurrentFloorActor->SetStartPoint(HitResult.Location);
+					CurrentFloorActor->SetState(EBuildingActorState::Generating);
+				}
+				else {
+					bNewFloorStart = false;
+					CurrentFloorActor->SetEndPoint(HitResult.Location);
+					CurrentFloorActor->SetState(EBuildingActorState::Selected);
+					SubModeState = EBuildingSubModeState::Free;
+				}
+			}
+			break;
+		}
+	}
+}
+
+void UFloorSubMode::HandleRKeyPress() {
+	if (IsValid(CurrentFloorActor)) {
+		CurrentFloorActor->RotateActor(90.0);
+	}
+}
+
+void UFloorSubMode::HandleMKeyPress() {
+	if (IsValid(CurrentFloorActor)) {
+		CurrentFloorActor->SetState(EBuildingActorState::Moving);
+		SubModeState = EBuildingSubModeState::OldObject;
+	}
 }

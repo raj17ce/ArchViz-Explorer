@@ -6,6 +6,13 @@
 #include "UObject/NoExportTypes.h"
 #include "BuildingConstructionSubMode.generated.h"
 
+UENUM(BlueprintType)
+enum class EBuildingSubModeState : uint8 {
+	Free,
+	OldObject,
+	NewObject
+};
+
 class UInputMappingContext;
 class APlayerController;
 
@@ -33,4 +40,6 @@ protected:
 
 	UPROPERTY()
 	UInputMappingContext* MappingContext;
+
+	EBuildingSubModeState SubModeState;
 };
