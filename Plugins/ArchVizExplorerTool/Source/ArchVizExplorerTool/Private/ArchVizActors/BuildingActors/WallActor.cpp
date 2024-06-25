@@ -6,7 +6,7 @@
 #include "ArchVizActors/BuildingActors/DoorActor.h"
 
 // Sets default values
-AWallActor::AWallActor() : WallStaticMesh{nullptr} {
+AWallActor::AWallActor() : WallStaticMesh{nullptr}, DoorWallStaticMesh{nullptr} {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -14,7 +14,7 @@ AWallActor::AWallActor() : WallStaticMesh{nullptr} {
 	SetRootComponent(SceneComponent);
 	SceneComponent->SetMobility(EComponentMobility::Movable);
 
-	PrimaryActorTick.TickInterval = 0.3;
+	//PrimaryActorTick.TickInterval = 0.1;
 }
 
 void AWallActor::SetStartLocation(const FVector& NewStartLocation) {
@@ -34,15 +34,31 @@ const FVector& AWallActor::GetEndLocation() const {
 }
 
 void AWallActor::AttachDoorComponent(UPrimitiveComponent* Component, ADoorActor* DoorActor) {
-	if (UStaticMeshComponent* DoorComponent = Cast<UStaticMeshComponent>(Component)) {
-		int32 SegmentIndex = WallSegments.Find(Cast<UStaticMeshComponent>(DoorComponent));
+	if (auto* DoorComponent = Cast<UStaticMeshComponent>(Component)) {
+		int32 SegmentIndex = WallSegments.Find(DoorComponent);
 
 		if (SegmentIndex != INDEX_NONE) {
 			WallSegments[SegmentIndex]->SetStaticMesh(DoorWallStaticMesh);
+			DoorMapping.Add(SegmentIndex, DoorActor);
 
 			DoorActor->AttachToComponent(WallSegments[SegmentIndex], FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("DoorSocket"));
 		}
 	}
+}
+
+void AWallActor::DetachDoorComponent(ADoorActor* DoorActor) {
+	int32 SegmentIndex{-1};
+
+	if (DoorMapping.FindKey(DoorActor)) {
+		SegmentIndex = *(DoorMapping.FindKey(DoorActor));
+	}
+
+	if (SegmentIndex != -1) {
+		DoorActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		WallSegments[SegmentIndex]->SetStaticMesh(WallStaticMesh);
+	}
+
+	DoorMapping.Remove(SegmentIndex);
 }
 
 // Called when the game starts or when spawned
@@ -88,6 +104,25 @@ void AWallActor::GenerateWallSegments(double Length) {
 		}
 
 		WallMeshComponent->SetRelativeLocation(FVector{SegmentIndex * WallSize.X, 0, 0});
+	}
+
+	UpdateDoorSegments();
+}
+
+void AWallActor::UpdateDoorSegments() {
+	int32 NumberOfSegments = WallSegments.Num();
+	
+	for (const auto& [SegmentIndex, DoorActor] : DoorMapping) {
+		if (SegmentIndex >= NumberOfSegments) {
+			if (DoorMapping[SegmentIndex]) {
+				DoorMapping[SegmentIndex]->Destroy();
+			}
+			DoorMapping.Remove(SegmentIndex);
+		}
+		else {
+			WallSegments[SegmentIndex]->SetStaticMesh(DoorWallStaticMesh);
+			DoorMapping[SegmentIndex]->AttachToComponent(WallSegments[SegmentIndex], FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("DoorSocket"));
+		}
 	}
 }
 
@@ -158,18 +193,22 @@ void AWallActor::HandleMovingState() {
 void AWallActor::HandleEdgeOffset() {
 	FRotator ActorRotation = GetActorRotation();
 
-	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Magenta, ActorRotation.ToString());
+	double Offset{}; 
+
+	if (IsValid(WallStaticMesh)) {
+		Offset = (WallStaticMesh->GetBoundingBox().GetSize().Y / 2);
+	}
 
 	if (ActorRotation.Yaw >= -5 && ActorRotation.Yaw <= 5) {
-		SetActorLocation(FVector{ StartLocation.X + 10, StartLocation.Y, StartLocation.Z });
+		SetActorLocation(FVector{ StartLocation.X + Offset, StartLocation.Y, StartLocation.Z });
 	}
 	else if (ActorRotation.Yaw >= 85 && ActorRotation.Yaw <= 95) {
-		SetActorLocation(FVector{ StartLocation.X, StartLocation.Y + 10, StartLocation.Z });
+		SetActorLocation(FVector{ StartLocation.X, StartLocation.Y + Offset, StartLocation.Z });
 	}
 	else if (ActorRotation.Yaw >= 175 && ActorRotation.Yaw <= 185) {
-		SetActorLocation(FVector{ StartLocation.X - 10, StartLocation.Y, StartLocation.Z });
+		SetActorLocation(FVector{ StartLocation.X - Offset, StartLocation.Y, StartLocation.Z });
 	}
 	else if (ActorRotation.Yaw >= -95 && ActorRotation.Yaw <= -85) {
-		SetActorLocation(FVector{ StartLocation.X, StartLocation.Y - 10, StartLocation.Z });
+		SetActorLocation(FVector{ StartLocation.X, StartLocation.Y - Offset, StartLocation.Z });
 	}
 }

@@ -22,7 +22,6 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	void OnConstruction(const FTransform& Transform);
 	virtual void Tick(float DeltaTime) override;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Door")
@@ -32,7 +31,6 @@ protected:
 	UStaticMesh* DoorStaticMesh;
 
 private:
-
 	UPROPERTY()
 	USceneComponent* SceneComponent;
 
@@ -43,6 +41,5 @@ private:
 	UStaticMeshComponent* DoorComponent;
 
 	void HandlePreviewState();
-	void HandleGeneratingState();
 	void HandleMovingState();
 };

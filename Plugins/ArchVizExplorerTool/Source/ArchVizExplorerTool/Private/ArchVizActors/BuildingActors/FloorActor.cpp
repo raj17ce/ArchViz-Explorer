@@ -17,7 +17,7 @@ AFloorActor::AFloorActor() {
 	FloorMeshComponent = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("Floor Mesh Component"));
 	FloorMeshComponent->SetupAttachment(SceneComponent);
 
-	PrimaryActorTick.TickInterval = 0.3;
+	//PrimaryActorTick.TickInterval = 0.1;
 }
 
 void AFloorActor::SetStartPoint(const FVector& NewStartPoint) {
@@ -77,9 +77,9 @@ void AFloorActor::HandleGeneratingState() {
 	double XDistance = EndPoint.X - StartPoint.X;
 	double YDistance = EndPoint.Y - StartPoint.Y;
 
-	FVector Dimensions{abs(XDistance), abs(YDistance), 10};
+	FVector Dimensions{abs(XDistance), abs(YDistance), 5};
 
-	FVector Offset{ XDistance/2, YDistance/2, 0.0};
+	FVector Offset{ XDistance/2, YDistance/2, 2.5 };
 
 	GenerateFloor(Dimensions, Offset);
 }

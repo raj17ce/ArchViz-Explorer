@@ -32,6 +32,10 @@ private:
 	void HandleRKeyPress();
 	void HandleMKeyPress();
 
+	void HandleFreeState();
+	void HandleOldObjectState();
+	void HandleNewObjectState();
+
 	UPROPERTY()
 	AFloorActor* CurrentFloorActor;
 

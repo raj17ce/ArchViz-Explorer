@@ -79,51 +79,13 @@ void UWallSubMode::HandleLeftMouseClick() {
 	
 		switch (SubModeState) {
 		case EBuildingSubModeState::Free:
-		{
-			FHitResult HitResult = GetHitResult();
-			HitResult.Location = ArchVizUtility::GetSnappedLocation(HitResult.Location);
-
-			if (HitResult.GetActor() && HitResult.GetActor()->IsA(AWallActor::StaticClass())) {
-				CurrentWallActor = Cast<AWallActor>(HitResult.GetActor());
-				CurrentWallActor->SetState(EBuildingActorState::Selected);
-				//To-Do Display Widget
-			}
-			else {
-				FActorSpawnParameters SpawnParams;
-				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-				CurrentWallActor = GetWorld()->SpawnActor<AWallActor>(WallActorClass, SpawnParams);
-				CurrentWallActor->GenerateWallSegments();
-				CurrentWallActor->SetState(EBuildingActorState::Preview);
-				SubModeState = EBuildingSubModeState::NewObject;
-				//To-Do Preview Material
-			}
-		}
+			HandleFreeState();
 			break;
 		case EBuildingSubModeState::OldObject:
-			SubModeState = EBuildingSubModeState::Free;
-			CurrentWallActor->SetState(EBuildingActorState::Selected);
+			HandleOldObjectState();
 			break;
 		case EBuildingSubModeState::NewObject:
-			if (IsValid(CurrentWallActor)) {
-
-				FHitResult HitResult = GetHitResult(TArray<AActor*> {CurrentWallActor});
-				HitResult.Location = ArchVizUtility::GetSnappedLocation(HitResult.Location);
-
-				if (!bNewWallStart) {
-					bNewWallStart = true;
-
-					CurrentWallActor->SetActorLocation(HitResult.Location);
-					CurrentWallActor->SetStartLocation(HitResult.Location);
-					CurrentWallActor->SetState(EBuildingActorState::Generating);
-				}
-				else {
-					bNewWallStart = false;
-					CurrentWallActor->SetEndLocation(HitResult.Location);
-					CurrentWallActor->SetState(EBuildingActorState::Selected);
-					SubModeState = EBuildingSubModeState::Free;
-				}
-			}
+			HandleNewObjectState();
 			break;
 		}
 	}
@@ -140,5 +102,52 @@ void UWallSubMode::HandleMKeyPress() {
 	if (IsValid(CurrentWallActor)) {
 		CurrentWallActor->SetState(EBuildingActorState::Moving);
 		SubModeState = EBuildingSubModeState::OldObject;
+	}
+}
+
+void UWallSubMode::HandleFreeState() {
+	FHitResult HitResult = GetHitResult();
+
+	if (HitResult.GetActor() && HitResult.GetActor()->IsA(AWallActor::StaticClass())) {
+		CurrentWallActor = Cast<AWallActor>(HitResult.GetActor());
+		CurrentWallActor->SetState(EBuildingActorState::Selected);
+		//To-Do Display Widget
+	}
+	else {
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		CurrentWallActor = GetWorld()->SpawnActor<AWallActor>(WallActorClass, SpawnParams);
+		CurrentWallActor->GenerateWallSegments();
+		CurrentWallActor->SetState(EBuildingActorState::Preview);
+		SubModeState = EBuildingSubModeState::NewObject;
+		//To-Do Preview Material
+	}
+}
+
+void UWallSubMode::HandleOldObjectState() {
+	SubModeState = EBuildingSubModeState::Free;
+	CurrentWallActor->SetState(EBuildingActorState::Selected);
+}
+
+void UWallSubMode::HandleNewObjectState() {
+	if (IsValid(CurrentWallActor)) {
+
+		FHitResult HitResult = GetHitResult(TArray<AActor*> {CurrentWallActor});
+		HitResult.Location = ArchVizUtility::GetSnappedLocation(HitResult.Location);
+
+		if (!bNewWallStart) {
+			bNewWallStart = true;
+
+			CurrentWallActor->SetActorLocation(HitResult.Location);
+			CurrentWallActor->SetStartLocation(HitResult.Location);
+			CurrentWallActor->SetState(EBuildingActorState::Generating);
+		}
+		else {
+			bNewWallStart = false;
+			CurrentWallActor->SetEndLocation(HitResult.Location);
+			CurrentWallActor->SetState(EBuildingActorState::Selected);
+			SubModeState = EBuildingSubModeState::Free;
+		}
 	}
 }

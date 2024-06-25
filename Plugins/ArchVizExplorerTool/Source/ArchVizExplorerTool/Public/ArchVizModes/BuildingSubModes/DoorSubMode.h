@@ -33,6 +33,9 @@ private:
 	void HandleMKeyPress();
 	void HandleOKeyPress();
 
+	void HandleFreeState();
+	void HandleNewObjectState();
+
 	UPROPERTY()
 	ADoorActor* CurrentDoorActor;
 };

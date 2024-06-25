@@ -17,15 +17,12 @@ ADoorActor::ADoorActor() : DoorFrameStaticMesh{nullptr}, DoorStaticMesh{nullptr}
 
 	DoorComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Door Component"));
 	DoorComponent->SetupAttachment(DoorFrameComponent, TEXT("Door"));
+
+	//PrimaryActorTick.TickInterval = 0.1;
 }
 
 void ADoorActor::BeginPlay() {
 	Super::BeginPlay();
-
-}
-
-void ADoorActor::OnConstruction(const FTransform& Transform) {
-	Super::OnConstruction(Transform);
 
 	if (DoorFrameStaticMesh && DoorStaticMesh) {
 		DoorFrameComponent->SetStaticMesh(DoorFrameStaticMesh);
@@ -46,31 +43,19 @@ void ADoorActor::Tick(float DeltaTime) {
 
 void ADoorActor::HandlePreviewState() {
 	FHitResult HitResult = GetHitResult(TArray<AActor*>{this});
-	//HitResult.Location = ArchVizUtility::GetSnappedLocation(HitResult.Location);
 
-	if (HitResult.GetActor() && HitResult.GetActor()->IsA(AWallActor::StaticClass())) {
+	if (IsValid(HitResult.GetActor()) && HitResult.GetActor()->IsA(AWallActor::StaticClass())) {
 		SetActorRotation(HitResult.GetActor()->GetActorRotation());
-
-		// TODO - Replace Static Mesh and Attach to Socket
-		//AWallActor* WallActor = Cast<AWallActor>(HitResult.GetActor());
 	}
 
 	SetActorLocation(HitResult.Location);
 }
 
-void ADoorActor::HandleGeneratingState() {
-
-}
-
 void ADoorActor::HandleMovingState() {
 	FHitResult HitResult = GetHitResult(TArray<AActor*>{this});
-	//HitResult.Location = ArchVizUtility::GetSnappedLocation(HitResult.Location);
 
-	if (HitResult.GetActor() && HitResult.GetActor()->IsA(AWallActor::StaticClass())) {
+	if (IsValid(HitResult.GetActor()) && HitResult.GetActor()->IsA(AWallActor::StaticClass())) {
 		SetActorRotation(HitResult.GetActor()->GetActorRotation());
-
-		// TODO - Replace Static Mesh and Attach to Socket
-		//AWallActor* WallActor = Cast<AWallActor>(HitResult.GetActor());
 	}
 
 	SetActorLocation(HitResult.Location);

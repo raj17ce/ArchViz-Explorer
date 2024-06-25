@@ -26,6 +26,7 @@ public:
 	const FVector& GetEndLocation() const;
 
 	void AttachDoorComponent(UPrimitiveComponent* Component, ADoorActor* DoorActor);
+	void DetachDoorComponent(ADoorActor* DoorActor);
 
 	UPROPERTY()
 	TArray<UStaticMeshComponent*> WallSegments;
@@ -47,7 +48,10 @@ private:
 	FVector StartLocation;
 	FVector EndLocation;
 
+	TMap<int32, ADoorActor*> DoorMapping;
+
 	void GenerateWallSegments(double Length = 0.0);
+	void UpdateDoorSegments();
 	void DestroyWallSegments();
 
 	void HandlePreviewState();

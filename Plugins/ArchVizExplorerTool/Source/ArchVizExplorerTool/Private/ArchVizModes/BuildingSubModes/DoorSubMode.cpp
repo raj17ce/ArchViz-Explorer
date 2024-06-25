@@ -85,46 +85,13 @@ void UDoorSubMode::HandleLeftMouseClick() {
 
 		switch (SubModeState) {
 		case EBuildingSubModeState::Free:
-		{
-			FHitResult HitResult = GetHitResult();
-			//HitResult.Location = ArchVizUtility::GetSnappedLocation(HitResult.Location);
-
-			if (HitResult.GetActor() && HitResult.GetActor()->IsA(ADoorActor::StaticClass())) {
-				CurrentDoorActor = Cast<ADoorActor>(HitResult.GetActor());
-				CurrentDoorActor->SetState(EBuildingActorState::Selected);
-				//To-Do Display Widget
-			}
-			else {
-				FActorSpawnParameters SpawnParams;
-				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-				CurrentDoorActor = GetWorld()->SpawnActor<ADoorActor>(DoorActorClass, SpawnParams);
-				CurrentDoorActor->SetState(EBuildingActorState::Preview);
-				SubModeState = EBuildingSubModeState::NewObject;
-				//To-Do Preview Material
-			}
-		}
+			HandleFreeState();
 			break;
 		case EBuildingSubModeState::OldObject:
-			SubModeState = EBuildingSubModeState::Free;
-			CurrentDoorActor->SetState(EBuildingActorState::Selected);
-			break;
+			//Handling Logic for OldObject and NewObject is Same
+			[[fallthrough]];
 		case EBuildingSubModeState::NewObject:
-			if (IsValid(CurrentDoorActor)) {
-
-				FHitResult HitResult = GetHitResult(TArray<AActor*> {CurrentDoorActor});
-				//HitResult.Location = ArchVizUtility::GetSnappedLocation(HitResult.Location);
-
-				if (HitResult.GetActor() && HitResult.GetActor()->IsA(AWallActor::StaticClass())) {
-					AWallActor* WallActor = Cast<AWallActor>(HitResult.GetActor());
-
-					if (IsValid(WallActor) && HitResult.GetComponent()) {
-						CurrentDoorActor->SetState(EBuildingActorState::Selected);
-						WallActor->AttachDoorComponent(HitResult.GetComponent(), CurrentDoorActor);
-						SubModeState = EBuildingSubModeState::Free;
-					}
-				}
-			}
+			HandleNewObjectState();
 			break;
 		}
 	}
@@ -138,6 +105,10 @@ void UDoorSubMode::HandleRKeyPress() {
 
 void UDoorSubMode::HandleMKeyPress() {
 	if (IsValid(CurrentDoorActor)) {
+		if (auto* WallActor = Cast<AWallActor>(CurrentDoorActor->GetAttachParentActor())) {
+			WallActor->DetachDoorComponent(CurrentDoorActor);
+		}
+
 		CurrentDoorActor->SetState(EBuildingActorState::Moving);
 		SubModeState = EBuildingSubModeState::OldObject;
 	}
@@ -150,6 +121,43 @@ void UDoorSubMode::HandleOKeyPress() {
 		}
 		else {
 			CurrentDoorActor->DoorComponent->SetRelativeRotation(FRotator{ 0.0 });
+		}
+	}
+}
+
+void UDoorSubMode::HandleFreeState() {
+	FHitResult HitResult = GetHitResult();
+
+	if (HitResult.GetActor() && HitResult.GetActor()->IsA(ADoorActor::StaticClass())) {
+		CurrentDoorActor = Cast<ADoorActor>(HitResult.GetActor());
+		CurrentDoorActor->SetState(EBuildingActorState::Selected);
+		//To-Do Display Widget
+	}
+	else {
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		CurrentDoorActor = GetWorld()->SpawnActor<ADoorActor>(DoorActorClass, SpawnParams);
+		CurrentDoorActor->SetState(EBuildingActorState::Preview);
+		SubModeState = EBuildingSubModeState::NewObject;
+		//To-Do Preview Material
+	}
+}
+
+void UDoorSubMode::HandleNewObjectState() {
+	if (IsValid(CurrentDoorActor)) {
+
+		FHitResult HitResult = GetHitResult(TArray<AActor*> {CurrentDoorActor});
+		//HitResult.Location = ArchVizUtility::GetSnappedLocation(HitResult.Location);
+
+		if (HitResult.GetActor() && HitResult.GetActor()->IsA(AWallActor::StaticClass())) {
+			AWallActor* WallActor = Cast<AWallActor>(HitResult.GetActor());
+
+			if (IsValid(WallActor) && HitResult.GetComponent()) {
+				CurrentDoorActor->SetState(EBuildingActorState::Selected);
+				WallActor->AttachDoorComponent(HitResult.GetComponent(), CurrentDoorActor);
+				SubModeState = EBuildingSubModeState::Free;
+			}
 		}
 	}
 }

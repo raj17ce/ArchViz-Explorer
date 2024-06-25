@@ -77,51 +77,13 @@ void UFloorSubMode::HandleLeftMouseClick() {
 
 		switch (SubModeState) {
 		case EBuildingSubModeState::Free:
-		{
-			FHitResult HitResult = GetHitResult();
-			HitResult.Location = ArchVizUtility::GetSnappedLocation(HitResult.Location);
-
-			if (HitResult.GetActor() && HitResult.GetActor()->IsA(AFloorActor::StaticClass())) {
-				CurrentFloorActor = Cast<AFloorActor>(HitResult.GetActor());
-				CurrentFloorActor->SetState(EBuildingActorState::Selected);
-				//To-Do Display Widget
-			}
-			else {
-				FActorSpawnParameters SpawnParams;
-				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-				CurrentFloorActor = GetWorld()->SpawnActor<AFloorActor>(FloorActorClass, SpawnParams);
-				CurrentFloorActor->GenerateFloor(FVector{100.0,100.0,0.0}, FVector{50.0,50.0,0.0});
-				CurrentFloorActor->SetState(EBuildingActorState::Preview);
-				SubModeState = EBuildingSubModeState::NewObject;
-				//To-Do Preview Material
-			}
-		}
+			HandleFreeState();
 		break;
 		case EBuildingSubModeState::OldObject:
-			SubModeState = EBuildingSubModeState::Free;
-			CurrentFloorActor->SetState(EBuildingActorState::Selected);
+			HandleOldObjectState();
 			break;
 		case EBuildingSubModeState::NewObject:
-			if (IsValid(CurrentFloorActor)) {
-
-				FHitResult HitResult = GetHitResult(TArray<AActor*> {CurrentFloorActor});
-				HitResult.Location = ArchVizUtility::GetSnappedLocation(HitResult.Location);
-
-				if (!bNewFloorStart) {
-					bNewFloorStart = true;
-
-					CurrentFloorActor->SetActorLocation(HitResult.Location);
-					CurrentFloorActor->SetStartPoint(HitResult.Location);
-					CurrentFloorActor->SetState(EBuildingActorState::Generating);
-				}
-				else {
-					bNewFloorStart = false;
-					CurrentFloorActor->SetEndPoint(HitResult.Location);
-					CurrentFloorActor->SetState(EBuildingActorState::Selected);
-					SubModeState = EBuildingSubModeState::Free;
-				}
-			}
+			HandleNewObjectState();
 			break;
 		}
 	}
@@ -137,5 +99,51 @@ void UFloorSubMode::HandleMKeyPress() {
 	if (IsValid(CurrentFloorActor)) {
 		CurrentFloorActor->SetState(EBuildingActorState::Moving);
 		SubModeState = EBuildingSubModeState::OldObject;
+	}
+}
+
+void UFloorSubMode::HandleFreeState() {
+	FHitResult HitResult = GetHitResult();
+
+	if (HitResult.GetActor() && HitResult.GetActor()->IsA(AFloorActor::StaticClass())) {
+		CurrentFloorActor = Cast<AFloorActor>(HitResult.GetActor());
+		CurrentFloorActor->SetState(EBuildingActorState::Selected);
+		//To-Do Display Widget
+	}
+	else {
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		CurrentFloorActor = GetWorld()->SpawnActor<AFloorActor>(FloorActorClass, SpawnParams);
+		CurrentFloorActor->GenerateFloor(FVector{ 100.0,100.0,0.0 }, FVector{ 50.0,50.0,0.0 });
+		CurrentFloorActor->SetState(EBuildingActorState::Preview);
+		SubModeState = EBuildingSubModeState::NewObject;
+		//To-Do Preview Material
+	}
+}
+
+void UFloorSubMode::HandleOldObjectState() {
+	SubModeState = EBuildingSubModeState::Free;
+	CurrentFloorActor->SetState(EBuildingActorState::Selected);
+}
+
+void UFloorSubMode::HandleNewObjectState() {
+	if (IsValid(CurrentFloorActor)) {
+
+		FHitResult HitResult = GetHitResult(TArray<AActor*> {CurrentFloorActor});
+		HitResult.Location = ArchVizUtility::GetSnappedLocation(HitResult.Location);
+
+		if (!bNewFloorStart) {
+			bNewFloorStart = true;
+			CurrentFloorActor->SetActorLocation(HitResult.Location);
+			CurrentFloorActor->SetStartPoint(HitResult.Location);
+			CurrentFloorActor->SetState(EBuildingActorState::Generating);
+		}
+		else {
+			bNewFloorStart = false;
+			CurrentFloorActor->SetEndPoint(HitResult.Location);
+			CurrentFloorActor->SetState(EBuildingActorState::Selected);
+			SubModeState = EBuildingSubModeState::Free;
+		}
 	}
 }
