@@ -6,6 +6,7 @@
 #include "UObject/NoExportTypes.h"
 #include "BuildingConstructionSubmode.h"
 #include "InputMappingContext.h"
+#include "ArchVizActors/BuildingActors/DoorActor.h"
 #include "DoorSubMode.generated.h"
 
 /**
@@ -17,10 +18,21 @@ class ARCHVIZEXPLORERTOOL_API UDoorSubMode : public UBuildingConstructionSubMode
 
 public:
 	virtual void Setup() override;
+	virtual void Cleanup() override;
 	virtual void EnterSubMode() override;
 	virtual void ExitSubMode() override;
 	virtual void SetupInputComponent() override;
 
+protected:
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ADoorActor> DoorActorClass;
+
 private:
 	void HandleLeftMouseClick();
+	void HandleRKeyPress();
+	void HandleMKeyPress();
+	void HandleOKeyPress();
+
+	UPROPERTY()
+	ADoorActor* CurrentDoorActor;
 };

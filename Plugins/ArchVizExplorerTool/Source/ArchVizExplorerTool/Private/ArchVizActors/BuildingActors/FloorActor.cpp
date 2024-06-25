@@ -16,6 +16,8 @@ AFloorActor::AFloorActor() {
 
 	FloorMeshComponent = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("Floor Mesh Component"));
 	FloorMeshComponent->SetupAttachment(SceneComponent);
+
+	PrimaryActorTick.TickInterval = 0.3;
 }
 
 void AFloorActor::SetStartPoint(const FVector& NewStartPoint) {
@@ -65,6 +67,11 @@ void AFloorActor::HandlePreviewState() {
 void AFloorActor::HandleGeneratingState() {
 	FHitResult HitResult = GetHitResult(TArray<AActor*>{this});
 	HitResult.Location = ArchVizUtility::GetSnappedLocation(HitResult.Location);
+
+	if (EndPoint == HitResult.Location) {
+		return;
+	}
+
 	SetEndPoint(HitResult.Location);
 
 	double XDistance = EndPoint.X - StartPoint.X;

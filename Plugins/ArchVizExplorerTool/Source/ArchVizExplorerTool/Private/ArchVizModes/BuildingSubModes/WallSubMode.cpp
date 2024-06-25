@@ -12,6 +12,17 @@ void UWallSubMode::Setup() {
 	SubModeState = EBuildingSubModeState::Free;
 }
 
+void UWallSubMode::Cleanup() {
+	if (IsValid(CurrentWallActor)) {
+		if ((CurrentWallActor->GetState() == EBuildingActorState::Preview) || (CurrentWallActor->GetState() == EBuildingActorState::Generating)) {
+			CurrentWallActor->Destroy();
+		}
+		else if (CurrentWallActor->GetState() == EBuildingActorState::Moving) {
+			CurrentWallActor->SetState(EBuildingActorState::Selected);
+		}
+	}
+}
+
 void UWallSubMode::EnterSubMode() {
 	if (IsValid(PlayerController)) {
 		if (auto* LocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer())) {
@@ -27,9 +38,7 @@ void UWallSubMode::ExitSubMode() {
 		if (auto* LocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer())) {
 			LocalPlayerSubsystem->RemoveMappingContext(MappingContext);
 
-			if (IsValid(CurrentWallActor) && CurrentWallActor->GetState() == EBuildingActorState::Preview) {
-				CurrentWallActor->Destroy();
-			}
+			Cleanup();
 		}
 	}
 }

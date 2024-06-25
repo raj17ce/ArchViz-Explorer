@@ -12,6 +12,17 @@ void UFloorSubMode::Setup() {
 	SubModeState = EBuildingSubModeState::Free;
 }
 
+void UFloorSubMode::Cleanup() {
+	if (IsValid(CurrentFloorActor)) {
+		if ((CurrentFloorActor->GetState() == EBuildingActorState::Preview) || (CurrentFloorActor->GetState() == EBuildingActorState::Generating)) {
+			CurrentFloorActor->Destroy();
+		}
+		else if (CurrentFloorActor->GetState() == EBuildingActorState::Moving) {
+			CurrentFloorActor->SetState(EBuildingActorState::Selected);
+		}
+	}
+}
+
 void UFloorSubMode::EnterSubMode() {
 	if (IsValid(PlayerController)) {
 		if (auto* LocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer())) {
@@ -26,10 +37,7 @@ void UFloorSubMode::ExitSubMode() {
 	if (IsValid(PlayerController)) {
 		if (auto* LocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer())) {
 			LocalPlayerSubsystem->RemoveMappingContext(MappingContext);
-
-			if (IsValid(CurrentFloorActor) && CurrentFloorActor->GetState() == EBuildingActorState::Preview) {
-				CurrentFloorActor->Destroy();
-			}
+			Cleanup();
 		}
 	}
 }

@@ -7,6 +7,8 @@
 #include "ArchVizActors/BuildingActor.h"
 #include "WallActor.generated.h"
 
+class ADoorActor;
+
 UCLASS()
 class ARCHVIZEXPLORERTOOL_API AWallActor : public ABuildingActor {
 	GENERATED_BODY()
@@ -23,6 +25,8 @@ public:
 	void SetEndLocation(const FVector& NewEndLocation);
 	const FVector& GetEndLocation() const;
 
+	void AttachDoorComponent(UPrimitiveComponent* Component, ADoorActor* DoorActor);
+
 	UPROPERTY()
 	TArray<UStaticMeshComponent*> WallSegments;
 
@@ -31,6 +35,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Wall")
 	UStaticMesh* WallStaticMesh;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Wall")
+	UStaticMesh* DoorWallStaticMesh;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

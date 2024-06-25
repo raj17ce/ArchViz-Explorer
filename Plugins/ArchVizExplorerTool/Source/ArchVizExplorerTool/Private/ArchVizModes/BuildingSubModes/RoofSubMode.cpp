@@ -9,6 +9,10 @@ void URoofSubMode::Setup() {
 	//To-Do
 }
 
+void URoofSubMode::Cleanup() {
+	//To-Do
+}
+
 void URoofSubMode::EnterSubMode() {
 	if (IsValid(PlayerController)) {
 		if (auto* LocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer())) {

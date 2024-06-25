@@ -3,6 +3,7 @@
 
 #include "ArchVizActors/BuildingActors/WallActor.h"
 #include "ArchVizUtility.h"
+#include "ArchVizActors/BuildingActors/DoorActor.h"
 
 // Sets default values
 AWallActor::AWallActor() : WallStaticMesh{nullptr} {
@@ -30,6 +31,18 @@ void AWallActor::SetEndLocation(const FVector& NewEndLocation) {
 
 const FVector& AWallActor::GetEndLocation() const {
 	return EndLocation;
+}
+
+void AWallActor::AttachDoorComponent(UPrimitiveComponent* Component, ADoorActor* DoorActor) {
+	if (UStaticMeshComponent* DoorComponent = Cast<UStaticMeshComponent>(Component)) {
+		int32 SegmentIndex = WallSegments.Find(Cast<UStaticMeshComponent>(DoorComponent));
+
+		if (SegmentIndex != INDEX_NONE) {
+			WallSegments[SegmentIndex]->SetStaticMesh(DoorWallStaticMesh);
+
+			DoorActor->AttachToComponent(WallSegments[SegmentIndex], FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("DoorSocket"));
+		}
+	}
 }
 
 // Called when the game starts or when spawned
@@ -97,6 +110,11 @@ void AWallActor::HandlePreviewState() {
 void AWallActor::HandleGeneratingState() {
 	FHitResult HitResult = GetHitResult(TArray<AActor*>{this});
 	HitResult.Location = ArchVizUtility::GetSnappedLocation(HitResult.Location);
+
+	if (EndLocation == HitResult.Location) {
+		return;
+	}
+
 	SetEndLocation(HitResult.Location);
 
 	double XDistance = EndLocation.X - StartLocation.X;

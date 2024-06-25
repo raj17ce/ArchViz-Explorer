@@ -26,6 +26,7 @@ class ARCHVIZEXPLORERTOOL_API UBuildingConstructionSubMode : public UObject {
 public:
 	//Pure-Virtual
 	virtual void Setup() PURE_VIRTUAL(UArchVizMode::Setup, );
+	virtual void Cleanup() PURE_VIRTUAL(UArchVizMode::Cleanup, );
 	virtual void EnterSubMode() PURE_VIRTUAL(UArchVizMode::EnterSubMode, );
 	virtual void ExitSubMode() PURE_VIRTUAL(UArchVizMode::ExitSubMode, );
 	virtual void SetupInputComponent() PURE_VIRTUAL(UArchVizMode::SetupInputComponent, );

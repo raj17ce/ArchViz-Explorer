@@ -17,6 +17,7 @@ class ARCHVIZEXPLORERTOOL_API URoofSubMode : public UBuildingConstructionSubMode
 
 public:
 	virtual void Setup() override;
+	virtual void Cleanup() override;
 	virtual void EnterSubMode() override;
 	virtual void ExitSubMode() override;
 	virtual void SetupInputComponent() override;
