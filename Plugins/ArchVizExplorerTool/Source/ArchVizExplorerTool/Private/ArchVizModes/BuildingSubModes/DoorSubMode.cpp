@@ -99,7 +99,7 @@ void UDoorSubMode::HandleLeftMouseClick() {
 
 void UDoorSubMode::HandleRKeyPress() {
 	if (IsValid(CurrentDoorActor)) {
-		CurrentDoorActor->RotateActor(90.0);
+		CurrentDoorActor->RotateActor(180.0);
 	}
 }
 

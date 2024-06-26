@@ -6,6 +6,7 @@
 #include "UObject/NoExportTypes.h"
 #include "BuildingConstructionSubmode.h"
 #include "InputMappingContext.h"
+#include "ArchVizActors/BuildingActors/RoofActor.h"
 #include "RoofSubMode.generated.h"
 
 /**
@@ -22,6 +23,21 @@ public:
 	virtual void ExitSubMode() override;
 	virtual void SetupInputComponent() override;
 
+protected:
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ARoofActor> RoofActorClass;
+
 private:
 	void HandleLeftMouseClick();
+	void HandleRKeyPress();
+	void HandleMKeyPress();
+
+	void HandleFreeState();
+	void HandleOldObjectState();
+	void HandleNewObjectState();
+
+	UPROPERTY()
+	ARoofActor* CurrentRoofActor;
+
+	bool bNewRoofStart;
 };

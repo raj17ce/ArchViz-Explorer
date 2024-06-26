@@ -115,7 +115,7 @@ void UFloorSubMode::HandleFreeState() {
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 		CurrentFloorActor = GetWorld()->SpawnActor<AFloorActor>(FloorActorClass, SpawnParams);
-		CurrentFloorActor->GenerateFloor(FVector{ 100.0,100.0,0.0 }, FVector{ 50.0,50.0,0.0 });
+		CurrentFloorActor->GenerateFloor(FVector{ 100.0,100.0, 2.0 }, FVector{ 50.0,50.0, 1.0});
 		CurrentFloorActor->SetState(EBuildingActorState::Preview);
 		SubModeState = EBuildingSubModeState::NewObject;
 		//To-Do Preview Material
