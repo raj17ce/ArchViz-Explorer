@@ -19,7 +19,7 @@ ARoofActor::ARoofActor() {
 
 	RoofMeshComponent->ContainsPhysicsTriMeshData(true);
 	RoofMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	RoofMeshComponent->SetCollisionObjectType(ECC_WorldStatic);
+	RoofMeshComponent->SetCollisionObjectType(ECC_WorldDynamic);
 	RoofMeshComponent->SetCollisionResponseToAllChannels(ECR_Block);
 	//RoofMeshComponent->SetCollisionProfileName(UCollisionProfile::BlockAllDynamic_ProfileName);
 

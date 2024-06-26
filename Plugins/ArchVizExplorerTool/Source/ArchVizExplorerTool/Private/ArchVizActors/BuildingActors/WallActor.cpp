@@ -64,6 +64,11 @@ void AWallActor::DetachDoorComponent(ADoorActor* DoorActor) {
 // Called when the game starts or when spawned
 void AWallActor::BeginPlay() {
 	Super::BeginPlay();
+
+	if (IsValid(PropertyPanelWidgetClass)) {
+		PropertyPanelWidget = CreateWidget<UPropertyPanelWidget>(GetWorld(), PropertyPanelWidgetClass);
+		PropertyPanelWidget->PropertyWidgetSwitcher->SetActiveWidgetIndex(0);
+	}
 }
 
 // Called every frame
@@ -210,5 +215,19 @@ void AWallActor::HandleEdgeOffset() {
 	}
 	else if (ActorRotation.Yaw >= -95 && ActorRotation.Yaw <= -85) {
 		SetActorLocation(FVector{ StartLocation.X, StartLocation.Y - Offset, StartLocation.Z });
+	}
+}
+
+void AWallActor::UpdateLengthSpinBoxValue() {
+	double XDistance = EndLocation.X - StartLocation.X;
+	double YDistance = EndLocation.Y - StartLocation.Y;
+
+	if (IsValid(PropertyPanelWidget)) {
+		if (abs(XDistance) >= abs(YDistance)) {
+			PropertyPanelWidget->WallLengthSpinbox->SetValue(abs(XDistance));
+		}
+		else {
+			PropertyPanelWidget->WallLengthSpinbox->SetValue(abs(YDistance));
+		}
 	}
 }

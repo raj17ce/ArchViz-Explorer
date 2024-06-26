@@ -17,9 +17,8 @@ void UDoorSubMode::Cleanup() {
 		if ((CurrentDoorActor->GetState() == EBuildingActorState::Preview)) {
 			CurrentDoorActor->Destroy();
 		}
-		else if (CurrentDoorActor->GetState() == EBuildingActorState::Moving) {
-			CurrentDoorActor->SetState(EBuildingActorState::Selected);
-		}
+		CurrentDoorActor->SetState(EBuildingActorState::None);
+		CurrentDoorActor = nullptr;
 	}
 }
 
@@ -128,19 +127,27 @@ void UDoorSubMode::HandleOKeyPress() {
 void UDoorSubMode::HandleFreeState() {
 	FHitResult HitResult = GetHitResult();
 
+	if (IsValid(CurrentDoorActor)) {
+		CurrentDoorActor->SetState(EBuildingActorState::None);
+		CurrentDoorActor = nullptr;
+	}
+
 	if (HitResult.GetActor() && HitResult.GetActor()->IsA(ADoorActor::StaticClass())) {
 		CurrentDoorActor = Cast<ADoorActor>(HitResult.GetActor());
 		CurrentDoorActor->SetState(EBuildingActorState::Selected);
 		//To-Do Display Widget
 	}
 	else {
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		if (DoorActorClass) {
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-		CurrentDoorActor = GetWorld()->SpawnActor<ADoorActor>(DoorActorClass, SpawnParams);
-		CurrentDoorActor->SetState(EBuildingActorState::Preview);
-		SubModeState = EBuildingSubModeState::NewObject;
-		//To-Do Preview Material
+			CurrentDoorActor = GetWorld()->SpawnActor<ADoorActor>(DoorActorClass, SpawnParams);
+			BindWidgetDelegates();
+			CurrentDoorActor->SetState(EBuildingActorState::Preview);
+			SubModeState = EBuildingSubModeState::NewObject;
+			//To-Do Preview Material
+		}
 	}
 }
 
@@ -159,5 +166,48 @@ void UDoorSubMode::HandleNewObjectState() {
 				SubModeState = EBuildingSubModeState::Free;
 			}
 		}
+	}
+}
+
+void UDoorSubMode::BindWidgetDelegates() {
+	if (IsValid(CurrentDoorActor) && IsValid(CurrentDoorActor->PropertyPanelWidget)) {
+		CurrentDoorActor->PropertyPanelWidget->DoorNewButton->OnClicked.AddDynamic(this, &UDoorSubMode::HandleDoorNewButtonClick);
+		CurrentDoorActor->PropertyPanelWidget->DoorDeleteButton->OnClicked.AddDynamic(this, &UDoorSubMode::HandleDoorDeleteButtonClick);
+		CurrentDoorActor->PropertyPanelWidget->DoorCloseButton->OnClicked.AddDynamic(this, &UDoorSubMode::HandleDoorCloseButtonClick);
+	}
+}
+
+void UDoorSubMode::HandleDoorNewButtonClick() {
+	if (IsValid(CurrentDoorActor)) {
+		CurrentDoorActor->SetState(EBuildingActorState::None);
+		CurrentDoorActor = nullptr;
+
+		if (IsValid(DoorActorClass)) {
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+			CurrentDoorActor = GetWorld()->SpawnActor<ADoorActor>(DoorActorClass, SpawnParams);
+			BindWidgetDelegates();
+			CurrentDoorActor->SetState(EBuildingActorState::Preview);
+			SubModeState = EBuildingSubModeState::NewObject;
+		}
+	}
+}
+
+void UDoorSubMode::HandleDoorDeleteButtonClick() {
+	if (IsValid(CurrentDoorActor)) {
+		if (auto* WallActor = Cast<AWallActor>(CurrentDoorActor->GetAttachParentActor())) {
+			WallActor->DetachDoorComponent(CurrentDoorActor);
+		}
+		CurrentDoorActor->SetState(EBuildingActorState::None);
+		CurrentDoorActor->Destroy();
+		CurrentDoorActor = nullptr;
+	}
+}
+
+void UDoorSubMode::HandleDoorCloseButtonClick() {
+	if (IsValid(CurrentDoorActor)) {
+		CurrentDoorActor->SetState(EBuildingActorState::None);
+		CurrentDoorActor = nullptr;
 	}
 }

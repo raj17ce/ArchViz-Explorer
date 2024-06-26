@@ -17,9 +17,8 @@ void UWallSubMode::Cleanup() {
 		if ((CurrentWallActor->GetState() == EBuildingActorState::Preview) || (CurrentWallActor->GetState() == EBuildingActorState::Generating)) {
 			CurrentWallActor->Destroy();
 		}
-		else if (CurrentWallActor->GetState() == EBuildingActorState::Moving) {
-			CurrentWallActor->SetState(EBuildingActorState::Selected);
-		}
+		CurrentWallActor->SetState(EBuildingActorState::None);
+		CurrentWallActor = nullptr;
 	}
 }
 
@@ -108,20 +107,28 @@ void UWallSubMode::HandleMKeyPress() {
 void UWallSubMode::HandleFreeState() {
 	FHitResult HitResult = GetHitResult();
 
+	if (IsValid(CurrentWallActor)) {
+		CurrentWallActor->SetState(EBuildingActorState::None);
+		CurrentWallActor = nullptr;
+	}
+
 	if (HitResult.GetActor() && HitResult.GetActor()->IsA(AWallActor::StaticClass())) {
 		CurrentWallActor = Cast<AWallActor>(HitResult.GetActor());
 		CurrentWallActor->SetState(EBuildingActorState::Selected);
 		//To-Do Display Widget
 	}
 	else {
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		if (IsValid(WallActorClass)) {
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-		CurrentWallActor = GetWorld()->SpawnActor<AWallActor>(WallActorClass, SpawnParams);
-		CurrentWallActor->GenerateWallSegments();
-		CurrentWallActor->SetState(EBuildingActorState::Preview);
-		SubModeState = EBuildingSubModeState::NewObject;
-		//To-Do Preview Material
+			CurrentWallActor = GetWorld()->SpawnActor<AWallActor>(WallActorClass, SpawnParams);
+			BindWidgetDelegates();
+			CurrentWallActor->GenerateWallSegments();
+			CurrentWallActor->SetState(EBuildingActorState::Preview);
+			SubModeState = EBuildingSubModeState::NewObject;
+			//To-Do Preview Material
+		}
 	}
 }
 
@@ -146,8 +153,57 @@ void UWallSubMode::HandleNewObjectState() {
 		else {
 			bNewWallStart = false;
 			CurrentWallActor->SetEndLocation(HitResult.Location);
+			CurrentWallActor->UpdateLengthSpinBoxValue();
 			CurrentWallActor->SetState(EBuildingActorState::Selected);
 			SubModeState = EBuildingSubModeState::Free;
 		}
+	}
+}
+
+void UWallSubMode::BindWidgetDelegates() {
+	if (IsValid(CurrentWallActor) && IsValid(CurrentWallActor->PropertyPanelWidget)) {
+		CurrentWallActor->PropertyPanelWidget->WallNewButton->OnClicked.AddDynamic(this, &UWallSubMode::HandleWallNewButtonClick);
+		CurrentWallActor->PropertyPanelWidget->WallDeleteButton->OnClicked.AddDynamic(this, &UWallSubMode::HandleWallDeleteButtonClick);
+		CurrentWallActor->PropertyPanelWidget->WallCloseButton->OnClicked.AddDynamic(this, &UWallSubMode::HandleWallCloseButtonClick);
+		CurrentWallActor->PropertyPanelWidget->WallLengthSpinbox->OnValueChanged.AddDynamic(this, &UWallSubMode::HandleWallLengthSpinBoxValueChange);
+	}
+}
+
+void UWallSubMode::HandleWallLengthSpinBoxValueChange(float InLength) {
+	if (IsValid(CurrentWallActor)) {
+		CurrentWallActor->GenerateWallSegments(InLength);
+	}
+}
+
+void UWallSubMode::HandleWallNewButtonClick() {
+	if (IsValid(CurrentWallActor)) {
+		CurrentWallActor->SetState(EBuildingActorState::None);
+		CurrentWallActor = nullptr;
+
+		if (IsValid(WallActorClass)) {
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+			CurrentWallActor = GetWorld()->SpawnActor<AWallActor>(WallActorClass, SpawnParams);
+			BindWidgetDelegates();
+			CurrentWallActor->GenerateWallSegments();
+			CurrentWallActor->SetState(EBuildingActorState::Preview);
+			SubModeState = EBuildingSubModeState::NewObject;
+		}
+	}
+}
+
+void UWallSubMode::HandleWallDeleteButtonClick() {
+	if (IsValid(CurrentWallActor)) {
+		CurrentWallActor->SetState(EBuildingActorState::None);
+		CurrentWallActor->Destroy();
+		CurrentWallActor = nullptr;
+	}
+}
+
+void UWallSubMode::HandleWallCloseButtonClick() {
+	if (IsValid(CurrentWallActor)) {
+		CurrentWallActor->SetState(EBuildingActorState::None);
+		CurrentWallActor = nullptr;
 	}
 }

@@ -4,7 +4,7 @@
 #include "ArchVizActors/BuildingActor.h"
 
 // Sets default values
-ABuildingActor::ABuildingActor() : State{ EBuildingActorState::Preview } {
+ABuildingActor::ABuildingActor() : State{ EBuildingActorState::None } {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -12,10 +12,33 @@ ABuildingActor::ABuildingActor() : State{ EBuildingActorState::Preview } {
 
 void ABuildingActor::SetState(EBuildingActorState NewState) {
 	State = NewState;
+
+	HandleStateChange();
 }
 
 EBuildingActorState ABuildingActor::GetState() const {
 	return State;
+}
+
+void ABuildingActor::ShowWidget() {
+	if (IsValid(PropertyPanelWidget)) {
+		PropertyPanelWidget->AddToViewport();
+	}
+}
+
+void ABuildingActor::HideWidget() {
+	if (IsValid(PropertyPanelWidget)) {
+		PropertyPanelWidget->RemoveFromParent();
+	}
+}
+
+void ABuildingActor::HandleStateChange() {
+	if (State == EBuildingActorState::Selected) {
+		ShowWidget();
+	}
+	else {
+		HideWidget();
+	}
 }
 
 // Called when the game starts or when spawned

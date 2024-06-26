@@ -36,6 +36,17 @@ private:
 	void HandleFreeState();
 	void HandleNewObjectState();
 
+	void BindWidgetDelegates();
+
+	UFUNCTION()
+	void HandleDoorNewButtonClick();
+
+	UFUNCTION()
+	void HandleDoorDeleteButtonClick();
+
+	UFUNCTION()
+	void HandleDoorCloseButtonClick();
+
 	UPROPERTY()
 	ADoorActor* CurrentDoorActor;
 };

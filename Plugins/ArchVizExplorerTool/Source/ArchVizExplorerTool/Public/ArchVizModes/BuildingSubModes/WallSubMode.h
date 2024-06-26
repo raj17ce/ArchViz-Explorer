@@ -38,6 +38,20 @@ private:
 	void HandleOldObjectState();
 	void HandleNewObjectState();
 
+	void BindWidgetDelegates();
+
+	UFUNCTION()
+	void HandleWallLengthSpinBoxValueChange(float InLength);
+
+	UFUNCTION()
+	void HandleWallNewButtonClick();
+
+	UFUNCTION()
+	void HandleWallDeleteButtonClick();
+
+	UFUNCTION()
+	void HandleWallCloseButtonClick();
+
 	UPROPERTY()
 	AWallActor* CurrentWallActor;
 

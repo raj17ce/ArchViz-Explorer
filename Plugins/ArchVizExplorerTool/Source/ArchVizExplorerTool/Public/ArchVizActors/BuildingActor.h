@@ -5,10 +5,12 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "ArchVizActor.h"
+#include "Widgets/PropertyPanelWidget.h"
 #include "BuildingActor.generated.h"
 
 UENUM(BlueprintType)
 enum class EBuildingActorState : uint8 {
+	None,
 	Selected,
 	Preview,
 	Generating,
@@ -26,6 +28,11 @@ public:
 	void SetState(EBuildingActorState NewState);
 	EBuildingActorState GetState() const;
 
+	virtual void ShowWidget();
+	virtual void HideWidget();
+
+	void HandleStateChange();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -36,6 +43,11 @@ protected:
 
 	EBuildingActorState State;
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UPropertyPanelWidget> PropertyPanelWidgetClass;
+	
+	UPROPERTY()
+	UPropertyPanelWidget* PropertyPanelWidget;
 private:
 	
 };

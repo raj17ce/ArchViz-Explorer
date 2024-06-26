@@ -59,4 +59,6 @@ private:
 	void HandleMovingState();
 
 	void HandleEdgeOffset();
+
+	void UpdateLengthSpinBoxValue();
 };

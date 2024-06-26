@@ -28,6 +28,11 @@ void ADoorActor::BeginPlay() {
 		DoorFrameComponent->SetStaticMesh(DoorFrameStaticMesh);
 		DoorComponent->SetStaticMesh(DoorStaticMesh);
 	}
+
+	if (IsValid(PropertyPanelWidgetClass)) {
+		PropertyPanelWidget = CreateWidget<UPropertyPanelWidget>(GetWorld(), PropertyPanelWidgetClass);
+		PropertyPanelWidget->PropertyWidgetSwitcher->SetActiveWidgetIndex(1);
+	}
 }
 
 void ADoorActor::Tick(float DeltaTime) {
