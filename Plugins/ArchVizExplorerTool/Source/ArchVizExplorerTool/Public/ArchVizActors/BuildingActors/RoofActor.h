@@ -46,4 +46,6 @@ private:
 
 	void GenerateRoof(const FVector& Dimensions, const FVector& Offset);
 	void DestroyRoof();
+
+	void UpdateSpinBoxValue();
 };

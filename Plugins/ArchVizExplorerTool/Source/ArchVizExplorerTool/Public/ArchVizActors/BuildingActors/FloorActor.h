@@ -46,4 +46,6 @@ private:
 
 	void GenerateFloor(const FVector& Dimensions, const FVector& Offset);
 	void DestroyFloor();
+
+	void UpdateSpinBoxValue();
 };

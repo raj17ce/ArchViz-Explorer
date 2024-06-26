@@ -40,6 +40,10 @@ const FVector& AFloorActor::GetEndPoint() {
 void AFloorActor::BeginPlay() {
 	Super::BeginPlay();
 
+	if (IsValid(PropertyPanelWidgetClass)) {
+		PropertyPanelWidget = CreateWidget<UPropertyPanelWidget>(GetWorld(), PropertyPanelWidgetClass);
+		PropertyPanelWidget->PropertyWidgetSwitcher->SetActiveWidgetIndex(2);
+	}
 }
 
 // Called every frame
@@ -80,8 +84,8 @@ void AFloorActor::HandleGeneratingState() {
 	double YDistance = EndPoint.Y - StartPoint.Y;
 
 	FVector Dimensions{ abs(XDistance) + (2 * EdgeOffset), abs(YDistance) + (2 * EdgeOffset), 2.0 };
-	FVector Offset{ Dimensions / 2 };
-	FVector NewStartPoint{ StartPoint };
+	FVector Offset{ abs(XDistance) / 2 , abs(YDistance) / 2, 1.0};
+	//FVector NewStartPoint{ StartPoint };
 
 	if (XDistance >= 0.0 && YDistance >= 0.0) {
 		FloorMeshComponent->SetWorldRotation(FRotator{ 0.0 });
@@ -98,20 +102,20 @@ void AFloorActor::HandleGeneratingState() {
 		FloorMeshComponent->SetWorldRotation(FRotator{ 180.0,0.0, 180.0 });
 	}
 
-	if (XDistance >= 0.0) {
-		NewStartPoint.X -= EdgeOffset;
-	}
-	else {
-		NewStartPoint.X += EdgeOffset;
-	}
-	if (YDistance >= 0.0) {
-		NewStartPoint.Y -= EdgeOffset;
-	}
-	else {
-		NewStartPoint.Y += EdgeOffset;
-	}
+	//if (XDistance >= 0.0) {
+	//	NewStartPoint.X -= EdgeOffset;
+	//}
+	//else {
+	//	NewStartPoint.X += EdgeOffset;
+	//}
+	//if (YDistance >= 0.0) {
+	//	NewStartPoint.Y -= EdgeOffset;
+	//}
+	//else {
+	//	NewStartPoint.Y += EdgeOffset;
+	//}
 
-	SetActorLocation(NewStartPoint);
+	//SetActorLocation(NewStartPoint);
 
 	GenerateFloor(Dimensions, Offset);
 }
@@ -130,4 +134,14 @@ void AFloorActor::GenerateFloor(const FVector& Dimensions, const FVector& Offset
 
 void AFloorActor::DestroyFloor() {
 	FloorMeshComponent->ClearAllMeshSections();
+}
+
+void AFloorActor::UpdateSpinBoxValue() {
+	double XDistance = EndPoint.X - StartPoint.X;
+	double YDistance = EndPoint.Y - StartPoint.Y;
+
+	if (IsValid(PropertyPanelWidget)) {
+		PropertyPanelWidget->FloorLengthSpinbox->SetValue(abs(XDistance));
+		PropertyPanelWidget->FloorWidthSpinbox->SetValue(abs(YDistance));
+	}
 }

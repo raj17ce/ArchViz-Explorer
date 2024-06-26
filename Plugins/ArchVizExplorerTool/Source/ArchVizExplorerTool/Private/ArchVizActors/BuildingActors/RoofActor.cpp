@@ -46,6 +46,10 @@ const FVector& ARoofActor::GetEndPoint() {
 void ARoofActor::BeginPlay() {
 	Super::BeginPlay();
 
+	if (IsValid(PropertyPanelWidgetClass)) {
+		PropertyPanelWidget = CreateWidget<UPropertyPanelWidget>(GetWorld(), PropertyPanelWidgetClass);
+		PropertyPanelWidget->PropertyWidgetSwitcher->SetActiveWidgetIndex(3);
+	}
 }
 
 // Called every frame
@@ -85,9 +89,9 @@ void ARoofActor::HandleGeneratingState() {
 	double XDistance = EndPoint.X - StartPoint.X;
 	double YDistance = EndPoint.Y - StartPoint.Y;
 
-	FVector Dimensions{ abs(XDistance) + (2 * EdgeOffset), abs(YDistance) + (2 * EdgeOffset), 20 };
-	FVector Offset{ Dimensions/2 };
-	FVector NewStartPoint{ StartPoint };
+	FVector Dimensions{ abs(XDistance) + (2 * EdgeOffset), abs(YDistance) + (2 * EdgeOffset), 20.0 };
+	FVector Offset{ abs(XDistance) /2,  abs(YDistance) / 2, 10.0 };
+	//FVector NewStartPoint{ StartPoint };
 
 	if (XDistance >= 0.0 && YDistance >= 0.0) {
 		RoofMeshComponent->SetWorldRotation(FRotator{ 0.0 });
@@ -104,20 +108,20 @@ void ARoofActor::HandleGeneratingState() {
 		RoofMeshComponent->SetWorldRotation(FRotator{ 180.0,0.0, 180.0 });
 	}
 
-	if (XDistance >= 0.0) {
-		NewStartPoint.X -= EdgeOffset;
-	}
-	else {
-		NewStartPoint.X += EdgeOffset;
-	}
-	if (YDistance >= 0.0) {
-		NewStartPoint.Y -= EdgeOffset;
-	}
-	else {
-		NewStartPoint.Y += EdgeOffset;
-	}
+	//if (XDistance >= 0.0) {
+	//	NewStartPoint.X -= EdgeOffset;
+	//}
+	//else {
+	//	NewStartPoint.X += EdgeOffset;
+	//}
+	//if (YDistance >= 0.0) {
+	//	NewStartPoint.Y -= EdgeOffset;
+	//}
+	//else {
+	//	NewStartPoint.Y += EdgeOffset;
+	//}
 
-	SetActorLocation(NewStartPoint);
+	//SetActorLocation(NewStartPoint);
 
 	GenerateRoof(Dimensions, Offset);
 }
@@ -136,4 +140,14 @@ void ARoofActor::GenerateRoof(const FVector& Dimensions, const FVector& Offset) 
 
 void ARoofActor::DestroyRoof() {
 	RoofMeshComponent->ClearAllMeshSections();
+}
+
+void ARoofActor::UpdateSpinBoxValue() {
+	double XDistance = EndPoint.X - StartPoint.X;
+	double YDistance = EndPoint.Y - StartPoint.Y;
+
+	if (IsValid(PropertyPanelWidget)) {
+		PropertyPanelWidget->RoofLengthSpinbox->SetValue(abs(XDistance));
+		PropertyPanelWidget->RoofWidthSpinbox->SetValue(abs(YDistance));
+	}
 }

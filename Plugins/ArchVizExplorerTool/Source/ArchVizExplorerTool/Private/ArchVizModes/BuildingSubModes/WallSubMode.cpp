@@ -17,7 +17,9 @@ void UWallSubMode::Cleanup() {
 		if ((CurrentWallActor->GetState() == EBuildingActorState::Preview) || (CurrentWallActor->GetState() == EBuildingActorState::Generating)) {
 			CurrentWallActor->Destroy();
 		}
-		CurrentWallActor->SetState(EBuildingActorState::None);
+		else {
+			CurrentWallActor->SetState(EBuildingActorState::None);
+		}
 		CurrentWallActor = nullptr;
 	}
 }

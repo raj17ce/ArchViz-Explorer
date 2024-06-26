@@ -18,9 +18,10 @@ void URoofSubMode::Cleanup() {
 		if ((CurrentRoofActor->GetState() == EBuildingActorState::Preview) || (CurrentRoofActor->GetState() == EBuildingActorState::Generating)) {
 			CurrentRoofActor->Destroy();
 		}
-		else if (CurrentRoofActor->GetState() == EBuildingActorState::Moving) {
-			CurrentRoofActor->SetState(EBuildingActorState::Selected);
+		else {
+			CurrentRoofActor->SetState(EBuildingActorState::None);
 		}
+		CurrentRoofActor = nullptr;
 	}
 }
 
@@ -106,20 +107,28 @@ void URoofSubMode::HandleMKeyPress() {
 void URoofSubMode::HandleFreeState() {
 	FHitResult HitResult = GetHitResult();
 
+	if (IsValid(CurrentRoofActor)) {
+		CurrentRoofActor->SetState(EBuildingActorState::None);
+		CurrentRoofActor = nullptr;
+	}
+
 	if (HitResult.GetActor() && HitResult.GetActor()->IsA(ARoofActor::StaticClass())) {
 		CurrentRoofActor = Cast<ARoofActor>(HitResult.GetActor());
 		CurrentRoofActor->SetState(EBuildingActorState::Selected);
 		//To-Do Display Widget
 	}
 	else {
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		if (IsValid(RoofActorClass)) {
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-		CurrentRoofActor = GetWorld()->SpawnActor<ARoofActor>(RoofActorClass, SpawnParams);
-		CurrentRoofActor->GenerateRoof(FVector{ 100.0,100.0, 20.0 }, FVector{ 50.0,50.0, 10.0 });
-		CurrentRoofActor->SetState(EBuildingActorState::Preview);
-		SubModeState = EBuildingSubModeState::NewObject;
-		//To-Do Preview Material
+			CurrentRoofActor = GetWorld()->SpawnActor<ARoofActor>(RoofActorClass, SpawnParams);
+			BindWidgetDelegates();
+			CurrentRoofActor->GenerateRoof(FVector{ 100.0,100.0, 20.0 }, FVector{ 50.0,50.0, 10.0 });
+			CurrentRoofActor->SetState(EBuildingActorState::Preview);
+			SubModeState = EBuildingSubModeState::NewObject;
+			//To-Do Preview Material
+		}
 	}
 }
 
@@ -144,6 +153,7 @@ void URoofSubMode::HandleNewObjectState() {
 			else {
 				bNewRoofStart = false;
 				CurrentRoofActor->SetEndPoint(HitResult.Location);
+				CurrentRoofActor->UpdateSpinBoxValue();
 				CurrentRoofActor->SetState(EBuildingActorState::Selected);
 				SubModeState = EBuildingSubModeState::Free;
 			}
@@ -151,5 +161,73 @@ void URoofSubMode::HandleNewObjectState() {
 		else {
 			//To-Do Notification
 		}
+	}
+}
+
+void URoofSubMode::BindWidgetDelegates() {
+	if (IsValid(CurrentRoofActor) && IsValid(CurrentRoofActor->PropertyPanelWidget)) {
+		CurrentRoofActor->PropertyPanelWidget->RoofNewButton->OnClicked.AddDynamic(this, &URoofSubMode::HandleRoofNewButtonClick);
+		CurrentRoofActor->PropertyPanelWidget->RoofDeleteButton->OnClicked.AddDynamic(this, &URoofSubMode::HandleRoofDeleteButtonClick);
+		CurrentRoofActor->PropertyPanelWidget->RoofCloseButton->OnClicked.AddDynamic(this, &URoofSubMode::HandleRoofCloseButtonClick);
+		CurrentRoofActor->PropertyPanelWidget->RoofLengthSpinbox->OnValueChanged.AddDynamic(this, &URoofSubMode::HandleRoofSpinBoxValueChange);
+		CurrentRoofActor->PropertyPanelWidget->RoofWidthSpinbox->OnValueChanged.AddDynamic(this, &URoofSubMode::HandleRoofSpinBoxValueChange);
+	}
+}
+
+void URoofSubMode::HandleRoofSpinBoxValueChange(float InLength) {
+	if (IsValid(CurrentRoofActor) && IsValid(CurrentRoofActor->PropertyPanelWidget)) {
+		float Length = CurrentRoofActor->PropertyPanelWidget->RoofLengthSpinbox->GetValue();
+		float Width = CurrentRoofActor->PropertyPanelWidget->RoofWidthSpinbox->GetValue();
+		float Height = 20.0;
+
+		double EdgeOffset{ 10.0 };
+
+		FVector Dimensions{ Length + (2 * EdgeOffset), Width + (2 * EdgeOffset), Height };
+		FVector Offset{ Length / 2 , Width / 2, Height / 2 };
+
+		double XDistance = CurrentRoofActor->EndPoint.X - CurrentRoofActor->StartPoint.X;
+		double YDistance = CurrentRoofActor->EndPoint.Y - CurrentRoofActor->StartPoint.Y;
+
+		if (XDistance >= 0.0 && YDistance < 0.0) {
+			Offset.Z *= -1.0;
+		}
+		else if (XDistance < 0.0 && YDistance >= 0.0) {
+			Offset.Z *= -1.0;
+		}
+
+		CurrentRoofActor->GenerateRoof(Dimensions, Offset);
+	}
+}
+
+void URoofSubMode::HandleRoofNewButtonClick() {
+	if (IsValid(CurrentRoofActor)) {
+		CurrentRoofActor->SetState(EBuildingActorState::None);
+		CurrentRoofActor = nullptr;
+
+		if (IsValid(RoofActorClass)) {
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+			CurrentRoofActor = GetWorld()->SpawnActor<ARoofActor>(RoofActorClass, SpawnParams);
+			BindWidgetDelegates();
+			CurrentRoofActor->GenerateRoof(FVector{ 100.0,100.0, 20.0 }, FVector{ 50.0,50.0, 10.0 });
+			CurrentRoofActor->SetState(EBuildingActorState::Preview);
+			SubModeState = EBuildingSubModeState::NewObject;
+		}
+	}
+}
+
+void URoofSubMode::HandleRoofDeleteButtonClick() {
+	if (IsValid(CurrentRoofActor)) {
+		CurrentRoofActor->SetState(EBuildingActorState::None);
+		CurrentRoofActor->Destroy();
+		CurrentRoofActor = nullptr;
+	}
+}
+
+void URoofSubMode::HandleRoofCloseButtonClick() {
+	if (IsValid(CurrentRoofActor)) {
+		CurrentRoofActor->SetState(EBuildingActorState::None);
+		CurrentRoofActor = nullptr;
 	}
 }

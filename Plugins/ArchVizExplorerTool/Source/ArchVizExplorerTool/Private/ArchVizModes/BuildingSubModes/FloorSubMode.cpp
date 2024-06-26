@@ -17,9 +17,10 @@ void UFloorSubMode::Cleanup() {
 		if ((CurrentFloorActor->GetState() == EBuildingActorState::Preview) || (CurrentFloorActor->GetState() == EBuildingActorState::Generating)) {
 			CurrentFloorActor->Destroy();
 		}
-		else if (CurrentFloorActor->GetState() == EBuildingActorState::Moving) {
-			CurrentFloorActor->SetState(EBuildingActorState::Selected);
+		else {
+			CurrentFloorActor->SetState(EBuildingActorState::None);
 		}
+		CurrentFloorActor = nullptr;
 	}
 }
 
@@ -105,20 +106,27 @@ void UFloorSubMode::HandleMKeyPress() {
 void UFloorSubMode::HandleFreeState() {
 	FHitResult HitResult = GetHitResult();
 
+	if (IsValid(CurrentFloorActor)) {
+		CurrentFloorActor->SetState(EBuildingActorState::None);
+		CurrentFloorActor = nullptr;
+	}
+
 	if (HitResult.GetActor() && HitResult.GetActor()->IsA(AFloorActor::StaticClass())) {
 		CurrentFloorActor = Cast<AFloorActor>(HitResult.GetActor());
 		CurrentFloorActor->SetState(EBuildingActorState::Selected);
-		//To-Do Display Widget
 	}
 	else {
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		if (IsValid(FloorActorClass)) {
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-		CurrentFloorActor = GetWorld()->SpawnActor<AFloorActor>(FloorActorClass, SpawnParams);
-		CurrentFloorActor->GenerateFloor(FVector{ 100.0,100.0, 2.0 }, FVector{ 50.0,50.0, 1.0});
-		CurrentFloorActor->SetState(EBuildingActorState::Preview);
-		SubModeState = EBuildingSubModeState::NewObject;
-		//To-Do Preview Material
+			CurrentFloorActor = GetWorld()->SpawnActor<AFloorActor>(FloorActorClass, SpawnParams);
+			BindWidgetDelegates();
+			CurrentFloorActor->GenerateFloor(FVector{ 100.0,100.0, 2.0 }, FVector{ 50.0,50.0, 1.0 });
+			CurrentFloorActor->SetState(EBuildingActorState::Preview);
+			SubModeState = EBuildingSubModeState::NewObject;
+			//To-Do Preview Material
+		}
 	}
 }
 
@@ -142,8 +150,77 @@ void UFloorSubMode::HandleNewObjectState() {
 		else {
 			bNewFloorStart = false;
 			CurrentFloorActor->SetEndPoint(HitResult.Location);
+			CurrentFloorActor->UpdateSpinBoxValue();
 			CurrentFloorActor->SetState(EBuildingActorState::Selected);
 			SubModeState = EBuildingSubModeState::Free;
 		}
+	}
+}
+
+void UFloorSubMode::BindWidgetDelegates() {
+	if (IsValid(CurrentFloorActor) && IsValid(CurrentFloorActor->PropertyPanelWidget)) {
+		CurrentFloorActor->PropertyPanelWidget->FloorNewButton->OnClicked.AddDynamic(this, &UFloorSubMode::HandleFloorNewButtonClick);
+		CurrentFloorActor->PropertyPanelWidget->FloorDeleteButton->OnClicked.AddDynamic(this, &UFloorSubMode::HandleFloorDeleteButtonClick);
+		CurrentFloorActor->PropertyPanelWidget->FloorCloseButton->OnClicked.AddDynamic(this, &UFloorSubMode::HandleFloorCloseButtonClick);
+		CurrentFloorActor->PropertyPanelWidget->FloorLengthSpinbox->OnValueChanged.AddDynamic(this, &UFloorSubMode::HandleFloorSpinBoxValueChange);
+		CurrentFloorActor->PropertyPanelWidget->FloorWidthSpinbox->OnValueChanged.AddDynamic(this, &UFloorSubMode::HandleFloorSpinBoxValueChange);
+	}
+}
+
+void UFloorSubMode::HandleFloorSpinBoxValueChange(float InLength) {
+	if (IsValid(CurrentFloorActor) && IsValid(CurrentFloorActor->PropertyPanelWidget)) {
+		float Length = CurrentFloorActor->PropertyPanelWidget->FloorLengthSpinbox->GetValue();
+		float Width = CurrentFloorActor->PropertyPanelWidget->FloorWidthSpinbox->GetValue();
+		float Height = 2.0;
+
+		double EdgeOffset{ 10.0 };
+
+		FVector Dimensions{ Length + (2 * EdgeOffset), Width + (2 * EdgeOffset), Height };
+		FVector Offset{ Length / 2 , Width / 2, Height / 2 };
+
+		double XDistance = CurrentFloorActor->EndPoint.X - CurrentFloorActor->StartPoint.X;
+		double YDistance = CurrentFloorActor->EndPoint.Y - CurrentFloorActor->StartPoint.Y;
+
+		if (XDistance >= 0.0 && YDistance < 0.0) {
+			Offset.Z *= -1.0;
+		}
+		else if (XDistance < 0.0 && YDistance >= 0.0) {
+			Offset.Z *= -1.0;
+		}
+
+		CurrentFloorActor->GenerateFloor(Dimensions, Offset);
+	}
+}
+
+void UFloorSubMode::HandleFloorNewButtonClick() {
+	if (IsValid(CurrentFloorActor)) {
+		CurrentFloorActor->SetState(EBuildingActorState::None);
+		CurrentFloorActor = nullptr;
+
+		if (IsValid(FloorActorClass)) {
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+			CurrentFloorActor = GetWorld()->SpawnActor<AFloorActor>(FloorActorClass, SpawnParams);
+			BindWidgetDelegates();
+			CurrentFloorActor->GenerateFloor(FVector{ 100.0,100.0, 2.0 }, FVector{ 50.0,50.0, 1.0 });
+			CurrentFloorActor->SetState(EBuildingActorState::Preview);
+			SubModeState = EBuildingSubModeState::NewObject;
+		}
+	}
+}
+
+void UFloorSubMode::HandleFloorDeleteButtonClick() {
+	if (IsValid(CurrentFloorActor)) {
+		CurrentFloorActor->SetState(EBuildingActorState::None);
+		CurrentFloorActor->Destroy();
+		CurrentFloorActor = nullptr;
+	}
+}
+
+void UFloorSubMode::HandleFloorCloseButtonClick() {
+	if (IsValid(CurrentFloorActor)) {
+		CurrentFloorActor->SetState(EBuildingActorState::None);
+		CurrentFloorActor = nullptr;
 	}
 }

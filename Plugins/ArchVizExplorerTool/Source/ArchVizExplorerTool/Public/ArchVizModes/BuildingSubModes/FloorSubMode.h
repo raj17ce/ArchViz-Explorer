@@ -36,6 +36,20 @@ private:
 	void HandleOldObjectState();
 	void HandleNewObjectState();
 
+	void BindWidgetDelegates();
+
+	UFUNCTION()
+	void HandleFloorSpinBoxValueChange(float InLength);
+
+	UFUNCTION()
+	void HandleFloorNewButtonClick();
+
+	UFUNCTION()
+	void HandleFloorDeleteButtonClick();
+
+	UFUNCTION()
+	void HandleFloorCloseButtonClick();
+
 	UPROPERTY()
 	AFloorActor* CurrentFloorActor;
 

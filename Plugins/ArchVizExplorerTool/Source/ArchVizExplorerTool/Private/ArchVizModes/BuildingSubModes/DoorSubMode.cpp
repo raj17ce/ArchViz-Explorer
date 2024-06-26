@@ -14,10 +14,12 @@ void UDoorSubMode::Setup() {
 
 void UDoorSubMode::Cleanup() {
 	if (IsValid(CurrentDoorActor)) {
-		if ((CurrentDoorActor->GetState() == EBuildingActorState::Preview)) {
+		if ((CurrentDoorActor->GetState() == EBuildingActorState::Preview) || (CurrentDoorActor->GetState() == EBuildingActorState::Moving)) {
 			CurrentDoorActor->Destroy();
 		}
-		CurrentDoorActor->SetState(EBuildingActorState::None);
+		else {
+			CurrentDoorActor->SetState(EBuildingActorState::None);
+		}
 		CurrentDoorActor = nullptr;
 	}
 }

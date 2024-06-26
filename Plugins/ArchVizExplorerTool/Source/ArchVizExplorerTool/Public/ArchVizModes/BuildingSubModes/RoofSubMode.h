@@ -36,6 +36,20 @@ private:
 	void HandleOldObjectState();
 	void HandleNewObjectState();
 
+	void BindWidgetDelegates();
+
+	UFUNCTION()
+	void HandleRoofSpinBoxValueChange(float InLength);
+
+	UFUNCTION()
+	void HandleRoofNewButtonClick();
+
+	UFUNCTION()
+	void HandleRoofDeleteButtonClick();
+
+	UFUNCTION()
+	void HandleRoofCloseButtonClick();
+
 	UPROPERTY()
 	ARoofActor* CurrentRoofActor;
 
