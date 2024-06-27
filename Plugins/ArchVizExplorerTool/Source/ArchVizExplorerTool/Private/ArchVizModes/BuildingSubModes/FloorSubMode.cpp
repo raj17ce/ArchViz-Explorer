@@ -15,6 +15,7 @@ void UFloorSubMode::Setup() {
 void UFloorSubMode::Cleanup() {
 	if (IsValid(CurrentFloorActor)) {
 		if ((CurrentFloorActor->GetState() == EBuildingActorState::Preview) || (CurrentFloorActor->GetState() == EBuildingActorState::Generating)) {
+			CurrentFloorActor->SetState(EBuildingActorState::None);
 			CurrentFloorActor->Destroy();
 		}
 		else {
@@ -69,6 +70,13 @@ void UFloorSubMode::SetupInputComponent() {
 
 			MappingContext->MapKey(MKeyPressAction, EKeys::M);
 			EIC->BindAction(MKeyPressAction, ETriggerEvent::Completed, this, &UFloorSubMode::HandleMKeyPress);
+
+			//Delete-Key
+			auto* DeleteKeyPressAction = NewObject<UInputAction>(this);
+			DeleteKeyPressAction->ValueType = EInputActionValueType::Boolean;
+
+			MappingContext->MapKey(DeleteKeyPressAction, EKeys::Delete);
+			EIC->BindAction(DeleteKeyPressAction, ETriggerEvent::Completed, this, &UFloorSubMode::HandleFloorDeleteButtonClick);
 		}
 	}
 }

@@ -32,6 +32,8 @@ public:
 	virtual void HideWidget();
 
 	void HandleStateChange();
+	virtual void HighlightSelectedActor();
+	virtual void UnhighlightDeselectedActor();
 
 protected:
 	// Called when the game starts or when spawned

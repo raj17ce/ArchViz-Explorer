@@ -2,6 +2,7 @@
 
 
 #include "ArchVizActors/BuildingActor.h"
+#include "../Plugins/Runtime/ProceduralMeshComponent/Source/ProceduralMeshComponent/Public/ProceduralMeshComponent.h"
 
 // Sets default values
 ABuildingActor::ABuildingActor() : State{ EBuildingActorState::None } {
@@ -35,9 +36,32 @@ void ABuildingActor::HideWidget() {
 void ABuildingActor::HandleStateChange() {
 	if (State == EBuildingActorState::Selected) {
 		ShowWidget();
+		HighlightSelectedActor();
 	}
 	else {
 		HideWidget();
+		UnhighlightDeselectedActor();
+	}
+}
+
+void ABuildingActor::HighlightSelectedActor() {
+	TSet<UActorComponent*> ActorComponents = GetComponents();
+
+	for (auto& ActorComponent : ActorComponents) {
+		if (auto* Component = Cast<UPrimitiveComponent>(ActorComponent)) {
+			Component->SetRenderCustomDepth(true);
+			Component->CustomDepthStencilValue = 2;
+		}
+	}
+}
+
+void ABuildingActor::UnhighlightDeselectedActor() {
+	TSet<UActorComponent*> ActorComponents = GetComponents();
+
+	for (auto& ActorComponent : ActorComponents) {
+		if (auto* Component = Cast<UPrimitiveComponent>(ActorComponent)) {
+			Component->SetRenderCustomDepth(false);
+		}
 	}
 }
 

@@ -14,7 +14,8 @@ void UDoorSubMode::Setup() {
 
 void UDoorSubMode::Cleanup() {
 	if (IsValid(CurrentDoorActor)) {
-		if ((CurrentDoorActor->GetState() == EBuildingActorState::Preview) || (CurrentDoorActor->GetState() == EBuildingActorState::Moving)) {
+		if ((CurrentDoorActor->GetState() == EBuildingActorState::Preview) || (CurrentDoorActor->GetState() == EBuildingActorState::Moving)) {	
+			CurrentDoorActor->SetState(EBuildingActorState::None);
 			CurrentDoorActor->Destroy();
 		}
 		else {
@@ -77,6 +78,13 @@ void UDoorSubMode::SetupInputComponent() {
 
 			MappingContext->MapKey(OKeyPressAction, EKeys::O);
 			EIC->BindAction(OKeyPressAction, ETriggerEvent::Completed, this, &UDoorSubMode::HandleOKeyPress);
+
+			//Delete-Key
+			auto* DeleteKeyPressAction = NewObject<UInputAction>(this);
+			DeleteKeyPressAction->ValueType = EInputActionValueType::Boolean;
+
+			MappingContext->MapKey(DeleteKeyPressAction, EKeys::Delete);
+			EIC->BindAction(DeleteKeyPressAction, ETriggerEvent::Completed, this, &UDoorSubMode::HandleDoorDeleteButtonClick);
 		}
 	}
 }

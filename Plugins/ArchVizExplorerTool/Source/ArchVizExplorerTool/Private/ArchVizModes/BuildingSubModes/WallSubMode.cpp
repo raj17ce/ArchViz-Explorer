@@ -15,6 +15,8 @@ void UWallSubMode::Setup() {
 void UWallSubMode::Cleanup() {
 	if (IsValid(CurrentWallActor)) {
 		if ((CurrentWallActor->GetState() == EBuildingActorState::Preview) || (CurrentWallActor->GetState() == EBuildingActorState::Generating)) {
+			CurrentWallActor->SetState(EBuildingActorState::None);
+			CurrentWallActor->DestroyDoorComponents();
 			CurrentWallActor->Destroy();
 		}
 		else {
@@ -70,6 +72,13 @@ void UWallSubMode::SetupInputComponent() {
 
 			MappingContext->MapKey(MKeyPressAction, EKeys::M);
 			EIC->BindAction(MKeyPressAction, ETriggerEvent::Completed, this, &UWallSubMode::HandleMKeyPress);
+
+			//Delete-Key
+			auto* DeleteKeyPressAction = NewObject<UInputAction>(this);
+			DeleteKeyPressAction->ValueType = EInputActionValueType::Boolean;
+
+			MappingContext->MapKey(DeleteKeyPressAction, EKeys::Delete);
+			EIC->BindAction(DeleteKeyPressAction, ETriggerEvent::Completed, this, &UWallSubMode::HandleWallDeleteButtonClick);
 		}
 	}
 }
@@ -198,6 +207,7 @@ void UWallSubMode::HandleWallNewButtonClick() {
 void UWallSubMode::HandleWallDeleteButtonClick() {
 	if (IsValid(CurrentWallActor)) {
 		CurrentWallActor->SetState(EBuildingActorState::None);
+		CurrentWallActor->DestroyDoorComponents();
 		CurrentWallActor->Destroy();
 		CurrentWallActor = nullptr;
 	}

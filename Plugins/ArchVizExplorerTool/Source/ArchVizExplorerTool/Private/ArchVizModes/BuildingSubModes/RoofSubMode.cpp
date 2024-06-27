@@ -16,6 +16,7 @@ void URoofSubMode::Setup() {
 void URoofSubMode::Cleanup() {
 	if (IsValid(CurrentRoofActor)) {
 		if ((CurrentRoofActor->GetState() == EBuildingActorState::Preview) || (CurrentRoofActor->GetState() == EBuildingActorState::Generating)) {
+			CurrentRoofActor->SetState(EBuildingActorState::None);
 			CurrentRoofActor->Destroy();
 		}
 		else {
@@ -70,6 +71,13 @@ void URoofSubMode::SetupInputComponent() {
 
 			MappingContext->MapKey(MKeyPressAction, EKeys::M);
 			EIC->BindAction(MKeyPressAction, ETriggerEvent::Completed, this, &URoofSubMode::HandleMKeyPress);
+		
+			//Delete-Key
+			auto* DeleteKeyPressAction = NewObject<UInputAction>(this);
+			DeleteKeyPressAction->ValueType = EInputActionValueType::Boolean;
+
+			MappingContext->MapKey(DeleteKeyPressAction, EKeys::Delete);
+			EIC->BindAction(DeleteKeyPressAction, ETriggerEvent::Completed, this, &URoofSubMode::HandleRoofDeleteButtonClick);
 		}
 	}
 }

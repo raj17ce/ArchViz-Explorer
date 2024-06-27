@@ -27,6 +27,7 @@ public:
 
 	void AttachDoorComponent(UPrimitiveComponent* Component, ADoorActor* DoorActor);
 	void DetachDoorComponent(ADoorActor* DoorActor);
+	void DestroyDoorComponents();
 
 	UPROPERTY()
 	TArray<UStaticMeshComponent*> WallSegments;

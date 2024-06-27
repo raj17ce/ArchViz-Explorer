@@ -41,7 +41,9 @@ void AWallActor::AttachDoorComponent(UPrimitiveComponent* Component, ADoorActor*
 			WallSegments[SegmentIndex]->SetStaticMesh(DoorWallStaticMesh);
 			DoorMapping.Add(SegmentIndex, DoorActor);
 
-			DoorActor->AttachToComponent(WallSegments[SegmentIndex], FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("DoorSocket"));
+			DoorActor->AttachToComponent(WallSegments[SegmentIndex], FAttachmentTransformRules::KeepRelativeTransform, TEXT("DoorSocket"));
+			DoorActor->SetActorRelativeRotation(FRotator::ZeroRotator);
+			DoorActor->SetActorRelativeLocation(FVector::ZeroVector);
 		}
 	}
 }
@@ -59,6 +61,16 @@ void AWallActor::DetachDoorComponent(ADoorActor* DoorActor) {
 	}
 
 	DoorMapping.Remove(SegmentIndex);
+}
+
+void AWallActor::DestroyDoorComponents() {
+	for (auto& [SegmentIndex, DoorActor] : DoorMapping) {
+		if (IsValid(DoorActor)) {
+			DoorActor->Destroy();
+		}
+	}
+
+	DoorMapping.Empty();
 }
 
 // Called when the game starts or when spawned
@@ -100,8 +112,8 @@ void AWallActor::GenerateWallSegments(double Length) {
 	for (int32 SegmentIndex = 0; SegmentIndex < NumberOfSegments; ++SegmentIndex) {
 		UStaticMeshComponent* WallMeshComponent = NewObject<UStaticMeshComponent>(this);
 		WallMeshComponent->AttachToComponent(SceneComponent, FAttachmentTransformRules::KeepRelativeTransform);
-		WallMeshComponent->RegisterComponentWithWorld(GetWorld());
-		WallMeshComponent->SetMobility(EComponentMobility::Movable);
+		WallMeshComponent->RegisterComponent();
+		// WallMeshComponent->SetMobility(EComponentMobility::Movable);
 
 		if (IsValid(WallStaticMesh)) {
 			WallMeshComponent->SetStaticMesh(WallStaticMesh);
@@ -116,17 +128,25 @@ void AWallActor::GenerateWallSegments(double Length) {
 
 void AWallActor::UpdateDoorSegments() {
 	int32 NumberOfSegments = WallSegments.Num();
-	
-	for (const auto& [SegmentIndex, DoorActor] : DoorMapping) {
-		if (SegmentIndex >= NumberOfSegments) {
-			if (DoorMapping[SegmentIndex]) {
-				DoorMapping[SegmentIndex]->Destroy();
+
+	for (auto It = DoorMapping.CreateIterator(); It; ++It) {
+		int32 SegmentIndex = It.Key();
+		ADoorActor* DoorActor = It.Value();
+
+		if (SegmentIndex >= (NumberOfSegments - 1)) {
+			if (IsValid(DoorActor)) {
+				DoorActor->Destroy();
 			}
-			DoorMapping.Remove(SegmentIndex);
+			It.RemoveCurrent();
+			continue;
 		}
-		else {
+
+		if (WallSegments.IsValidIndex(SegmentIndex)) {
 			WallSegments[SegmentIndex]->SetStaticMesh(DoorWallStaticMesh);
-			DoorMapping[SegmentIndex]->AttachToComponent(WallSegments[SegmentIndex], FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("DoorSocket"));
+
+			DoorActor->AttachToComponent(WallSegments[SegmentIndex], FAttachmentTransformRules::KeepRelativeTransform, TEXT("DoorSocket"));
+			DoorActor->SetActorRelativeRotation(FRotator::ZeroRotator);
+			DoorActor->SetActorRelativeLocation(FVector::ZeroVector);
 		}
 	}
 }
