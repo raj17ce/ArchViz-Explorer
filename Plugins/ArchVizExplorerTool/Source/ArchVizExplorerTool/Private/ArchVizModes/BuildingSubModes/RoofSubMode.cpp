@@ -171,6 +171,7 @@ void URoofSubMode::BindWidgetDelegates() {
 		CurrentRoofActor->PropertyPanelWidget->RoofCloseButton->OnClicked.AddDynamic(this, &URoofSubMode::HandleRoofCloseButtonClick);
 		CurrentRoofActor->PropertyPanelWidget->RoofLengthSpinbox->OnValueChanged.AddDynamic(this, &URoofSubMode::HandleRoofSpinBoxValueChange);
 		CurrentRoofActor->PropertyPanelWidget->RoofWidthSpinbox->OnValueChanged.AddDynamic(this, &URoofSubMode::HandleRoofSpinBoxValueChange);
+		CurrentRoofActor->PropertyPanelWidget->RoofHeightSpinbox->OnValueChanged.AddDynamic(this, &URoofSubMode::HandleRoofSpinBoxValueChange);
 	}
 }
 
@@ -178,7 +179,7 @@ void URoofSubMode::HandleRoofSpinBoxValueChange(float InLength) {
 	if (IsValid(CurrentRoofActor) && IsValid(CurrentRoofActor->PropertyPanelWidget)) {
 		float Length = CurrentRoofActor->PropertyPanelWidget->RoofLengthSpinbox->GetValue();
 		float Width = CurrentRoofActor->PropertyPanelWidget->RoofWidthSpinbox->GetValue();
-		float Height = 20.0;
+		float Height = CurrentRoofActor->PropertyPanelWidget->RoofHeightSpinbox->GetValue();
 
 		double EdgeOffset{ 10.0 };
 

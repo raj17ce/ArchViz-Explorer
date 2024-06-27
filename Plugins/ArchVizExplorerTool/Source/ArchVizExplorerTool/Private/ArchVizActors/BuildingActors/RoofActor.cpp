@@ -88,9 +88,10 @@ void ARoofActor::HandleGeneratingState() {
 
 	double XDistance = EndPoint.X - StartPoint.X;
 	double YDistance = EndPoint.Y - StartPoint.Y;
+	double ZDistance = 20.0;
 
-	FVector Dimensions{ abs(XDistance) + (2 * EdgeOffset), abs(YDistance) + (2 * EdgeOffset), 20.0 };
-	FVector Offset{ abs(XDistance) /2,  abs(YDistance) / 2, 10.0 };
+	FVector Dimensions{ abs(XDistance) + (2 * EdgeOffset), abs(YDistance) + (2 * EdgeOffset), ZDistance };
+	FVector Offset{ abs(XDistance) /2,  abs(YDistance) / 2, ZDistance / 2 };
 	//FVector NewStartPoint{ StartPoint };
 
 	if (XDistance >= 0.0 && YDistance >= 0.0) {
@@ -145,9 +146,11 @@ void ARoofActor::DestroyRoof() {
 void ARoofActor::UpdateSpinBoxValue() {
 	double XDistance = EndPoint.X - StartPoint.X;
 	double YDistance = EndPoint.Y - StartPoint.Y;
+	double ZDistance = 20.0;
 
 	if (IsValid(PropertyPanelWidget)) {
 		PropertyPanelWidget->RoofLengthSpinbox->SetValue(abs(XDistance));
 		PropertyPanelWidget->RoofWidthSpinbox->SetValue(abs(YDistance));
+		PropertyPanelWidget->RoofHeightSpinbox->SetValue(ZDistance);
 	}
 }

@@ -164,6 +164,7 @@ void UFloorSubMode::BindWidgetDelegates() {
 		CurrentFloorActor->PropertyPanelWidget->FloorCloseButton->OnClicked.AddDynamic(this, &UFloorSubMode::HandleFloorCloseButtonClick);
 		CurrentFloorActor->PropertyPanelWidget->FloorLengthSpinbox->OnValueChanged.AddDynamic(this, &UFloorSubMode::HandleFloorSpinBoxValueChange);
 		CurrentFloorActor->PropertyPanelWidget->FloorWidthSpinbox->OnValueChanged.AddDynamic(this, &UFloorSubMode::HandleFloorSpinBoxValueChange);
+		CurrentFloorActor->PropertyPanelWidget->FloorHeightSpinbox->OnValueChanged.AddDynamic(this, &UFloorSubMode::HandleFloorSpinBoxValueChange);
 	}
 }
 
@@ -171,7 +172,7 @@ void UFloorSubMode::HandleFloorSpinBoxValueChange(float InLength) {
 	if (IsValid(CurrentFloorActor) && IsValid(CurrentFloorActor->PropertyPanelWidget)) {
 		float Length = CurrentFloorActor->PropertyPanelWidget->FloorLengthSpinbox->GetValue();
 		float Width = CurrentFloorActor->PropertyPanelWidget->FloorWidthSpinbox->GetValue();
-		float Height = 2.0;
+		float Height = CurrentFloorActor->PropertyPanelWidget->FloorHeightSpinbox->GetValue();;
 
 		double EdgeOffset{ 10.0 };
 
