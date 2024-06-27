@@ -6,6 +6,8 @@
 #include "EnhancedInputComponent.h"
 #include "ArchVizUtility.h"
 #include "ArchVizActors/BuildingActors/WallActor.h"
+#include "ArchVizActors/BuildingActors/FloorActor.h"
+#include "ArchVizActors/BuildingActors/RoofActor.h"
 
 void UDoorSubMode::Setup() {
 	CurrentDoorActor = nullptr;
@@ -89,6 +91,19 @@ void UDoorSubMode::SetupInputComponent() {
 	}
 }
 
+void UDoorSubMode::SelectActor(ADoorActor* DoorActor) {
+	if (IsValid(CurrentDoorActor)) {
+		CurrentDoorActor->SetState(EBuildingActorState::None);
+		CurrentDoorActor = nullptr;
+	}
+
+	CurrentDoorActor = DoorActor;
+
+	if (IsValid(CurrentDoorActor)) {
+		CurrentDoorActor->SetState(EBuildingActorState::Selected);
+	}
+}
+
 void UDoorSubMode::HandleLeftMouseClick() {
 	if (IsValid(DoorActorClass)) {
 
@@ -142,10 +157,18 @@ void UDoorSubMode::HandleFreeState() {
 		CurrentDoorActor = nullptr;
 	}
 
-	if (HitResult.GetActor() && HitResult.GetActor()->IsA(ADoorActor::StaticClass())) {
+	if (IsValid(HitResult.GetActor()) && HitResult.GetActor()->IsA(ADoorActor::StaticClass())) {
 		CurrentDoorActor = Cast<ADoorActor>(HitResult.GetActor());
 		CurrentDoorActor->SetState(EBuildingActorState::Selected);
-		//To-Do Display Widget
+	}
+	else if (IsValid(HitResult.GetActor()) && HitResult.GetActor()->IsA(AWallActor::StaticClass())) {
+		OnOtherBuildingActorSelected.ExecuteIfBound(EBuildingSubMode::WallConstruction, HitResult.GetActor());
+	}
+	else if (IsValid(HitResult.GetActor()) && HitResult.GetActor()->IsA(AFloorActor::StaticClass())) {
+		OnOtherBuildingActorSelected.ExecuteIfBound(EBuildingSubMode::FloorConstruction, HitResult.GetActor());
+	}
+	else if (IsValid(HitResult.GetActor()) && HitResult.GetActor()->IsA(ARoofActor::StaticClass())) {
+		OnOtherBuildingActorSelected.ExecuteIfBound(EBuildingSubMode::RoofConstruction, HitResult.GetActor());
 	}
 	else {
 		if (DoorActorClass) {

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "Enums/BuildingSubModeEnum.h"
 #include "BuildingConstructionSubMode.generated.h"
 
 UENUM(BlueprintType)
@@ -15,6 +16,8 @@ enum class EBuildingSubModeState : uint8 {
 
 class UInputMappingContext;
 class APlayerController;
+
+DECLARE_DELEGATE_TwoParams(FOnOtherBuildingActorSelected, EBuildingSubMode, AActor*)
 
 /**
  * 
@@ -35,6 +38,9 @@ public:
 	virtual void SetPlayerController(APlayerController* Controller);
 
 	FHitResult GetHitResult(const TArray<AActor*>& ActorsToIgnore = TArray<AActor*>{}) const;
+
+	FOnOtherBuildingActorSelected OnOtherBuildingActorSelected;
+
 protected:
 	UPROPERTY()
 	APlayerController* PlayerController;

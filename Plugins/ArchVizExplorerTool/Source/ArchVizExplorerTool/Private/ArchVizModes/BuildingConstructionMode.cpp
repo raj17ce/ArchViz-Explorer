@@ -20,18 +20,22 @@ void UBuildingConstructionMode::Setup() {
 	if (WallSubModeClass) {
 		WallSubMode = NewObject<UWallSubMode>(this, WallSubModeClass);
 		WallSubMode->Setup();
+		WallSubMode->OnOtherBuildingActorSelected.BindUObject(this, &UBuildingConstructionMode::HandleBuildingActorSelected);
 	}
 	if (DoorSubModeClass) {
 		DoorSubMode = NewObject<UDoorSubMode>(this, DoorSubModeClass);
 		DoorSubMode->Setup();
+		DoorSubMode->OnOtherBuildingActorSelected.BindUObject(this, &UBuildingConstructionMode::HandleBuildingActorSelected);
 	}
 	if (FloorSubModeClass) {
 		FloorSubMode = NewObject<UFloorSubMode>(this, FloorSubModeClass);
 		FloorSubMode->Setup();
+		FloorSubMode->OnOtherBuildingActorSelected.BindUObject(this, &UBuildingConstructionMode::HandleBuildingActorSelected);
 	}
 	if (RoofSubModeClass) {
 		RoofSubMode = NewObject<URoofSubMode>(this, RoofSubModeClass);
 		RoofSubMode->Setup();
+		RoofSubMode->OnOtherBuildingActorSelected.BindUObject(this, &UBuildingConstructionMode::HandleBuildingActorSelected);
 	}
 
 	if (IsValid(WallSubMode)) {
@@ -88,6 +92,14 @@ void UBuildingConstructionMode::HandleBuildingSubModeChange(EBuildingSubMode New
 	CurrentBuildingSubMode = NewBuildingSubMode;
 
 	UpdateBuildingSubMode();
+	if (auto* BuildingWidget = Cast<UBuildingConstructionWidget>(Widget)) {
+		BuildingWidget->HighlightSelectedColour(NewBuildingSubMode);
+	}
+}
+
+void UBuildingConstructionMode::HandleBuildingActorSelected(EBuildingSubMode NewBuildingSubMode, AActor* Actor) {
+	HandleBuildingSubModeChange(NewBuildingSubMode);
+	UpdateSelectedActor(Actor);
 }
 
 void UBuildingConstructionMode::UpdateBuildingSubMode() {
@@ -116,5 +128,38 @@ void UBuildingConstructionMode::SetBuildingSubMode(UBuildingConstructionSubMode*
 
 	if (CurrentBuildingSubModePtr) {
 		CurrentBuildingSubModePtr->EnterSubMode();
+	}
+}
+
+void UBuildingConstructionMode::UpdateSelectedActor(AActor* Actor) {
+	switch (CurrentBuildingSubMode) {
+	case EBuildingSubMode::WallConstruction:
+		if (auto* WallActor = Cast<AWallActor>(Actor)) {
+			if (IsValid(WallSubMode)) {
+				WallSubMode->SelectActor(WallActor);
+			}
+		}
+		break;
+	case EBuildingSubMode::DoorConstruction:
+		if (auto* DoorActor = Cast<ADoorActor>(Actor)) {
+			if (IsValid(DoorSubMode)) {
+				DoorSubMode->SelectActor(DoorActor);
+			}
+		}
+		break;
+	case EBuildingSubMode::FloorConstruction:
+		if (auto* FloorActor = Cast<AFloorActor>(Actor)) {
+			if (IsValid(FloorSubMode)) {
+				FloorSubMode->SelectActor(FloorActor);
+			}
+		}
+		break;
+	case EBuildingSubMode::RoofConstruction:
+		if (auto* RoofActor = Cast<ARoofActor>(Actor)) {
+			if (IsValid(RoofSubMode)) {
+				RoofSubMode->SelectActor(RoofActor);
+			}
+		}
+		break;
 	}
 }

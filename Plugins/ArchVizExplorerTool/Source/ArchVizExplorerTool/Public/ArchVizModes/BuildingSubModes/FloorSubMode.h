@@ -23,6 +23,7 @@ public:
 	virtual void ExitSubMode() override;
 	virtual void SetupInputComponent() override;
 
+	void SelectActor(AFloorActor* FloorActor);
 protected:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AFloorActor> FloorActorClass;

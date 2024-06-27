@@ -5,6 +5,9 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "ArchVizUtility.h"
+#include "ArchVizActors/BuildingActors/WallActor.h"
+#include "ArchVizActors/BuildingActors/DoorActor.h"
+#include "ArchVizActors/BuildingActors/RoofActor.h"
 
 void UFloorSubMode::Setup() {
 	bNewFloorStart = false;
@@ -81,6 +84,19 @@ void UFloorSubMode::SetupInputComponent() {
 	}
 }
 
+void UFloorSubMode::SelectActor(AFloorActor* FloorActor) {
+	if (IsValid(CurrentFloorActor)) {
+		CurrentFloorActor->SetState(EBuildingActorState::None);
+		CurrentFloorActor = nullptr;
+	}
+
+	CurrentFloorActor = FloorActor;
+
+	if (IsValid(CurrentFloorActor)) {
+		CurrentFloorActor->SetState(EBuildingActorState::Selected);
+	}
+}
+
 void UFloorSubMode::HandleLeftMouseClick() {
 	if (IsValid(FloorActorClass)) {
 
@@ -119,9 +135,18 @@ void UFloorSubMode::HandleFreeState() {
 		CurrentFloorActor = nullptr;
 	}
 
-	if (HitResult.GetActor() && HitResult.GetActor()->IsA(AFloorActor::StaticClass())) {
+	if (IsValid(HitResult.GetActor()) && HitResult.GetActor()->IsA(AFloorActor::StaticClass())) {
 		CurrentFloorActor = Cast<AFloorActor>(HitResult.GetActor());
 		CurrentFloorActor->SetState(EBuildingActorState::Selected);
+	}
+	else if (IsValid(HitResult.GetActor()) && HitResult.GetActor()->IsA(AWallActor::StaticClass())) {
+		OnOtherBuildingActorSelected.ExecuteIfBound(EBuildingSubMode::WallConstruction, HitResult.GetActor());
+	}
+	else if (IsValid(HitResult.GetActor()) && HitResult.GetActor()->IsA(ADoorActor::StaticClass())) {
+		OnOtherBuildingActorSelected.ExecuteIfBound(EBuildingSubMode::DoorConstruction, HitResult.GetActor());
+	}
+	else if (IsValid(HitResult.GetActor()) && HitResult.GetActor()->IsA(ARoofActor::StaticClass())) {
+		OnOtherBuildingActorSelected.ExecuteIfBound(EBuildingSubMode::RoofConstruction, HitResult.GetActor());
 	}
 	else {
 		if (IsValid(FloorActorClass)) {

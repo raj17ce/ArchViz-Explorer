@@ -23,6 +23,7 @@ public:
 	virtual void ExitSubMode() override;
 	virtual void SetupInputComponent() override;
 
+	void SelectActor(ARoofActor* RoofActor);
 protected:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<ARoofActor> RoofActorClass;

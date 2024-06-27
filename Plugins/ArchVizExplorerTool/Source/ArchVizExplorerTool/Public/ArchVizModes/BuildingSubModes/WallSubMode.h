@@ -25,6 +25,7 @@ public:
 	virtual void ExitSubMode() override;
 	virtual void SetupInputComponent() override;
 
+	void SelectActor(AWallActor* WallActor);
 protected:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AWallActor> WallActorClass;

@@ -23,6 +23,7 @@ public:
 	virtual void ExitSubMode() override;
 	virtual void SetupInputComponent() override;
 
+	void SelectActor(ADoorActor* DoorActor);
 protected:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<ADoorActor> DoorActorClass;

@@ -22,8 +22,6 @@ void UBuildingConstructionWidget::HandleRoofSubModeButtonClick() {
 void UBuildingConstructionWidget::NativeConstruct() {
 	Super::NativeConstruct();
 
-	OnBuildingSubModeChange.AddUObject(this, &UBuildingConstructionWidget::HighlightSelectedColour);
-
 	if (IsValid(WallSubModeButton)) {
 		WallSubModeButton->OnClicked.AddDynamic(this, &UBuildingConstructionWidget::HandleWallSubModeButtonClick);
 	}

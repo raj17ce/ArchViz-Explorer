@@ -31,6 +31,9 @@ public:
 	UFUNCTION()
 	void HandleBuildingSubModeChange(EBuildingSubMode NewBuildingSubMode);
 
+	UFUNCTION()
+	void HandleBuildingActorSelected(EBuildingSubMode NewBuildingSubMode, AActor* Actor);
+
 private:
 	EBuildingSubMode CurrentBuildingSubMode;
 	UBuildingConstructionSubMode* CurrentBuildingSubModePtr;
@@ -63,4 +66,6 @@ private:
 	//Update Sub Mode Helpers
 	void UpdateBuildingSubMode();
 	void SetBuildingSubMode(UBuildingConstructionSubMode* NewBuildingSubModePtr);
+
+	void UpdateSelectedActor(AActor* Actor);
 };

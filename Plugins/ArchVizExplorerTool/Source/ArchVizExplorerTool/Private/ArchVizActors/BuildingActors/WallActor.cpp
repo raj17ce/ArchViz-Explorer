@@ -133,7 +133,7 @@ void AWallActor::UpdateDoorSegments() {
 		int32 SegmentIndex = It.Key();
 		ADoorActor* DoorActor = It.Value();
 
-		if (SegmentIndex >= (NumberOfSegments - 1)) {
+		if (SegmentIndex >= NumberOfSegments) {
 			if (IsValid(DoorActor)) {
 				DoorActor->Destroy();
 			}

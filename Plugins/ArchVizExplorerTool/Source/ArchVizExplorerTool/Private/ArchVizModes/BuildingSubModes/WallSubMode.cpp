@@ -5,6 +5,9 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "ArchVizUtility.h"
+#include "ArchVizActors/BuildingActors/DoorActor.h"
+#include "ArchVizActors/BuildingActors/FloorActor.h"
+#include "ArchVizActors/BuildingActors/RoofActor.h"
 
 void UWallSubMode::Setup() {
 	bNewWallStart = false;
@@ -83,6 +86,19 @@ void UWallSubMode::SetupInputComponent() {
 	}
 }
 
+void UWallSubMode::SelectActor(AWallActor* WallActor) {
+	if (IsValid(CurrentWallActor)) {
+		CurrentWallActor->SetState(EBuildingActorState::None);
+		CurrentWallActor = nullptr;
+	}
+
+	CurrentWallActor = WallActor;
+
+	if (IsValid(CurrentWallActor)) {
+		CurrentWallActor->SetState(EBuildingActorState::Selected);
+	}
+}
+
 void UWallSubMode::HandleLeftMouseClick() {
 
 	if (IsValid(WallActorClass)) {
@@ -122,11 +138,20 @@ void UWallSubMode::HandleFreeState() {
 		CurrentWallActor->SetState(EBuildingActorState::None);
 		CurrentWallActor = nullptr;
 	}
+	
 
-	if (HitResult.GetActor() && HitResult.GetActor()->IsA(AWallActor::StaticClass())) {
+	if (IsValid(HitResult.GetActor()) && HitResult.GetActor()->IsA(AWallActor::StaticClass())) {
 		CurrentWallActor = Cast<AWallActor>(HitResult.GetActor());
 		CurrentWallActor->SetState(EBuildingActorState::Selected);
-		//To-Do Display Widget
+	}
+	else if (IsValid(HitResult.GetActor()) && HitResult.GetActor()->IsA(ADoorActor::StaticClass())) {
+		OnOtherBuildingActorSelected.ExecuteIfBound(EBuildingSubMode::DoorConstruction, HitResult.GetActor());
+	}
+	else if (IsValid(HitResult.GetActor()) && HitResult.GetActor()->IsA(AFloorActor::StaticClass())) {
+		OnOtherBuildingActorSelected.ExecuteIfBound(EBuildingSubMode::FloorConstruction, HitResult.GetActor());
+	}
+	else if (IsValid(HitResult.GetActor()) && HitResult.GetActor()->IsA(ARoofActor::StaticClass())) {
+		OnOtherBuildingActorSelected.ExecuteIfBound(EBuildingSubMode::RoofConstruction, HitResult.GetActor());
 	}
 	else {
 		if (IsValid(WallActorClass)) {
