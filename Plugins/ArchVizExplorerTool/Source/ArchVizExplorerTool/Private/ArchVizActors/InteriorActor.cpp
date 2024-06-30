@@ -2,39 +2,89 @@
 
 
 #include "ArchVizActors/InteriorActor.h"
+#include "ArchVizActors/BuildingActors/WallActor.h"
 
 // Sets default values
-AInteriorActor::AInteriorActor() {
+AInteriorActor::AInteriorActor() : State{ EInteriorActorState::None } {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Scene Component"));
+	SetRootComponent(SceneComponent);
+
+	InteriorComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Interior Component"));
+	InteriorComponent->SetupAttachment(SceneComponent);
 }
 
-void AInteriorActor::SetState(EInteriorActorState NewInteriorActorState) {
-	InteriorActorState = NewInteriorActorState;
+void AInteriorActor::SetState(EInteriorActorState NewState) {
+	State = NewState;
+
+	HandleStateChange();
 }
 
 EInteriorActorState AInteriorActor::GetState() const {
-	return InteriorActorState;
+	return State;
 }
 
-void AInteriorActor::SetInteriorAssetType(EInteriorAssetType NewInteriorAssetType) {
-	InteriorAssetType = NewInteriorAssetType;
+void AInteriorActor::HandleStateChange() {
+	if (State == EInteriorActorState::Selected) {
+		ShowWidget();
+		HighlightSelectedActor();
+	}
+	else {
+		HideWidget();
+		UnhighlightDeselectedActor();
+	}
 }
 
-EInteriorAssetType AInteriorActor::GetInteriorAssetType() const {
-	return InteriorAssetType;
+void AInteriorActor::SetActorAssetData(const FInteriorAssetData& NewAssetData) {
+	AssetData = NewAssetData;
+	if (IsValid(InteriorComponent) && IsValid(AssetData.StaticMesh)) {
+		InteriorComponent->SetStaticMesh(AssetData.StaticMesh);
+	}
 }
 
 // Called when the game starts or when spawned
 void AInteriorActor::BeginPlay() {
 	Super::BeginPlay();
 
+	if (IsValid(PropertyPanelWidgetClass)) {
+		PropertyPanelWidget = CreateWidget<UPropertyPanelWidget>(GetWorld(), PropertyPanelWidgetClass);
+		PropertyPanelWidget->PropertyWidgetSwitcher->SetActiveWidgetIndex(4);
+	}
 }
 
 // Called every frame
 void AInteriorActor::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
+	if (State == EInteriorActorState::Preview) {
+		HandlePreviewState();
+	}
+	else if (State == EInteriorActorState::Moving) {
+		HandleMovingState();
+	}
+}
+
+void AInteriorActor::HandlePreviewState() {
+	FHitResult HitResult = GetHitResult(TArray<AActor*>{this});
+
+	if (IsValid(HitResult.GetActor())) {
+		if (AssetData.InteriorAssetType == EInteriorAssetType::WallPlaceable && HitResult.GetActor()->IsA(AWallActor::StaticClass())) {
+			SetActorRotation(HitResult.GetActor()->GetActorRotation());
+		}
+		SetActorLocation(HitResult.Location);
+	}
+}
+
+void AInteriorActor::HandleMovingState() {
+	FHitResult HitResult = GetHitResult(TArray<AActor*>{this});
+
+	if (IsValid(HitResult.GetActor())) {
+		if (AssetData.InteriorAssetType == EInteriorAssetType::WallPlaceable && HitResult.GetActor()->IsA(AWallActor::StaticClass())) {
+			SetActorRotation(HitResult.GetActor()->GetActorRotation());
+		}
+		SetActorLocation(HitResult.Location);
+	}
 }
 

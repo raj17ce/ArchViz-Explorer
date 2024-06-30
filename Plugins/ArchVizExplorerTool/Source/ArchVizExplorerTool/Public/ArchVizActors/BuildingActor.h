@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "ArchVizActor.h"
-#include "Widgets/PropertyPanelWidget.h"
 #include "BuildingActor.generated.h"
 
 UENUM(BlueprintType)
@@ -28,28 +27,17 @@ public:
 	void SetState(EBuildingActorState NewState);
 	EBuildingActorState GetState() const;
 
-	virtual void ShowWidget();
-	virtual void HideWidget();
-
 	void HandleStateChange();
-	virtual void HighlightSelectedActor();
-	virtual void UnhighlightDeselectedActor();
 
+	virtual void ShowWidget() override;
+	virtual void HideWidget() override;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void RotateActor(double Degree);
-
 	EBuildingActorState State;
-
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<UPropertyPanelWidget> PropertyPanelWidgetClass;
-	
-	UPROPERTY()
-	UPropertyPanelWidget* PropertyPanelWidget;
 private:
 	
 };

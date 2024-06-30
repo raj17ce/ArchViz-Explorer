@@ -5,6 +5,7 @@
 #include "ProceduralMeshComponent.h"
 #include "ProceduralMeshGenerator.h"
 #include "ArchVizUtility.h"
+#include "Widgets/MaterialWidget.h"
 
 // Sets default values
 AFloorActor::AFloorActor() {
@@ -43,6 +44,14 @@ void AFloorActor::BeginPlay() {
 	if (IsValid(PropertyPanelWidgetClass)) {
 		PropertyPanelWidget = CreateWidget<UPropertyPanelWidget>(GetWorld(), PropertyPanelWidgetClass);
 		PropertyPanelWidget->PropertyWidgetSwitcher->SetActiveWidgetIndex(2);
+	}
+
+	if (IsValid(MaterialWidgetClass)) {
+		MaterialWidget = CreateWidget<UMaterialWidget>(GetWorld(), MaterialWidgetClass);
+		if (IsValid(MaterialWidget->MaterialScrollBox)) {
+			MaterialWidget->MaterialScrollBox->PopulateWidget(MaterialWidget->FloorMaterialDataAsset);
+			MaterialWidget->MaterialScrollBox->OnItemSelected.BindUObject(this, &AFloorActor::HandleMaterialChange);
+		}
 	}
 }
 
@@ -146,5 +155,11 @@ void AFloorActor::UpdateSpinBoxValue() {
 		PropertyPanelWidget->FloorLengthSpinbox->SetValue(abs(XDistance));
 		PropertyPanelWidget->FloorWidthSpinbox->SetValue(abs(YDistance));
 		PropertyPanelWidget->FloorHeightSpinbox->SetValue(ZDistance);
+	}
+}
+
+void AFloorActor::HandleMaterialChange(FMaterialAssetData MaterialData) {
+	if (MaterialData.Material) {
+		FloorMeshComponent->SetMaterial(0, MaterialData.Material);
 	}
 }

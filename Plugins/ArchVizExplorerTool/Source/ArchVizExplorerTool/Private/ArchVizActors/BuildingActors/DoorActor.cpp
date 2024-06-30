@@ -10,7 +10,6 @@ ADoorActor::ADoorActor() : DoorFrameStaticMesh{nullptr}, DoorStaticMesh{nullptr}
 
 	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Scene Component"));
 	SetRootComponent(SceneComponent);
-	SceneComponent->SetMobility(EComponentMobility::Movable);
 
 	DoorFrameComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Door Frame Component"));
 	DoorFrameComponent->SetupAttachment(SceneComponent);

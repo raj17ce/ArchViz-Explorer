@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "ArchVizActor.h"
+#include "DataAssets/InteriorDataAsset.h"
 #include "InteriorActor.generated.h"
 
 UENUM(BlueprintType)
@@ -14,27 +16,20 @@ enum class EInteriorActorState : uint8 {
 	Moving
 };
 
-UENUM(BlueprintType)
-enum class EInteriorAssetType : uint8 {
-	FloorPlaceable,
-	WallPlaceable,
-	RoofPlaceable
-};
-
 UCLASS()
-class ARCHVIZEXPLORERTOOL_API AInteriorActor : public AActor {
+class ARCHVIZEXPLORERTOOL_API AInteriorActor : public AArchVizActor {
 	GENERATED_BODY()
 
 public:
+	friend class UInteriorDesignMode;
 	// Sets default values for this actor's properties
 	AInteriorActor();
 
-	void SetState(EInteriorActorState NewInteriorActorState);
+	void SetState(EInteriorActorState NewState);
 	EInteriorActorState GetState() const;
 
-	void SetInteriorAssetType(EInteriorAssetType NewInteriorAssetType);
-	EInteriorAssetType GetInteriorAssetType() const;
-
+	void HandleStateChange();
+	void SetActorAssetData(const FInteriorAssetData& NewAssetData);
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -43,6 +38,16 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-	EInteriorActorState InteriorActorState;
-	EInteriorAssetType InteriorAssetType;
+	EInteriorActorState State;
+	
+	FInteriorAssetData AssetData;
+
+	UPROPERTY()
+	USceneComponent* SceneComponent;
+
+	UPROPERTY()
+	UStaticMeshComponent* InteriorComponent;
+
+	void HandlePreviewState();
+	void HandleMovingState();
 };

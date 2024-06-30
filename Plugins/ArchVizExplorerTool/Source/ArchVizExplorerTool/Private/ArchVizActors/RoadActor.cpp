@@ -73,6 +73,24 @@ void ARoadActor::GenerateRoad() {
 	}
 }
 
+void ARoadActor::ShowWidget() {
+	if (IsValid(PropertyPanelWidget)) {
+		PropertyPanelWidget->AddToViewport();
+	}
+	if (IsValid(MaterialWidget)) {
+		MaterialWidget->AddToViewport();
+	}
+}
+
+void ARoadActor::HideWidget() {
+	if (IsValid(PropertyPanelWidget)) {
+		PropertyPanelWidget->RemoveFromParent();
+	}
+	if (IsValid(MaterialWidget)) {
+		MaterialWidget->RemoveFromParent();
+	}
+}
+
 void ARoadActor::GenerateRoadSegment(const FVector& StartLocation, const FVector& StartTangent, const FVector& EndLocation, const FVector& EndTangent) {
 	auto SplineMeshComponent = NewObject<USplineMeshComponent>(this);
 

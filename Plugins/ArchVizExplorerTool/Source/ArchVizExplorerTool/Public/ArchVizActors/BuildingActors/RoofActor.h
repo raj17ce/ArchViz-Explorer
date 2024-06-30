@@ -48,4 +48,7 @@ private:
 	void DestroyRoof();
 
 	void UpdateSpinBoxValue();
+
+	UFUNCTION()
+	void HandleMaterialChange(FMaterialAssetData MaterialData);
 };

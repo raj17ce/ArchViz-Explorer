@@ -81,6 +81,13 @@ void AWallActor::BeginPlay() {
 		PropertyPanelWidget = CreateWidget<UPropertyPanelWidget>(GetWorld(), PropertyPanelWidgetClass);
 		PropertyPanelWidget->PropertyWidgetSwitcher->SetActiveWidgetIndex(0);
 	}
+	if (IsValid(MaterialWidgetClass)) {
+		MaterialWidget = CreateWidget<UMaterialWidget>(GetWorld(), MaterialWidgetClass);
+		if (IsValid(MaterialWidget->MaterialScrollBox)) {
+			MaterialWidget->MaterialScrollBox->PopulateWidget(MaterialWidget->WallMaterialDataAsset);
+			MaterialWidget->MaterialScrollBox->OnItemSelected.BindUObject(this, &AWallActor::HandleMaterialChange);
+		}
+	}
 }
 
 // Called every frame
@@ -248,6 +255,14 @@ void AWallActor::UpdateLengthSpinBoxValue() {
 		}
 		else {
 			PropertyPanelWidget->WallLengthSpinbox->SetValue(abs(YDistance));
+		}
+	}
+}
+
+void AWallActor::HandleMaterialChange(FMaterialAssetData MaterialData) {
+	for (const auto& Component : WallSegments) {
+		if (MaterialData.Material) {
+			Component->SetMaterial(0, MaterialData.Material);
 		}
 	}
 }

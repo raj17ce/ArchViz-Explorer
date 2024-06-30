@@ -50,6 +50,13 @@ void ARoofActor::BeginPlay() {
 		PropertyPanelWidget = CreateWidget<UPropertyPanelWidget>(GetWorld(), PropertyPanelWidgetClass);
 		PropertyPanelWidget->PropertyWidgetSwitcher->SetActiveWidgetIndex(3);
 	}
+	if (IsValid(MaterialWidgetClass)) {
+		MaterialWidget = CreateWidget<UMaterialWidget>(GetWorld(), MaterialWidgetClass);
+		if (IsValid(MaterialWidget->MaterialScrollBox)) {
+			MaterialWidget->MaterialScrollBox->PopulateWidget(MaterialWidget->RoofMaterialDataAsset);
+			MaterialWidget->MaterialScrollBox->OnItemSelected.BindUObject(this, &ARoofActor::HandleMaterialChange);
+		}
+	}
 }
 
 // Called every frame
@@ -152,5 +159,11 @@ void ARoofActor::UpdateSpinBoxValue() {
 		PropertyPanelWidget->RoofLengthSpinbox->SetValue(abs(XDistance));
 		PropertyPanelWidget->RoofWidthSpinbox->SetValue(abs(YDistance));
 		PropertyPanelWidget->RoofHeightSpinbox->SetValue(ZDistance);
+	}
+}
+
+void ARoofActor::HandleMaterialChange(FMaterialAssetData MaterialData) {
+	if (MaterialData.Material) {
+		RoofMeshComponent->SetMaterial(0, MaterialData.Material);
 	}
 }

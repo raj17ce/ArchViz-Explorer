@@ -48,4 +48,7 @@ private:
 	void DestroyFloor();
 
 	void UpdateSpinBoxValue();
+
+	UFUNCTION()
+	void HandleMaterialChange(FMaterialAssetData MaterialData);
 };

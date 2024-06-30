@@ -27,6 +27,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void GenerateRoad();
 
+	virtual void ShowWidget() override;
+	virtual void HideWidget() override;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

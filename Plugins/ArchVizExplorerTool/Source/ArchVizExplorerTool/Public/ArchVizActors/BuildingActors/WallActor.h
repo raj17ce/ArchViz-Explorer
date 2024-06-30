@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "ArchVizActors/BuildingActor.h"
+#include "DataAssets/MaterialDataAsset.h"
 #include "WallActor.generated.h"
 
 class ADoorActor;
@@ -62,4 +63,7 @@ private:
 	void HandleEdgeOffset();
 
 	void UpdateLengthSpinBoxValue();
+
+	UFUNCTION()
+	void HandleMaterialChange(FMaterialAssetData MaterialData);
 };

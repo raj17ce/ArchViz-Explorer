@@ -2,7 +2,6 @@
 
 
 #include "ArchVizActors/BuildingActor.h"
-#include "../Plugins/Runtime/ProceduralMeshComponent/Source/ProceduralMeshComponent/Public/ProceduralMeshComponent.h"
 
 // Sets default values
 ABuildingActor::ABuildingActor() : State{ EBuildingActorState::None } {
@@ -21,18 +20,6 @@ EBuildingActorState ABuildingActor::GetState() const {
 	return State;
 }
 
-void ABuildingActor::ShowWidget() {
-	if (IsValid(PropertyPanelWidget)) {
-		PropertyPanelWidget->AddToViewport();
-	}
-}
-
-void ABuildingActor::HideWidget() {
-	if (IsValid(PropertyPanelWidget)) {
-		PropertyPanelWidget->RemoveFromParent();
-	}
-}
-
 void ABuildingActor::HandleStateChange() {
 	if (State == EBuildingActorState::Selected) {
 		ShowWidget();
@@ -44,24 +31,21 @@ void ABuildingActor::HandleStateChange() {
 	}
 }
 
-void ABuildingActor::HighlightSelectedActor() {
-	TSet<UActorComponent*> ActorComponents = GetComponents();
-
-	for (auto& ActorComponent : ActorComponents) {
-		if (auto* Component = Cast<UPrimitiveComponent>(ActorComponent)) {
-			Component->SetRenderCustomDepth(true);
-			Component->CustomDepthStencilValue = 2;
-		}
+void ABuildingActor::ShowWidget() {
+	if (IsValid(PropertyPanelWidget)) {
+		PropertyPanelWidget->AddToViewport();
+	}
+	if (IsValid(MaterialWidget)) {
+		MaterialWidget->AddToViewport();
 	}
 }
 
-void ABuildingActor::UnhighlightDeselectedActor() {
-	TSet<UActorComponent*> ActorComponents = GetComponents();
-
-	for (auto& ActorComponent : ActorComponents) {
-		if (auto* Component = Cast<UPrimitiveComponent>(ActorComponent)) {
-			Component->SetRenderCustomDepth(false);
-		}
+void ABuildingActor::HideWidget() {
+	if (IsValid(PropertyPanelWidget)) {
+		PropertyPanelWidget->RemoveFromParent();
+	}
+	if (IsValid(MaterialWidget)) {
+		MaterialWidget->RemoveFromParent();
 	}
 }
 
@@ -76,11 +60,3 @@ void ABuildingActor::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
 }
-
-void ABuildingActor::RotateActor(double Degree) {
-	FRotator CurrentRotation = GetActorRotation();
-	CurrentRotation.Yaw = static_cast<int32>(CurrentRotation.Yaw + Degree) % 360;
-
-	SetActorRotation(CurrentRotation);
-}
-

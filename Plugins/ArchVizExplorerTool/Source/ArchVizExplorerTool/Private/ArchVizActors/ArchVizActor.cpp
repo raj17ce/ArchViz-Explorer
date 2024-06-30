@@ -22,6 +22,46 @@ void AArchVizActor::Tick(float DeltaTime) {
 
 }
 
+void AArchVizActor::ShowWidget() {
+	if (IsValid(PropertyPanelWidget)) {
+		PropertyPanelWidget->AddToViewport();
+	}
+}
+
+void AArchVizActor::HideWidget() {
+	if (IsValid(PropertyPanelWidget)) {
+		PropertyPanelWidget->RemoveFromParent();
+	}
+}
+
+void AArchVizActor::HighlightSelectedActor() {
+	TSet<UActorComponent*> ActorComponents = GetComponents();
+
+	for (auto& ActorComponent : ActorComponents) {
+		if (auto* Component = Cast<UPrimitiveComponent>(ActorComponent)) {
+			Component->SetRenderCustomDepth(true);
+			Component->CustomDepthStencilValue = 2;
+		}
+	}
+}
+
+void AArchVizActor::UnhighlightDeselectedActor() {
+	TSet<UActorComponent*> ActorComponents = GetComponents();
+
+	for (auto& ActorComponent : ActorComponents) {
+		if (auto* Component = Cast<UPrimitiveComponent>(ActorComponent)) {
+			Component->SetRenderCustomDepth(false);
+		}
+	} 
+}
+
+void AArchVizActor::RotateActor(double Degree) {
+	FRotator CurrentRotation = GetActorRotation();
+	CurrentRotation.Yaw = static_cast<int32>(CurrentRotation.Yaw + Degree) % 360;
+
+	SetActorRotation(CurrentRotation);
+}
+
 FHitResult AArchVizActor::GetHitResult(const TArray<AActor*>& ActorsToIgnore) const {
 	FHitResult HitResult{};
 
