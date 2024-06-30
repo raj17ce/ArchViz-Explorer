@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "Enums/InteriorAssetTypeEnum.h"
 #include "InteriorDataAsset.generated.h"
 
 USTRUCT(Blueprintable)
@@ -15,6 +16,9 @@ struct FInteriorAssetData {
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UStaticMesh* StaticMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EInteriorAssetType InteriorAssetType;
 };
 
 /**
@@ -25,7 +29,6 @@ class ARCHVIZEXPLORERTOOL_API UInteriorDataAsset : public UDataAsset {
 	GENERATED_BODY()
 
 public:
-	EInteriorAssetType InteriorAssetType;
-
+	UPROPERTY(EditDefaultsOnly)
 	TArray<FInteriorAssetData> InteriorAssets;
 };

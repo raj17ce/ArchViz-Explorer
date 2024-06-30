@@ -8,7 +8,10 @@
 #include "UMG/Public/Components/TextBlock.h"
 #include "UMG/Public/Components/Button.h"
 #include "DataAssets/InteriorDataAsset.h"
+#include "InteriorScrollBox.h"
 #include "InteriorDesignWidget.generated.h"
+
+DECLARE_DELEGATE(FOnInteriorTypeChange)
 
 /**
  *
@@ -16,7 +19,18 @@
 UCLASS()
 class ARCHVIZEXPLORERTOOL_API UInteriorDesignWidget : public UUserWidget {
 	GENERATED_BODY()
+	
+public:
+	virtual void NativeConstruct() override;
 
+	//ScrollBox
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	UInteriorScrollBox* InteriorScrollBox;
+	 
+	FOnInteriorTypeChange OnInteriorTypeChange;
+
+	void ShowScrollBox();
+	void HideScrollBox();
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	UCanvasPanel* CanvasPanel;
@@ -61,4 +75,25 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Data Asset")
 	UInteriorDataAsset* FrameDataAsset;
+
+private:
+	void HandleButtonClick(UInteriorDataAsset* DataAsset);
+
+	UFUNCTION()
+	void HandleChairButtonClick();
+
+	UFUNCTION()
+	void HandleTableButtonClick();
+
+	UFUNCTION()
+	void HandleBedButtonClick();
+
+	UFUNCTION()
+	void HandleCeilingLightButtonClick();
+
+	UFUNCTION()
+	void HandleLampButtonClick();
+
+	UFUNCTION()
+	void HandleFrameButtonClick();
 };

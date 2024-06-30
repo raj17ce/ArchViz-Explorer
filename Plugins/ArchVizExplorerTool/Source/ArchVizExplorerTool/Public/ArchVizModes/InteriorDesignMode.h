@@ -7,6 +7,7 @@
 #include "UObject/NoExportTypes.h"
 #include "InputMappingContext.h"
 #include "ArchVizActors/InteriorActor.h"
+#include "DataAssets/InteriorDataAsset.h"
 #include "InteriorDesignMode.generated.h"
 
 UENUM(BlueprintType)
@@ -31,6 +32,7 @@ public:
     virtual void SetPlayerController(APlayerController* Controller) override;
     virtual void SetupInputComponent() override;
 
+    void Cleanup();
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
     TSubclassOf<AInteriorActor> InteriorActorClass;
@@ -42,8 +44,23 @@ private:
     AInteriorActor* CurrentInteriorActor;
 
     UFUNCTION()
-    void HandleInteriorAssetSelect(EInteriorAssetType AssetType, UStaticMesh* StaticMesh);
+    void HandleInteriorAssetSelect(FInteriorAssetData AssetData);
+
     void HandleLeftMouseClick();
+    void HandleRKeyPress();
+    void HandleMKeyPress();
+
+    void BindPropertyWidgetDelegates();
+
+    UFUNCTION()
+	void HandleInteriorNewButtonClick();
+
+	UFUNCTION()
+	void HandleInteriorDeleteButtonClick();
+
+	UFUNCTION()
+	void HandleInteriorCloseButtonClick();
+
     void HandleFreeState();
     void HandleOldObjectState();
     void HandleNewObjectState();
