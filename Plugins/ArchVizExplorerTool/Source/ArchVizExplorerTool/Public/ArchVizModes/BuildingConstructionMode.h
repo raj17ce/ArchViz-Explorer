@@ -23,6 +23,7 @@ class ARCHVIZEXPLORERTOOL_API UBuildingConstructionMode : public UArchVizMode {
 
 public:
 	virtual void Setup() override;
+	virtual void Cleanup() override;
 	virtual void EnterMode() override;
 	virtual void ExitMode() override;
 	virtual void SetPlayerController(APlayerController* Controller) override;

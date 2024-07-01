@@ -20,6 +20,7 @@ class ARCHVIZEXPLORERTOOL_API UArchVizMode : public UObject {
 public:
 	//Pure Virtual Functions
 	virtual void Setup() PURE_VIRTUAL(UArchVizMode::Setup, );
+	virtual void Cleanup() PURE_VIRTUAL(UArchVizMode::Cleanup, );
 	virtual void EnterMode() PURE_VIRTUAL(UArchVizMode::EnterMode, );
 	virtual void ExitMode() PURE_VIRTUAL(UArchVizMode::ExitMode, );
 	virtual void SetupInputComponent() PURE_VIRTUAL(UArchVizMode::SetupInputComponent, );

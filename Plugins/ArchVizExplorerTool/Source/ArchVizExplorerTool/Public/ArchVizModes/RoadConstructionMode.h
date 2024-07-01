@@ -10,6 +10,12 @@
 #include "Widgets/RoadConstructionWidget.h"
 #include "RoadConstructionMode.generated.h"
 
+UENUM(BlueprintType)
+enum class ERoadModeState : uint8 {
+    Free,
+    NewObject
+};
+
 /**
  * 
  */
@@ -19,6 +25,7 @@ class ARCHVIZEXPLORERTOOL_API URoadConstructionMode : public UArchVizMode {
 
 public:
     virtual void Setup() override;
+    virtual void Cleanup() override;
     virtual void EnterMode() override;
     virtual void ExitMode() override;
     virtual void SetupInputComponent() override;
@@ -28,8 +35,42 @@ protected:
 	TSubclassOf<ARoadActor> RoadActorClass;
 
 private:
-	UPROPERTY()
-    ARoadActor* RoadActor;
+    ERoadModeState RoadModeState;
+
+    UPROPERTY()
+    ARoadActor* CurrentRoadActor;
 
     void HandleLeftMouseClick();
+
+    void BindPropertyWidgetDelegates();
+
+    //Main-Widget
+
+	UFUNCTION()
+	void HandleSaveRoadButtonClick();
+
+	UFUNCTION()
+	void HandleUndoRoadButtonClick();
+
+    //Property-Panel
+    UFUNCTION()
+	void HandleRoadWidthChange(float InWidth);
+
+    UFUNCTION()
+	void HandleRoadTypeChange(FString Selectedtype, ESelectInfo::Type SelectionType);
+
+    UFUNCTION()
+	void HandleRoadNewButtonClick();
+
+	UFUNCTION()
+	void HandleRoadDeleteButtonClick();
+
+	UFUNCTION()
+	void HandleRoadCloseButtonClick();
+
+    //Actor
+    void HandleRoadActorStateChange(ERoadActorState RoadActorState);
+    
+    void HandleFreeState();
+    void HandleNewObjectState();
 };

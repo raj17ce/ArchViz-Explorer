@@ -44,6 +44,12 @@ void UBuildingConstructionMode::Setup() {
 	}
 }
 
+void UBuildingConstructionMode::Cleanup() {
+	if (CurrentBuildingSubModePtr) {
+		CurrentBuildingSubModePtr->Cleanup();
+	}
+}
+
 void UBuildingConstructionMode::EnterMode() {
 	ShowWidget();
 	if (CurrentBuildingSubModePtr) {

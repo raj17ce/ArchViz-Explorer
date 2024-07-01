@@ -169,8 +169,10 @@ void UWallSubMode::HandleFreeState() {
 }
 
 void UWallSubMode::HandleOldObjectState() {
-	SubModeState = EBuildingSubModeState::Free;
-	CurrentWallActor->SetState(EBuildingActorState::Selected);
+	if (IsValid(CurrentWallActor)) {
+		SubModeState = EBuildingSubModeState::Free;
+		CurrentWallActor->SetState(EBuildingActorState::Selected);
+	}
 }
 
 void UWallSubMode::HandleNewObjectState() {

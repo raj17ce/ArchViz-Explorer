@@ -7,6 +7,7 @@
 #include "UMG/Public/Components/WidgetSwitcher.h"
 #include "UMG/Public/Components/SpinBox.h"
 #include "UMG/Public/Components/Button.h"
+#include "UMG/Public/Components/ComboBoxString.h"
 #include "PropertyPanelWidget.generated.h"
 
 /**
@@ -90,4 +91,20 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	UButton* InteriorDeleteButton;
+
+	//Road
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	USpinBox* RoadWidthSpinbox;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	UComboBoxString* RoadTypeComboBox;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	UButton* RoadCloseButton;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	UButton* RoadNewButton;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	UButton* RoadDeleteButton;
 };

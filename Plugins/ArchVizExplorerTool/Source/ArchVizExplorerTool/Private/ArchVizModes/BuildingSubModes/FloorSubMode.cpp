@@ -164,8 +164,10 @@ void UFloorSubMode::HandleFreeState() {
 }
 
 void UFloorSubMode::HandleOldObjectState() {
-	SubModeState = EBuildingSubModeState::Free;
-	CurrentFloorActor->SetState(EBuildingActorState::Selected);
+	if (IsValid(CurrentFloorActor)) {
+		SubModeState = EBuildingSubModeState::Free;
+		CurrentFloorActor->SetState(EBuildingActorState::Selected);
+	}
 }
 
 void UFloorSubMode::HandleNewObjectState() {

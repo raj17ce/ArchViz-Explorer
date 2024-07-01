@@ -180,8 +180,10 @@ void UInteriorDesignMode::HandleFreeState() {
 }
 
 void UInteriorDesignMode::HandleOldObjectState() {
-	InteriorModeState = EInteriorModeState::Free;
-	CurrentInteriorActor->SetState(EInteriorActorState::Selected);
+	if (IsValid(CurrentInteriorActor)) {
+		InteriorModeState = EInteriorModeState::Free;
+		CurrentInteriorActor->SetState(EInteriorActorState::Selected);
+	}
 }
 
 void UInteriorDesignMode::HandleNewObjectState() {

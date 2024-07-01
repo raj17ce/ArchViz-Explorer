@@ -164,8 +164,10 @@ void URoofSubMode::HandleFreeState() {
 }
 
 void URoofSubMode::HandleOldObjectState() {
-	SubModeState = EBuildingSubModeState::Free;
-	CurrentRoofActor->SetState(EBuildingActorState::Selected);
+	if (IsValid(CurrentRoofActor)) {
+		SubModeState = EBuildingSubModeState::Free;
+		CurrentRoofActor->SetState(EBuildingActorState::Selected);
+	}
 }
 
 void URoofSubMode::HandleNewObjectState() {

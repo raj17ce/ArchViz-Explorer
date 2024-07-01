@@ -5,7 +5,7 @@
 #include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
-ARoadActor::ARoadActor() : RoadMesh{ nullptr } {
+ARoadActor::ARoadActor() : RoadMesh{ nullptr }, State{ ERoadActorState::None }, RoadType{ERoadType::Curved} {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -21,6 +21,20 @@ ARoadActor::ARoadActor() : RoadMesh{ nullptr } {
 // Called when the game starts or when spawned
 void ARoadActor::BeginPlay() {
 	Super::BeginPlay();
+
+	if (IsValid(PropertyPanelWidgetClass)) {
+		PropertyPanelWidget = CreateWidget<UPropertyPanelWidget>(GetWorld(), PropertyPanelWidgetClass);
+		PropertyPanelWidget->PropertyWidgetSwitcher->SetActiveWidgetIndex(5);
+		Width = PropertyPanelWidget->RoadWidthSpinbox->GetValue();
+	}
+
+	if (IsValid(MaterialWidgetClass)) {
+		MaterialWidget = CreateWidget<UMaterialWidget>(GetWorld(), MaterialWidgetClass);
+		if (IsValid(MaterialWidget->MaterialScrollBox)) {
+			MaterialWidget->MaterialScrollBox->PopulateWidget(MaterialWidget->RoadMaterialDataAsset);
+			MaterialWidget->MaterialScrollBox->OnItemSelected.BindUObject(this, &ARoadActor::HandleMaterialChange);
+		}
+	}
 }
 
 // Called every frame
@@ -30,47 +44,115 @@ void ARoadActor::Tick(float DeltaTime) {
 
 void ARoadActor::AddSplinePoint(const FVector& Location) {
 
-	if (!SplineComponent || !RoadMesh) return;
+	if (!IsValid(SplineComponent) || !IsValid(RoadMesh) || State != ERoadActorState::Generating) return;
 
-	SplineComponent->AddSplinePoint(Location, ESplineCoordinateSpace::World);
-	GenerateRoad();
+	if (!SplinePoints.IsEmpty()) {
+		if (UKismetMathLibrary::Vector_Distance(Location, SplinePoints[SplinePoints.Num() - 1]) < 400) {
+			return;
+		}
+	}
+
+	SplinePoints.Add(Location);
+	UpdateRoad();
 }
 
-void ARoadActor::GenerateRoad() {
+void ARoadActor::RemoveLastSplinePoint() {
+	if (State != ERoadActorState::Generating) return;
 
-	DestroyRoadSegments();
+	if (!SplinePoints.IsEmpty()) {
+		SplinePoints.RemoveAt(SplinePoints.Num() - 1);
+		UpdateRoad();
+	}
+}
 
-	if (!SplineComponent || !RoadMesh) return;
-
-	int32 SplinePointsCount = SplineComponent->GetNumberOfSplinePoints();
-
-	if (SplinePointsCount < 2) {
+void ARoadActor::UpdateRoad() {
+	if (SplinePoints.Num() < 2) {
+		DestroyRoadSegments();
 		return;
 	}
 
-	double SplineLength = SplineComponent->GetSplineLength();
+	SplineComponent->SetSplinePoints(SplinePoints, ESplineCoordinateSpace::World);
 
-	double RoadMeshSizeX = 1.0;
-	if (IsValid(RoadMesh)) {
-		RoadMeshSizeX = ((RoadMesh->GetBoundingBox().Max - RoadMesh->GetBoundingBox().Min).X / 4);
+	const int32 NumPoints = SplineComponent->GetNumberOfSplinePoints();
+	const FVector MeshBounds = RoadMesh->GetBounds().BoxExtent * 2.0f;
+	const float MeshWidth = MeshBounds.Y;
+	const float MeshLength = MeshBounds.X;
+	const float ScaleFactor = Width / MeshWidth;
+	//const float ScaleFactor = 1.0;
+
+	if (RoadType == ERoadType::Sharp) {
+		for (int32 i = 0; i < NumPoints; ++i) {
+			SplineComponent->SetSplinePointType(i, ESplinePointType::CurveClamped, true);
+		}
 	}
 
-	int32 InstanceCount = FMath::FloorToInt(SplineLength / RoadMeshSizeX);
+	int32 SegmentIndex = 0;
 
-	for (int32 i = 0; i <= InstanceCount; ++i) {
-		FVector StartLocation = SplineComponent->GetLocationAtDistanceAlongSpline(i * RoadMeshSizeX, ESplineCoordinateSpace::Local);
-		FVector StartTangent = SplineComponent->GetTangentAtDistanceAlongSpline(i * RoadMeshSizeX, ESplineCoordinateSpace::Local);
+	for (int32 PointIndex = 0; PointIndex < NumPoints - 1; ++PointIndex) {
+		const float StartDistance = SplineComponent->GetDistanceAlongSplineAtSplinePoint(PointIndex);
+		const float EndDistance = SplineComponent->GetDistanceAlongSplineAtSplinePoint(PointIndex + 1);
+		const float SegmentLength = EndDistance - StartDistance;
+		const int32 NumberOfSegments = FMath::CeilToInt(SegmentLength / MeshLength);
 
-		FVector EndLocation = SplineComponent->GetLocationAtDistanceAlongSpline(FMath::Min((i + 1) * RoadMeshSizeX, SplineLength), ESplineCoordinateSpace::Local);
-		FVector EndTangent = SplineComponent->GetTangentAtDistanceAlongSpline(FMath::Min((i + 1) * RoadMeshSizeX, SplineLength), ESplineCoordinateSpace::Local);
+		for (int32 ComponentIndex = 0; ComponentIndex < NumberOfSegments; ++ComponentIndex) {
+			if (SegmentIndex >= SplineMeshComponents.Num()) {
+				auto* SplineMeshComponent = NewObject<USplineMeshComponent>(this);
+				SplineMeshComponent->SetMobility(EComponentMobility::Movable);
+				SplineMeshComponent->AttachToComponent(SplineComponent, FAttachmentTransformRules::KeepRelativeTransform);
+				SplineMeshComponent->SetStaticMesh(RoadMesh);
+				SplineMeshComponent->RegisterComponent();
 
-		StartTangent = UKismetMathLibrary::ClampVectorSize(StartTangent, 0.0, RoadMeshSizeX);
-		EndTangent = UKismetMathLibrary::ClampVectorSize(EndTangent, 0.0, RoadMeshSizeX);
+				SplineMeshComponents.Add(SplineMeshComponent);
+			}
 
-		UE_LOG(LogTemp, Warning, TEXT("Generated segment: StartLocation=%s, StartTangent=%s, EndLocation=%s, EndTangent=%s"), *StartLocation.ToString(), *StartTangent.ToString(), *EndLocation.ToString(), *EndTangent.ToString());
+			auto* SplineMeshComponent = SplineMeshComponents[SegmentIndex];
+			SplineMeshComponent->SetVisibility(true);
+			float StretchedMeshLength = SegmentLength / NumberOfSegments;
 
-		GenerateRoadSegment(StartLocation, StartTangent, EndLocation, EndTangent);
+			float LocalStartDistance = StartDistance + ComponentIndex * StretchedMeshLength - 200;
+			float LocalEndDistance = StartDistance + (ComponentIndex + 1) * StretchedMeshLength - 200;
+
+			const FVector StartLocation = SplineComponent->GetLocationAtDistanceAlongSpline(LocalStartDistance, ESplineCoordinateSpace::Local);
+			const FVector StartTangent = SplineComponent->GetTangentAtDistanceAlongSpline(LocalStartDistance, ESplineCoordinateSpace::Local).GetClampedToMaxSize(MeshLength);
+			const FVector EndLocation = SplineComponent->GetLocationAtDistanceAlongSpline(LocalEndDistance, ESplineCoordinateSpace::Local);
+			const FVector EndTangent = SplineComponent->GetTangentAtDistanceAlongSpline(LocalEndDistance, ESplineCoordinateSpace::Local).GetClampedToMaxSize(MeshLength);
+
+			SplineMeshComponent->SetStartAndEnd(StartLocation, StartTangent, EndLocation, EndTangent, true);
+			SplineMeshComponent->SetStartScale(FVector2D(ScaleFactor, 1));
+			SplineMeshComponent->SetEndScale(FVector2D(ScaleFactor, 1));
+			SplineMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+			SplineMeshComponent->SetCollisionProfileName(UCollisionProfile::BlockAllDynamic_ProfileName);
+
+			if (IsValid(Material)) {
+				SplineMeshComponent->SetMaterial(0, Material);
+			}
+
+			++SegmentIndex;
+		}
 	}
+
+	for (int32 ExtraSegmentsIndex = SegmentIndex; ExtraSegmentsIndex < SplineMeshComponents.Num(); ++ExtraSegmentsIndex) {
+		SplineMeshComponents[ExtraSegmentsIndex]->SetVisibility(false);
+	}
+}
+
+void ARoadActor::SetState(ERoadActorState NewState) {
+	State = NewState;
+
+	HandleStateChange();
+}
+
+ERoadActorState ARoadActor::GetState() const {
+	return State;
+}
+
+void ARoadActor::SetRoadType(ERoadType NewRoadType) {
+	RoadType = NewRoadType;
+	UpdateRoad();
+}
+
+ERoadType ARoadActor::GetRoadType() const {
+	return RoadType;
 }
 
 void ARoadActor::ShowWidget() {
@@ -91,19 +173,18 @@ void ARoadActor::HideWidget() {
 	}
 }
 
-void ARoadActor::GenerateRoadSegment(const FVector& StartLocation, const FVector& StartTangent, const FVector& EndLocation, const FVector& EndTangent) {
-	auto SplineMeshComponent = NewObject<USplineMeshComponent>(this);
+void ARoadActor::HandleStateChange() {
 
-	if (SplineMeshComponent) {
-		SplineMeshComponent->SetMobility(EComponentMobility::Movable);
-		SplineMeshComponent->SetStaticMesh(RoadMesh);
-		SplineMeshComponent->SetForwardAxis(ESplineMeshAxis::X);
-		SplineMeshComponent->AttachToComponent(SplineComponent, FAttachmentTransformRules::KeepRelativeTransform);
-		SplineMeshComponent->SetStartAndEnd(StartLocation, StartTangent, EndLocation, EndTangent, true);
-		SplineMeshComponent->RegisterComponentWithWorld(GetWorld());
+	OnRoadActorStateChanged.ExecuteIfBound(State);
+
+	if (State == ERoadActorState::Selected) {
+		ShowWidget();
+		HighlightSelectedActor();
 	}
-
-	SplineMeshComponents.Add(SplineMeshComponent);
+	else {
+		HideWidget();
+		UnhighlightDeselectedActor();
+	}
 }
 
 void ARoadActor::DestroyRoadSegments() {
@@ -115,4 +196,11 @@ void ARoadActor::DestroyRoadSegments() {
 	}
 
 	SplineMeshComponents.Empty();
+}
+
+void ARoadActor::HandleMaterialChange(FMaterialAssetData MaterialData) {
+	if (IsValid(MaterialData.Material)) {
+		Material = MaterialData.Material;
+		UpdateRoad();
+	}
 }
