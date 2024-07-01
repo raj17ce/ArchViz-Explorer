@@ -44,6 +44,21 @@ void AInteriorActor::SetActorAssetData(const FInteriorAssetData& NewAssetData) {
 	}
 }
 
+void AInteriorActor::AdjustWallInteriorRotation(FRotator& Rotation) {
+	if (Rotation.Yaw >= 85.0 && Rotation.Yaw <= 95.0) {
+		Rotation.Yaw = -90.0;
+	}
+	else if (Rotation.Yaw >= -5.0 && Rotation.Yaw <= 5.0) {
+		Rotation.Yaw = 180.0;
+	}
+	else if (Rotation.Yaw >= 175 && Rotation.Yaw <= 185) {
+		Rotation.Yaw = 0.0;
+	}
+	else {
+		Rotation.Yaw = 90.0;
+	}
+}
+
 // Called when the game starts or when spawned
 void AInteriorActor::BeginPlay() {
 	Super::BeginPlay();
@@ -71,7 +86,9 @@ void AInteriorActor::HandlePreviewState() {
 
 	if (IsValid(HitResult.GetActor())) {
 		if (AssetData.InteriorAssetType == EInteriorAssetType::WallPlaceable && HitResult.GetActor()->IsA(AWallActor::StaticClass())) {
-			SetActorRotation(HitResult.GetActor()->GetActorRotation());
+			FRotator ActorRotation = HitResult.GetActor()->GetActorRotation();
+			AdjustWallInteriorRotation(ActorRotation);
+			SetActorRotation(ActorRotation);
 		}
 		SetActorLocation(HitResult.Location);
 	}
@@ -82,7 +99,9 @@ void AInteriorActor::HandleMovingState() {
 
 	if (IsValid(HitResult.GetActor())) {
 		if (AssetData.InteriorAssetType == EInteriorAssetType::WallPlaceable && HitResult.GetActor()->IsA(AWallActor::StaticClass())) {
-			SetActorRotation(HitResult.GetActor()->GetActorRotation());
+			FRotator ActorRotation = HitResult.GetActor()->GetActorRotation();
+			AdjustWallInteriorRotation(ActorRotation);
+			SetActorRotation(ActorRotation);
 		}
 		SetActorLocation(HitResult.Location);
 	}

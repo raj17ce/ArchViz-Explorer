@@ -209,7 +209,9 @@ void UInteriorDesignMode::HandleNewObjectState() {
 				if (HitResult.GetActor()->IsA(AWallActor::StaticClass())) {
 					CurrentInteriorActor->AttachToActor(HitResult.GetActor(), FAttachmentTransformRules::KeepWorldTransform);
 					CurrentInteriorActor->SetActorLocation(HitResult.Location);
-					CurrentInteriorActor->SetActorRotation(HitResult.GetActor()->GetActorRotation());
+					FRotator ActorRotation = HitResult.GetActor()->GetActorRotation();
+					CurrentInteriorActor->AdjustWallInteriorRotation(ActorRotation);
+					CurrentInteriorActor->SetActorRotation(ActorRotation);
 					CurrentInteriorActor->SetState(EInteriorActorState::Selected);
 					InteriorModeState = EInteriorModeState::Free;
 					if (auto* InteriorWidget = Cast<UInteriorDesignWidget>(Widget)) {
@@ -222,6 +224,20 @@ void UInteriorDesignMode::HandleNewObjectState() {
 				break;
 			case EInteriorAssetType::RoofPlaceable:
 				if (HitResult.GetActor()->IsA(ARoofActor::StaticClass())) {
+					CurrentInteriorActor->AttachToActor(HitResult.GetActor(), FAttachmentTransformRules::KeepWorldTransform);
+					CurrentInteriorActor->SetActorLocation(HitResult.Location);
+					CurrentInteriorActor->SetState(EInteriorActorState::Selected);
+					InteriorModeState = EInteriorModeState::Free;
+					if (auto* InteriorWidget = Cast<UInteriorDesignWidget>(Widget)) {
+						InteriorWidget->HideScrollBox();
+					}
+				}
+				else {
+					//Notification
+				}
+				break;
+			case EInteriorAssetType::InteriorPlaceable:
+				if (HitResult.GetActor()->IsA(AInteriorActor::StaticClass())) {
 					CurrentInteriorActor->AttachToActor(HitResult.GetActor(), FAttachmentTransformRules::KeepWorldTransform);
 					CurrentInteriorActor->SetActorLocation(HitResult.Location);
 					CurrentInteriorActor->SetState(EInteriorActorState::Selected);

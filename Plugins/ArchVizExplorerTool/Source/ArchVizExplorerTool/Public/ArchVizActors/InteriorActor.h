@@ -30,6 +30,8 @@ public:
 
 	void HandleStateChange();
 	void SetActorAssetData(const FInteriorAssetData& NewAssetData);
+
+	void AdjustWallInteriorRotation(FRotator& Rotation);
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

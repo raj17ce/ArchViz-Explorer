@@ -9,5 +9,6 @@ UENUM(BlueprintType)
 enum class EInteriorAssetType : uint8 {
 	FloorPlaceable,
 	WallPlaceable,
-	RoofPlaceable
+	RoofPlaceable,
+	InteriorPlaceable
 };
