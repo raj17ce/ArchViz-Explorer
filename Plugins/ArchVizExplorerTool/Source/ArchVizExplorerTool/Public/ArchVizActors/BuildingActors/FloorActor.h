@@ -31,6 +31,7 @@ public:
 	void SetOffset(const FVector& NewOffset);
 
 	void GenerateFloor();
+	void AdjustDimensionAndOffset();
 	void UpdateSpinBoxValue();
 protected:
 	// Called when the game starts or when spawned
@@ -59,4 +60,6 @@ private:
 
 	UFUNCTION()
 	void HandleMaterialChange(FMaterialAssetData MaterialData);
+
+	void ApplyMaterial();
 };

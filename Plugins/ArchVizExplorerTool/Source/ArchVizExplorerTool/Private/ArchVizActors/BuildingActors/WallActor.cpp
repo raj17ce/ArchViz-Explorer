@@ -145,13 +145,10 @@ void AWallActor::GenerateWallSegments() {
 			WallSegments.Add(WallMeshComponent);
 		}
 
-		if (IsValid(Material)) {
-			WallMeshComponent->SetMaterial(0, Material);
-		}
-
 		WallMeshComponent->SetRelativeLocation(FVector{SegmentIndex * WallSize.X, 0, 0});
 	}
 
+	ApplyMaterial();
 	UpdateDoorSegments();
 }
 
@@ -277,6 +274,20 @@ void AWallActor::UpdateLengthSpinBoxValue() {
 void AWallActor::HandleMaterialChange(FMaterialAssetData MaterialData) {
 	if (MaterialData.Material) {
 		Material = MaterialData.Material;
-		GenerateWallSegments();
+		ApplyMaterial();
+	}
+}
+
+void AWallActor::ApplyMaterial() {
+	if (IsValid(Material)) {
+		if (auto* Dynamicmaterial = UMaterialInstanceDynamic::Create(Material, this)) {
+			Dynamicmaterial->SetVectorParameterValue(FName("Tiling/Offset"), FLinearColor(033, 0.33, 0, 0));
+			
+			for (auto Segment : WallSegments) {
+				if (IsValid(Segment)) {
+					Segment->SetMaterial(0, Dynamicmaterial);
+				}
+			}
+		}
 	}
 }

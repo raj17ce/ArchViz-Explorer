@@ -76,4 +76,6 @@ private:
 
 	UFUNCTION()
 	void HandleMaterialChange(FMaterialAssetData MaterialData);
+
+	void ApplyMaterial();
 };

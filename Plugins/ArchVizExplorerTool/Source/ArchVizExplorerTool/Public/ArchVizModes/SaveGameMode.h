@@ -57,6 +57,9 @@ private:
 	void HandleSaveButtonClick();
 
 	UFUNCTION()
+	void HandleNewProjectButtonClick();
+
+	UFUNCTION()
 	void HandleSlotItemNameButtonClick(const FString& SlotName);
 	
 	UFUNCTION()

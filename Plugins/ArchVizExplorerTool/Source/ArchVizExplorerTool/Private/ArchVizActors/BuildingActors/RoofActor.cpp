@@ -105,34 +105,18 @@ void ARoofActor::HandleGeneratingState() {
 		return;
 	}
 
-	double EdgeOffset{ 10.0 };
-
 	SetEndPoint(HitResult.Location);
+
+	double EdgeOffset{ 10.0 };
 
 	double XDistance = EndPoint.X - StartPoint.X;
 	double YDistance = EndPoint.Y - StartPoint.Y;
 	double ZDistance = 20.0;
 
-	FVector NewDimensions{ abs(XDistance) + (2 * EdgeOffset), abs(YDistance) + (2 * EdgeOffset), ZDistance };
-	FVector NewOffset{ abs(XDistance) /2,  abs(YDistance) / 2, ZDistance / 2 };
+	Dimensions = FVector{ abs(XDistance) + (2 * EdgeOffset), abs(YDistance) + (2 * EdgeOffset), ZDistance };
+	Offset = FVector{ abs(XDistance) / 2,  abs(YDistance) / 2, ZDistance / 2 };
 
-	if (XDistance >= 0.0 && YDistance >= 0.0) {
-		RoofMeshComponent->SetWorldRotation(FRotator{ 0.0 });
-	}
-	else if (XDistance >= 0.0 && YDistance < 0.0) {
-		RoofMeshComponent->SetWorldRotation(FRotator{ 0.0,0.0,180.0 });
-		NewOffset.Z *= -1.0;
-	}
-	else if (XDistance < 0.0 && YDistance >= 0.0) {
-		RoofMeshComponent->SetWorldRotation(FRotator{ 180.0,0.0,0.0 });
-		NewOffset.Z *= -1.0;
-	}
-	else {
-		RoofMeshComponent->SetWorldRotation(FRotator{ 180.0,0.0, 180.0 });
-	}
-
-	Dimensions = NewDimensions;
-	Offset = NewOffset;
+	AdjustDimensionAndOffset();
 	GenerateRoof();
 }
 
@@ -147,13 +131,32 @@ void ARoofActor::GenerateRoof() {
 	DestroyRoof();
 	ProceduralMeshGenerator::GenerateCube(RoofMeshComponent, 0, Dimensions, Offset);
 
-	if (IsValid(Material)) {
-		RoofMeshComponent->SetMaterial(0, Material);
-	}
+	ApplyMaterial();
 }
 
 void ARoofActor::DestroyRoof() {
 	RoofMeshComponent->ClearAllMeshSections();
+}
+
+void ARoofActor::AdjustDimensionAndOffset() {
+	double XDistance = EndPoint.X - StartPoint.X;
+	double YDistance = EndPoint.Y - StartPoint.Y;
+	double ZDistance = 20.0;
+
+	if (XDistance >= 0.0 && YDistance >= 0.0) {
+		RoofMeshComponent->SetWorldRotation(FRotator{ 0.0 });
+	}
+	else if (XDistance >= 0.0 && YDistance < 0.0) {
+		RoofMeshComponent->SetWorldRotation(FRotator{ 0.0,0.0,180.0 });
+		Offset.Z *= -1.0;
+	}
+	else if (XDistance < 0.0 && YDistance >= 0.0) {
+		RoofMeshComponent->SetWorldRotation(FRotator{ 180.0,0.0,0.0 });
+		Offset.Z *= -1.0;
+	}
+	else {
+		RoofMeshComponent->SetWorldRotation(FRotator{ 180.0,0.0, 180.0 });
+	}
 }
 
 void ARoofActor::UpdateSpinBoxValue() {
@@ -167,6 +170,15 @@ void ARoofActor::UpdateSpinBoxValue() {
 void ARoofActor::HandleMaterialChange(FMaterialAssetData MaterialData) {
 	if (MaterialData.Material) {
 		Material = MaterialData.Material;
-		RoofMeshComponent->SetMaterial(0, Material);
+		ApplyMaterial();
+	}
+}
+
+void ARoofActor::ApplyMaterial() {
+	if (IsValid(Material)) {
+		if (auto* Dynamicmaterial = UMaterialInstanceDynamic::Create(Material, this)) {
+			Dynamicmaterial->SetVectorParameterValue(FName("Tiling/Offset"), FLinearColor(Dimensions.X / 400.0f, Dimensions.Y / 400.0f, 0, 0));
+			RoofMeshComponent->SetMaterial(0, Dynamicmaterial);
+		}
 	}
 }

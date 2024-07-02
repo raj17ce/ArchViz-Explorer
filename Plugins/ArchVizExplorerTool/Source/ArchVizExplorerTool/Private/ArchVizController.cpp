@@ -49,6 +49,10 @@ void AArchVizController::BeginPlay() {
 		ArchVizModeWidget->OnArchVizModeChange.AddUObject(this, &AArchVizController::HandleArchVizModeChange);
 		ArchVizModeWidget->AddToViewport(1);
 	}
+	if (IsValid(NotificationWidgetClass)) {
+		NotificationWidget = CreateWidget<UNotificationWidget>(this, NotificationWidgetClass, "Notification Widget");
+		ArchVizModeWidget->AddToViewport(-1);
+	}
 
 	SetInputMode(InputModeGameAndUI);
 	SetShowMouseCursor(true);
@@ -67,6 +71,18 @@ void AArchVizController::HandleArchVizModeChange(EArchVizMode NewArchVizMode) {
 
 	UpdateArchVizMode();
 }
+
+void AArchVizController::AddErrorMessage(FText Message) {
+	if (IsValid(NotificationWidget)) {
+		NotificationWidget->ShowErrorMessage(Message);
+	}
+}
+
+void AArchVizController::AddSuccessMessage(FText Message) {
+	if (IsValid(NotificationWidget)) {
+		NotificationWidget->ShowErrorMessage(Message);
+	}
+}  
 
 void AArchVizController::UpdateArchVizMode() {
 	switch (CurrentArchVizMode) {

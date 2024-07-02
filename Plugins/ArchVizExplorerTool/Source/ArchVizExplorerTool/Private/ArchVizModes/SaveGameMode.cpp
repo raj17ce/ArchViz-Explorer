@@ -21,6 +21,7 @@ void USaveGameMode::Setup() {
 
 		if (auto* SaveGameWidget = Cast<USaveGameWidget>(Widget)) {
 			SaveGameWidget->PopulateSavedSlotsList(SlotsList);
+			SaveGameWidget->NewProjectButton->OnClicked.AddDynamic(this, &USaveGameMode::HandleNewProjectButtonClick);
 			SaveGameWidget->SavePopupSaveButton->OnClicked.AddDynamic(this, &USaveGameMode::HandleSaveButtonClick);
 			SaveGameWidget->OnSaveSlotReceived.BindUObject(this, &USaveGameMode::HandleSlotItemNameButtonClick);
 			SaveGameWidget->OnSaveSlotDeleteReceived.BindUObject(this, &USaveGameMode::HandleSlotItemDeleteButtonClick);
@@ -53,28 +54,47 @@ void USaveGameMode::HandleSaveButtonClick() {
 			return;
 		}
 
-		if (GetSavedSlotsList().Contains(SlotName)) {
+		if (GetSavedSlotsList().Contains(SlotName) && SlotName != CurrentSlotName) {
 			// To-Do :: Notify("This Name Already Exists. Please Choose Differnet Name");
 			return;
+		}
+
+		if (GetSavedSlotsList().Contains(SlotName) && SlotName == CurrentSlotName) {
+			
 		}
 
 		CurrentSlotName = SlotName;
 		SaveGame(CurrentSlotName);
 
-		SaveGameWidget->SaveSlotName->SetText(FText{});
+		SaveGameWidget->HandleSavePopupCloseButtonClick();
+		//SaveGameWidget->SaveSlotName->SetText(FText{});
 	}
 }
 
+void USaveGameMode::HandleNewProjectButtonClick() {
+	//if (!CurrentSlotName.IsEmpty()) {
+	//	// To-Do :: Notify the name is empty
+	//	return;
+	//}
+	//SaveGame(CurrentSlotName);
+
+	//CurrentSlotName = "";
+
+}
+
 void USaveGameMode::HandleSlotItemNameButtonClick(const FString& SlotName) {
-	if (CurrentSlotName == SlotName) {
-		// Notify("Project is Already Opened.");
-		return;
+	if (auto* SaveGameWidget = Cast<USaveGameWidget>(Widget)) {
+		if (CurrentSlotName == SlotName) {
+			// Notify("Project is Already Opened.");
+			return;
+		}
+
+		CurrentSlotName = SlotName;
+		LoadGame(CurrentSlotName);
+
+		SaveGameWidget->HandleLoadPopupCloseButtonClick();
+		// To-Do :: Success
 	}
-
-	CurrentSlotName = SlotName;
-	LoadGame(CurrentSlotName);
-
-	// To-Do :: Success
 }
 
 void USaveGameMode::HandleSlotItemDeleteButtonClick(const FString& SlotName) {
@@ -93,7 +113,6 @@ void USaveGameMode::HandleSlotItemDeleteButtonClick(const FString& SlotName) {
 }
 
 void USaveGameMode::DeleteSlotData(const FString& SlotName) {
-
 	if (auto* ArchVizSlotSaveGame = Cast<UArchVizSlotSaveGame>(UGameplayStatics::LoadGameFromSlot("SavedSlotNames", 0))) {
 		ArchVizSlotSaveGame->SlotsNames.Remove(SlotName);
 		SlotsList = ArchVizSlotSaveGame->SlotsNames;
@@ -179,6 +198,8 @@ void USaveGameMode::SaveGame(const FString& SlotName) {
 		FloorData.ID = FloorActor->GetID();
 		FloorData.Transform = FloorActor->GetActorTransform();
 		FloorData.Material = FloorActor->GetMaterial();
+		FloorData.StartPoint = FloorActor->GetStartPoint();
+		FloorData.EndPoint = FloorActor->GetEndPoint();
 		FloorData.Dimensions = FloorActor->GetDimensions();
 		FloorData.Dimensions = FloorActor->GetOffset();
 		if (IsValid(FloorActor->GetAttachParentActor())) {
@@ -200,6 +221,8 @@ void USaveGameMode::SaveGame(const FString& SlotName) {
 		RoofData.ID = RoofActor->GetID();
 		RoofData.Transform = RoofActor->GetActorTransform();
 		RoofData.Material = RoofActor->GetMaterial();
+		RoofData.StartPoint = RoofActor->GetStartPoint();
+		RoofData.EndPoint = RoofActor->GetEndPoint();
 		RoofData.Dimensions = RoofActor->GetDimensions();
 		RoofData.Offset = RoofActor->GetOffset();
 		if (IsValid(RoofActor->GetAttachParentActor())) {
@@ -258,16 +281,16 @@ void USaveGameMode::SaveGame(const FString& SlotName) {
 		auto* SlotSaveGameInstance = Cast<UArchVizSlotSaveGame>(UGameplayStatics::CreateSaveGameObject(UArchVizSlotSaveGame::StaticClass()));
 
 		auto* LoadSavedSlotNames = Cast<UArchVizSlotSaveGame>(UGameplayStatics::LoadGameFromSlot(TEXT("SavedSlotNames"), 0));
-		if (IsValid(LoadSavedSlotNames)) {
+		if (IsValid(LoadSavedSlotNames) && !LoadSavedSlotNames->SlotsNames.Contains(CurrentSlotName)) {
 			SlotSaveGameInstance->SlotsNames = LoadSavedSlotNames->SlotsNames;
+
+			FString NewSlotName;
+			NewSlotName = SlotName;
+			SlotSaveGameInstance->SlotsNames.Add(NewSlotName);
+
+			SlotsList = SlotSaveGameInstance->SlotsNames;
+			PopulateSlotsList();
 		}
-
-		FString NewSlotName;
-		NewSlotName = SlotName;
-		SlotSaveGameInstance->SlotsNames.Add(NewSlotName);
-
-		SlotsList = SlotSaveGameInstance->SlotsNames;
-		PopulateSlotsList();
 
 		UGameplayStatics::SaveGameToSlot(SlotSaveGameInstance, "SavedSlotNames", 0);
 	}
@@ -320,6 +343,8 @@ void USaveGameMode::LoadGame(const FString& SlotName) {
 		for (const auto& FloorData : LoadGameInstance->FloorActors) {
 			auto* FloorActor = GetWorld()->SpawnActor<AFloorActor>(FloorActorClass, FloorData.Transform, SpawnParams);
 			FloorActor->SetActorTransform(FloorData.Transform);
+			FloorActor->SetStartPoint(FloorData.StartPoint);
+			FloorActor->SetEndPoint(FloorData.EndPoint);
 			FloorActor->SetDimensions(FloorData.Dimensions);
 			FloorActor->SetOffset(FloorData.Offset);
 			FloorActor->SetMaterial(FloorData.Material);
@@ -335,10 +360,13 @@ void USaveGameMode::LoadGame(const FString& SlotName) {
 		for (const auto& RoofData : LoadGameInstance->RoofActors) {
 			auto* RoofActor = GetWorld()->SpawnActor<ARoofActor>(RoofActorClass, RoofData.Transform, SpawnParams);
 			RoofActor->SetActorTransform(RoofData.Transform);
+			RoofActor->SetStartPoint(RoofData.StartPoint);
+			RoofActor->SetEndPoint(RoofData.EndPoint);
 			RoofActor->SetDimensions(RoofData.Dimensions);
 			RoofActor->SetOffset(RoofData.Offset);
 			RoofActor->SetMaterial(RoofData.Material);
 			RoofActor->UpdateSpinBoxValue();
+			RoofActor->AdjustDimensionAndOffset();
 			RoofActor->GenerateRoof();
 			IDToActorMap.Add(RoofData.ID, RoofActor);
 

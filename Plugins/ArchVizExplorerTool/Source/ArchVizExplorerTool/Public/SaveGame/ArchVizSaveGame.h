@@ -69,6 +69,12 @@ struct FFloorData {
 	FTransform Transform;
 
 	UPROPERTY()
+	FVector StartPoint;
+
+	UPROPERTY()
+	FVector EndPoint;
+
+	UPROPERTY()
 	FVector Dimensions;
 
 	UPROPERTY()
@@ -90,6 +96,12 @@ struct FRoofData {
 
 	UPROPERTY()
 	FTransform Transform;
+
+	UPROPERTY()
+	FVector StartPoint;
+
+	UPROPERTY()
+	FVector EndPoint;
 
 	UPROPERTY()
 	FVector Dimensions;

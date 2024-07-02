@@ -101,35 +101,18 @@ void AFloorActor::HandleGeneratingState() {
 		return;
 	}
 
-	double EdgeOffset{ 10.0 };
-
 	SetEndPoint(HitResult.Location);
 
 	double XDistance = EndPoint.X - StartPoint.X;
 	double YDistance = EndPoint.Y - StartPoint.Y;
 	double ZDistance = 2.0;
 
-	FVector NewDimensions{ abs(XDistance) + (2 * EdgeOffset), abs(YDistance) + (2 * EdgeOffset), ZDistance };
-	FVector NewOffset{ abs(XDistance) / 2 , abs(YDistance) / 2, ZDistance / 2};
+	double EdgeOffset{ 10.0 };
 
-	if (XDistance >= 0.0 && YDistance >= 0.0) {
-		FloorMeshComponent->SetWorldRotation(FRotator{ 0.0 });
-	}
-	else if (XDistance >= 0.0 && YDistance < 0.0) {
-		FloorMeshComponent->SetWorldRotation(FRotator{ 0.0,0.0,180.0 });
-		NewOffset.Z *= -1.0;
-	}
-	else if (XDistance < 0.0 && YDistance >= 0.0) {
-		FloorMeshComponent->SetWorldRotation(FRotator{ 180.0,0.0,0.0 });
-		NewOffset.Z *= -1.0;
-	}
-	else {
-		FloorMeshComponent->SetWorldRotation(FRotator{ 180.0,0.0, 180.0 });
-	}
+	Dimensions = FVector{ abs(XDistance) + (2 * EdgeOffset), abs(YDistance) + (2 * EdgeOffset), ZDistance };
+	Offset = FVector{ abs(XDistance) / 2 , abs(YDistance) / 2, ZDistance / 2 };
 
-	Dimensions = NewDimensions;
-	Offset = NewOffset;
-
+	AdjustDimensionAndOffset();
 	GenerateFloor();
 }
 
@@ -144,8 +127,27 @@ void AFloorActor::GenerateFloor() {
 	DestroyFloor();
 	ProceduralMeshGenerator::GenerateCube(FloorMeshComponent, 0, Dimensions, Offset);
 
-	if (IsValid(Material)) {
-		FloorMeshComponent->SetMaterial(0, Material);
+	ApplyMaterial();
+}
+
+void AFloorActor::AdjustDimensionAndOffset() {
+	double XDistance = EndPoint.X - StartPoint.X;
+	double YDistance = EndPoint.Y - StartPoint.Y;
+	double ZDistance = 2.0;
+
+	if (XDistance >= 0.0 && YDistance >= 0.0) {
+		FloorMeshComponent->SetWorldRotation(FRotator{ 0.0 });
+	}
+	else if (XDistance >= 0.0 && YDistance < 0.0) {
+		FloorMeshComponent->SetWorldRotation(FRotator{ 0.0,0.0,180.0 });
+		Offset.Z *= -1.0;
+	}
+	else if (XDistance < 0.0 && YDistance >= 0.0) {
+		FloorMeshComponent->SetWorldRotation(FRotator{ 180.0,0.0,0.0 });
+		Offset.Z *= -1.0;
+	}
+	else {
+		FloorMeshComponent->SetWorldRotation(FRotator{ 180.0,0.0, 180.0 });
 	}
 }
 
@@ -164,6 +166,15 @@ void AFloorActor::UpdateSpinBoxValue() {
 void AFloorActor::HandleMaterialChange(FMaterialAssetData MaterialData) {
 	if (MaterialData.Material) {
 		Material = MaterialData.Material;
-		FloorMeshComponent->SetMaterial(0, MaterialData.Material);
+		ApplyMaterial();
+	}
+}
+
+void AFloorActor::ApplyMaterial() {
+	if (IsValid(Material)) {
+		if (auto* Dynamicmaterial = UMaterialInstanceDynamic::Create(Material, this)) {
+			Dynamicmaterial->SetVectorParameterValue(FName("Tiling/Offset"), FLinearColor(Dimensions.Y / 600.0f, Dimensions.X / 600.0f, 0, 0));
+			FloorMeshComponent->SetMaterial(0, Dynamicmaterial);
+		}
 	}
 }

@@ -16,6 +16,7 @@
 #include "ArchVizModes/BuildingConstructionMode.h"
 #include "ArchVizModes/InteriorDesignMode.h"
 #include "ArchVizModes/SaveGameMode.h"
+#include "Widgets/NotificationWidget.h"
 #include "ArchVizController.generated.h"
 
 /**
@@ -34,6 +35,9 @@ public:
 
 	UFUNCTION()
 	void HandleArchVizModeChange(EArchVizMode NewArchVizMode);
+
+	void AddErrorMessage(FText Message);
+	void AddSuccessMessage(FText Message);
 
 private:
 	FInputModeGameAndUI InputModeGameAndUI{};
@@ -74,6 +78,12 @@ private:
 
 	UPROPERTY()
 	UArchVizModeWidget* ArchVizModeWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category="Widget")
+	TSubclassOf<UNotificationWidget> NotificationWidgetClass;
+
+	UPROPERTY()
+	UNotificationWidget* NotificationWidget;
 
 	//Update Mode Helpers
 	void UpdateArchVizMode();

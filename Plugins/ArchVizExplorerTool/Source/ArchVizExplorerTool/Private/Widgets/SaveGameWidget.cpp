@@ -33,9 +33,6 @@ void USaveGameWidget::PopulateSavedSlotsList(TArray<FString> SavedSlots) {
 }
 
 void USaveGameWidget::NativeConstruct() {
-	if (IsValid(NewProjectButton)) {
-		NewProjectButton->OnClicked.AddDynamic(this, &USaveGameWidget::HandleNewProjectButtonClick);
-	}
 	if (IsValid(LoadProjectButton)) {
 		LoadProjectButton->OnClicked.AddDynamic(this, &USaveGameWidget::HandleLoadProjectButtonClick);
 	}
@@ -51,11 +48,8 @@ void USaveGameWidget::NativeConstruct() {
 	}
 }
 
-void USaveGameWidget::HandleNewProjectButtonClick() {
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Cyan, "New Button Clicked");
-}
-
 void USaveGameWidget::HandleSaveProjectButtonClick() {
+	HideAllPopup();
 	if (IsValid(SavePopupBorderBox)) {
 		SavePopupBorderBox->SetVisibility(ESlateVisibility::Visible);
 		if(IsValid(BackgroundBlur)) {
@@ -66,7 +60,6 @@ void USaveGameWidget::HandleSaveProjectButtonClick() {
 }
 
 void USaveGameWidget::HandleSavePopupCloseButtonClick() {
-	HideAllPopup();
 	if (IsValid(SavePopupBorderBox)) {
 		SavePopupBorderBox->SetVisibility(ESlateVisibility::Collapsed);
 		if (IsValid(BackgroundBlur)) {
@@ -77,6 +70,7 @@ void USaveGameWidget::HandleSavePopupCloseButtonClick() {
 }
 
 void USaveGameWidget::HandleLoadProjectButtonClick() {
+	HideAllPopup();
 	if (IsValid(LoadPopupBorderBox)) {
 		LoadPopupBorderBox->SetVisibility(ESlateVisibility::Visible);
 		if (IsValid(BackgroundBlur)) {
@@ -87,7 +81,6 @@ void USaveGameWidget::HandleLoadProjectButtonClick() {
 }
 
 void USaveGameWidget::HandleLoadPopupCloseButtonClick() {
-	HideAllPopup();
 	if (IsValid(LoadPopupBorderBox)) {
 		LoadPopupBorderBox->SetVisibility(ESlateVisibility::Collapsed);
 		if (IsValid(BackgroundBlur)) {

@@ -30,6 +30,7 @@ public:
 	const FVector& GetOffset() const;
 	void SetOffset(const FVector& NewOffset);
 
+	void AdjustDimensionAndOffset();
 	void GenerateRoof();
 	void UpdateSpinBoxValue();
 protected:
@@ -59,4 +60,6 @@ private:
 
 	UFUNCTION()
 	void HandleMaterialChange(FMaterialAssetData MaterialData);
+
+	void ApplyMaterial();
 };
