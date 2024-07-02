@@ -26,21 +26,21 @@ public:
 	void SetEndLocation(const FVector& NewEndLocation);
 	const FVector& GetEndLocation() const;
 
+	float GetLength() const;
+	void SetLength(float NewLength);
+
+	TArray<UStaticMeshComponent*> GetWallSegments() const;
+	void SetWallSegments(TArray<UStaticMeshComponent*> NewWallSegments);
+
 	void AttachDoorComponent(UPrimitiveComponent* Component, ADoorActor* DoorActor);
 	void DetachDoorComponent(ADoorActor* DoorActor);
 	void DestroyDoorComponents();
 
-	UPROPERTY()
-	TArray<UStaticMeshComponent*> WallSegments;
+	void GenerateWallSegments();
+	void UpdateDoorSegments();
 
-	UPROPERTY()
-	USceneComponent* SceneComponent;
+	void UpdateLengthSpinBoxValue();
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Wall")
-	UStaticMesh* WallStaticMesh;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Wall")
-	UStaticMesh* DoorWallStaticMesh;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -52,8 +52,20 @@ private:
 
 	TMap<int32, ADoorActor*> DoorMapping;
 
-	void GenerateWallSegments(double Length = 0.0);
-	void UpdateDoorSegments();
+	UPROPERTY()
+	TArray<UStaticMeshComponent*> WallSegments;
+
+	UPROPERTY()
+	USceneComponent* SceneComponent;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Wall")
+	UStaticMesh* WallStaticMesh;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Wall")
+	UStaticMesh* DoorWallStaticMesh;
+
+	float Length;
+
 	void DestroyWallSegments();
 
 	void HandlePreviewState();
@@ -61,8 +73,6 @@ private:
 	void HandleMovingState();
 
 	void HandleEdgeOffset();
-
-	void UpdateLengthSpinBoxValue();
 
 	UFUNCTION()
 	void HandleMaterialChange(FMaterialAssetData MaterialData);

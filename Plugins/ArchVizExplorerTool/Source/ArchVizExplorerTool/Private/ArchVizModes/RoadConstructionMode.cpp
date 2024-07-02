@@ -122,6 +122,7 @@ void URoadConstructionMode::BindPropertyWidgetDelegates() {
 
 void URoadConstructionMode::HandleSaveRoadButtonClick() {
 	if (IsValid(CurrentRoadActor)) {
+		CurrentRoadActor->UpdatePropertyPanelValues();
 		CurrentRoadActor->SetState(ERoadActorState::Selected);
 		RoadModeState = ERoadModeState::Free;
 	}
@@ -164,7 +165,7 @@ void URoadConstructionMode::HandleRoadNewButtonClick() {
 }
 
 void URoadConstructionMode::HandleRoadDeleteButtonClick() {
-	if (IsValid(CurrentRoadActor)) {
+	if (IsValid(CurrentRoadActor) && CurrentRoadActor->GetState() == ERoadActorState::Selected) {
 		CurrentRoadActor->SetState(ERoadActorState::None);
 		CurrentRoadActor->SplineComponent->ClearSplinePoints();
 		CurrentRoadActor->Destroy();

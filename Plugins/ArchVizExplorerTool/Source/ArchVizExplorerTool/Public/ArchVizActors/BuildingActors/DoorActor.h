@@ -19,6 +19,12 @@ public:
 	// Sets default values for this actor's properties
 	ADoorActor();
 
+	bool GetIsOpen() const;
+	void SetIsOpen(bool bIsDoorOpen);
+
+	int32 GetParentWallComponentIndex() const;
+	void SetParentWallComponentIndex(int32 NewIndex);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -40,6 +46,15 @@ private:
 	UPROPERTY()
 	UStaticMeshComponent* DoorComponent;
 
+	bool bIsOpen;
+	int32 ParentWallComponentIndex;
+
 	void HandlePreviewState();
 	void HandleMovingState();
+
+	virtual void ShowWidget() override;
+	virtual void HideWidget() override;
+
+	void OpenDoor();
+	void CloseDoor();
 };

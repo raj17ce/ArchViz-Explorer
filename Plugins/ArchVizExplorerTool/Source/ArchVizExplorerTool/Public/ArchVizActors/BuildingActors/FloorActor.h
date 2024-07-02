@@ -19,17 +19,19 @@ public:
 	AFloorActor();
 
 	void SetStartPoint(const FVector& NewStartPoint);
-	const FVector& GetStartPoint();
+	const FVector& GetStartPoint() const;
 
 	void SetEndPoint(const FVector& NewEndPoint);
-	const FVector& GetEndPoint();
+	const FVector& GetEndPoint() const;
 
-	UPROPERTY()
-	USceneComponent* SceneComponent;
+	const FVector& GetDimensions() const;
+	void SetDimensions(const FVector& NewDimensions);
 
-	UPROPERTY()
-	UProceduralMeshComponent* FloorMeshComponent;
+	const FVector& GetOffset() const;
+	void SetOffset(const FVector& NewOffset);
 
+	void GenerateFloor();
+	void UpdateSpinBoxValue();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -40,14 +42,20 @@ private:
 	FVector StartPoint;
 	FVector EndPoint;
 
+	UPROPERTY()
+	USceneComponent* SceneComponent;
+
+	UPROPERTY()
+	UProceduralMeshComponent* FloorMeshComponent;
+
+	FVector Dimensions;
+	FVector Offset;
+
 	void HandlePreviewState();
 	void HandleGeneratingState();
 	void HandleMovingState();
 
-	void GenerateFloor(const FVector& Dimensions, const FVector& Offset);
 	void DestroyFloor();
-
-	void UpdateSpinBoxValue();
 
 	UFUNCTION()
 	void HandleMaterialChange(FMaterialAssetData MaterialData);

@@ -121,7 +121,7 @@ void URoofSubMode::HandleRKeyPress() {
 }
 
 void URoofSubMode::HandleMKeyPress() {
-	if (IsValid(CurrentRoofActor)) {
+	if (IsValid(CurrentRoofActor) && CurrentRoofActor->GetState() == EBuildingActorState::Selected) {
 		CurrentRoofActor->SetState(EBuildingActorState::Moving);
 		SubModeState = EBuildingSubModeState::OldObject;
 	}
@@ -155,7 +155,7 @@ void URoofSubMode::HandleFreeState() {
 
 			CurrentRoofActor = GetWorld()->SpawnActor<ARoofActor>(RoofActorClass, SpawnParams);
 			BindWidgetDelegates();
-			CurrentRoofActor->GenerateRoof(FVector{ 100.0,100.0, 20.0 }, FVector{ 50.0,50.0, 10.0 });
+			CurrentRoofActor->GenerateRoof();
 			CurrentRoofActor->SetState(EBuildingActorState::Preview);
 			SubModeState = EBuildingSubModeState::NewObject;
 			//To-Do Preview Material
@@ -216,20 +216,22 @@ void URoofSubMode::HandleRoofSpinBoxValueChange(float InLength) {
 
 		double EdgeOffset{ 10.0 };
 
-		FVector Dimensions{ Length + (2 * EdgeOffset), Width + (2 * EdgeOffset), Height };
-		FVector Offset{ Length / 2 , Width / 2, Height / 2 };
+		FVector NewDimensions{ Length + (2 * EdgeOffset), Width + (2 * EdgeOffset), Height };
+		FVector NewOffset{ Length / 2 , Width / 2, Height / 2 };
 
 		double XDistance = CurrentRoofActor->EndPoint.X - CurrentRoofActor->StartPoint.X;
 		double YDistance = CurrentRoofActor->EndPoint.Y - CurrentRoofActor->StartPoint.Y;
 
 		if (XDistance >= 0.0 && YDistance < 0.0) {
-			Offset.Z *= -1.0;
+			NewOffset.Z *= -1.0;
 		}
 		else if (XDistance < 0.0 && YDistance >= 0.0) {
-			Offset.Z *= -1.0;
+			NewOffset.Z *= -1.0;
 		}
 
-		CurrentRoofActor->GenerateRoof(Dimensions, Offset);
+		CurrentRoofActor->SetDimensions(NewDimensions);
+		CurrentRoofActor->SetOffset(NewOffset);
+		CurrentRoofActor->GenerateRoof();
 	}
 }
 
@@ -244,7 +246,7 @@ void URoofSubMode::HandleRoofNewButtonClick() {
 
 			CurrentRoofActor = GetWorld()->SpawnActor<ARoofActor>(RoofActorClass, SpawnParams);
 			BindWidgetDelegates();
-			CurrentRoofActor->GenerateRoof(FVector{ 100.0,100.0, 20.0 }, FVector{ 50.0,50.0, 10.0 });
+			CurrentRoofActor->GenerateRoof();
 			CurrentRoofActor->SetState(EBuildingActorState::Preview);
 			SubModeState = EBuildingSubModeState::NewObject;
 		}
@@ -252,7 +254,7 @@ void URoofSubMode::HandleRoofNewButtonClick() {
 }
 
 void URoofSubMode::HandleRoofDeleteButtonClick() {
-	if (IsValid(CurrentRoofActor)) {
+	if (IsValid(CurrentRoofActor) && CurrentRoofActor->GetState() == EBuildingActorState::Selected) {
 		CurrentRoofActor->SetState(EBuildingActorState::None);
 		CurrentRoofActor->Destroy();
 		CurrentRoofActor = nullptr;

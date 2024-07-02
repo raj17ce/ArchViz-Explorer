@@ -8,7 +8,7 @@
 #include "Widgets/MaterialWidget.h"
 
 // Sets default values
-AFloorActor::AFloorActor() {
+AFloorActor::AFloorActor() : Dimensions{ 100.0,100.0, 2.0 }, Offset{ 50.0,50.0, 1.0 } {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -25,7 +25,7 @@ void AFloorActor::SetStartPoint(const FVector& NewStartPoint) {
 	StartPoint = NewStartPoint;
 }
 
-const FVector& AFloorActor::GetStartPoint() {
+const FVector& AFloorActor::GetStartPoint() const {
 	return StartPoint;
 }
 
@@ -33,8 +33,24 @@ void AFloorActor::SetEndPoint(const FVector& NewEndPoint) {
 	EndPoint = NewEndPoint;
 }
 
-const FVector& AFloorActor::GetEndPoint() {
+const FVector& AFloorActor::GetEndPoint() const {
 	return EndPoint;
+}
+
+const FVector& AFloorActor::GetDimensions() const {
+	return Dimensions;
+}
+
+void AFloorActor::SetDimensions(const FVector& NewDimensions) {
+	Dimensions = NewDimensions;
+}
+
+const FVector& AFloorActor::GetOffset() const {
+	return Offset;
+}
+
+void AFloorActor::SetOffset(const FVector& NewOffset) {
+	Offset = NewOffset;
 }
 
 // Called when the game starts or when spawned
@@ -93,41 +109,28 @@ void AFloorActor::HandleGeneratingState() {
 	double YDistance = EndPoint.Y - StartPoint.Y;
 	double ZDistance = 2.0;
 
-	FVector Dimensions{ abs(XDistance) + (2 * EdgeOffset), abs(YDistance) + (2 * EdgeOffset), ZDistance };
-	FVector Offset{ abs(XDistance) / 2 , abs(YDistance) / 2, ZDistance / 2};
-	//FVector NewStartPoint{ StartPoint };
+	FVector NewDimensions{ abs(XDistance) + (2 * EdgeOffset), abs(YDistance) + (2 * EdgeOffset), ZDistance };
+	FVector NewOffset{ abs(XDistance) / 2 , abs(YDistance) / 2, ZDistance / 2};
 
 	if (XDistance >= 0.0 && YDistance >= 0.0) {
 		FloorMeshComponent->SetWorldRotation(FRotator{ 0.0 });
 	}
 	else if (XDistance >= 0.0 && YDistance < 0.0) {
 		FloorMeshComponent->SetWorldRotation(FRotator{ 0.0,0.0,180.0 });
-		Offset.Z *= -1.0;
+		NewOffset.Z *= -1.0;
 	}
 	else if (XDistance < 0.0 && YDistance >= 0.0) {
 		FloorMeshComponent->SetWorldRotation(FRotator{ 180.0,0.0,0.0 });
-		Offset.Z *= -1.0;
+		NewOffset.Z *= -1.0;
 	}
 	else {
 		FloorMeshComponent->SetWorldRotation(FRotator{ 180.0,0.0, 180.0 });
 	}
 
-	//if (XDistance >= 0.0) {
-	//	NewStartPoint.X -= EdgeOffset;
-	//}
-	//else {
-	//	NewStartPoint.X += EdgeOffset;
-	//}
-	//if (YDistance >= 0.0) {
-	//	NewStartPoint.Y -= EdgeOffset;
-	//}
-	//else {
-	//	NewStartPoint.Y += EdgeOffset;
-	//}
+	Dimensions = NewDimensions;
+	Offset = NewOffset;
 
-	//SetActorLocation(NewStartPoint);
-
-	GenerateFloor(Dimensions, Offset);
+	GenerateFloor();
 }
 
 void AFloorActor::HandleMovingState() {
@@ -137,9 +140,13 @@ void AFloorActor::HandleMovingState() {
 	SetActorLocation(HitResult.Location);
 }
 
-void AFloorActor::GenerateFloor(const FVector& Dimensions, const FVector& Offset) {
+void AFloorActor::GenerateFloor() {
 	DestroyFloor();
 	ProceduralMeshGenerator::GenerateCube(FloorMeshComponent, 0, Dimensions, Offset);
+
+	if (IsValid(Material)) {
+		FloorMeshComponent->SetMaterial(0, Material);
+	}
 }
 
 void AFloorActor::DestroyFloor() {
@@ -147,19 +154,16 @@ void AFloorActor::DestroyFloor() {
 }
 
 void AFloorActor::UpdateSpinBoxValue() {
-	double XDistance = EndPoint.X - StartPoint.X;
-	double YDistance = EndPoint.Y - StartPoint.Y;
-	double ZDistance = 2.0;
-
 	if (IsValid(PropertyPanelWidget)) {
-		PropertyPanelWidget->FloorLengthSpinbox->SetValue(abs(XDistance));
-		PropertyPanelWidget->FloorWidthSpinbox->SetValue(abs(YDistance));
-		PropertyPanelWidget->FloorHeightSpinbox->SetValue(ZDistance);
+		PropertyPanelWidget->FloorLengthSpinbox->SetValue(Dimensions.X);
+		PropertyPanelWidget->FloorWidthSpinbox->SetValue(Dimensions.Y);
+		PropertyPanelWidget->FloorHeightSpinbox->SetValue(Dimensions.Z);
 	}
 }
 
 void AFloorActor::HandleMaterialChange(FMaterialAssetData MaterialData) {
 	if (MaterialData.Material) {
+		Material = MaterialData.Material;
 		FloorMeshComponent->SetMaterial(0, MaterialData.Material);
 	}
 }

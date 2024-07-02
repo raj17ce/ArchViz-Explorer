@@ -121,7 +121,7 @@ void UFloorSubMode::HandleRKeyPress() {
 }
 
 void UFloorSubMode::HandleMKeyPress() {
-	if (IsValid(CurrentFloorActor)) {
+	if (IsValid(CurrentFloorActor) && CurrentFloorActor->GetState() == EBuildingActorState::Selected) {
 		CurrentFloorActor->SetState(EBuildingActorState::Moving);
 		SubModeState = EBuildingSubModeState::OldObject;
 	}
@@ -155,7 +155,7 @@ void UFloorSubMode::HandleFreeState() {
 
 			CurrentFloorActor = GetWorld()->SpawnActor<AFloorActor>(FloorActorClass, SpawnParams);
 			BindWidgetDelegates();
-			CurrentFloorActor->GenerateFloor(FVector{ 100.0,100.0, 2.0 }, FVector{ 50.0,50.0, 1.0 });
+			CurrentFloorActor->GenerateFloor();
 			CurrentFloorActor->SetState(EBuildingActorState::Preview);
 			SubModeState = EBuildingSubModeState::NewObject;
 			//To-Do Preview Material
@@ -211,20 +211,22 @@ void UFloorSubMode::HandleFloorSpinBoxValueChange(float InLength) {
 
 		double EdgeOffset{ 10.0 };
 
-		FVector Dimensions{ Length + (2 * EdgeOffset), Width + (2 * EdgeOffset), Height };
-		FVector Offset{ Length / 2 , Width / 2, Height / 2 };
+		FVector NewDimensions{ Length + (2 * EdgeOffset), Width + (2 * EdgeOffset), Height };
+		FVector NewOffset{ Length / 2 , Width / 2, Height / 2 };
 
 		double XDistance = CurrentFloorActor->EndPoint.X - CurrentFloorActor->StartPoint.X;
 		double YDistance = CurrentFloorActor->EndPoint.Y - CurrentFloorActor->StartPoint.Y;
 
 		if (XDistance >= 0.0 && YDistance < 0.0) {
-			Offset.Z *= -1.0;
+			NewOffset.Z *= -1.0;
 		}
 		else if (XDistance < 0.0 && YDistance >= 0.0) {
-			Offset.Z *= -1.0;
+			NewOffset.Z *= -1.0;
 		}
 
-		CurrentFloorActor->GenerateFloor(Dimensions, Offset);
+		CurrentFloorActor->SetDimensions(NewDimensions);
+		CurrentFloorActor->SetOffset(NewOffset);
+		CurrentFloorActor->GenerateFloor();
 	}
 }
 
@@ -239,7 +241,7 @@ void UFloorSubMode::HandleFloorNewButtonClick() {
 
 			CurrentFloorActor = GetWorld()->SpawnActor<AFloorActor>(FloorActorClass, SpawnParams);
 			BindWidgetDelegates();
-			CurrentFloorActor->GenerateFloor(FVector{ 100.0,100.0, 2.0 }, FVector{ 50.0,50.0, 1.0 });
+			CurrentFloorActor->GenerateFloor();
 			CurrentFloorActor->SetState(EBuildingActorState::Preview);
 			SubModeState = EBuildingSubModeState::NewObject;
 		}
@@ -247,7 +249,7 @@ void UFloorSubMode::HandleFloorNewButtonClick() {
 }
 
 void UFloorSubMode::HandleFloorDeleteButtonClick() {
-	if (IsValid(CurrentFloorActor)) {
+	if (IsValid(CurrentFloorActor) && CurrentFloorActor->GetState() == EBuildingActorState::Selected) {
 		CurrentFloorActor->SetState(EBuildingActorState::None);
 		CurrentFloorActor->Destroy();
 		CurrentFloorActor = nullptr;

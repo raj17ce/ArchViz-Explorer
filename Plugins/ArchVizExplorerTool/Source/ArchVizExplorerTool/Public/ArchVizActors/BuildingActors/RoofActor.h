@@ -19,17 +19,19 @@ public:
 	ARoofActor();
 
 	void SetStartPoint(const FVector& NewStartPoint);
-	const FVector& GetStartPoint();
+	const FVector& GetStartPoint() const;
 
 	void SetEndPoint(const FVector& NewEndPoint);
-	const FVector& GetEndPoint();
+	const FVector& GetEndPoint() const;
 
-	UPROPERTY()
-	USceneComponent* SceneComponent;
+	const FVector& GetDimensions() const;
+	void SetDimensions(const FVector& NewDimensions);
 
-	UPROPERTY()
-	UProceduralMeshComponent* RoofMeshComponent;
+	const FVector& GetOffset() const;
+	void SetOffset(const FVector& NewOffset);
 
+	void GenerateRoof();
+	void UpdateSpinBoxValue();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -40,14 +42,20 @@ private:
 	FVector StartPoint;
 	FVector EndPoint;
 
+	UPROPERTY()
+	USceneComponent* SceneComponent;
+
+	UPROPERTY()
+	UProceduralMeshComponent* RoofMeshComponent;
+
+	FVector Dimensions;
+	FVector Offset;
+
 	void HandlePreviewState();
 	void HandleGeneratingState();
 	void HandleMovingState();
 
-	void GenerateRoof(const FVector& Dimensions, const FVector& Offset);
 	void DestroyRoof();
-
-	void UpdateSpinBoxValue();
 
 	UFUNCTION()
 	void HandleMaterialChange(FMaterialAssetData MaterialData);

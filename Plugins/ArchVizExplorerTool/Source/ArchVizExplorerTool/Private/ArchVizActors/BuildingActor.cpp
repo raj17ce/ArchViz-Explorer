@@ -31,24 +31,6 @@ void ABuildingActor::HandleStateChange() {
 	}
 }
 
-void ABuildingActor::ShowWidget() {
-	if (IsValid(PropertyPanelWidget)) {
-		PropertyPanelWidget->AddToViewport();
-	}
-	if (IsValid(MaterialWidget)) {
-		MaterialWidget->AddToViewport();
-	}
-}
-
-void ABuildingActor::HideWidget() {
-	if (IsValid(PropertyPanelWidget)) {
-		PropertyPanelWidget->RemoveFromParent();
-	}
-	if (IsValid(MaterialWidget)) {
-		MaterialWidget->RemoveFromParent();
-	}
-}
-
 // Called when the game starts or when spawned
 void ABuildingActor::BeginPlay() {
 	Super::BeginPlay();

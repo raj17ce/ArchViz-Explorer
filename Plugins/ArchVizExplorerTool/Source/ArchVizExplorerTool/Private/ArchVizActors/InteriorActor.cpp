@@ -16,6 +16,18 @@ AInteriorActor::AInteriorActor() : State{ EInteriorActorState::None } {
 	InteriorComponent->SetupAttachment(SceneComponent);
 }
 
+void AInteriorActor::ShowWidget() {
+	if (IsValid(PropertyPanelWidget)) {
+		PropertyPanelWidget->AddToViewport();
+	}
+}
+
+void AInteriorActor::HideWidget() {
+	if (IsValid(PropertyPanelWidget)) {
+		PropertyPanelWidget->RemoveFromParent();
+	}
+}
+
 void AInteriorActor::SetState(EInteriorActorState NewState) {
 	State = NewState;
 
@@ -42,6 +54,10 @@ void AInteriorActor::SetActorAssetData(const FInteriorAssetData& NewAssetData) {
 	if (IsValid(InteriorComponent) && IsValid(AssetData.StaticMesh)) {
 		InteriorComponent->SetStaticMesh(AssetData.StaticMesh);
 	}
+}
+
+const FInteriorAssetData& AInteriorActor::GetActorAssetData() const {
+	return AssetData;
 }
 
 void AInteriorActor::AdjustWallInteriorRotation(FRotator& Rotation) {

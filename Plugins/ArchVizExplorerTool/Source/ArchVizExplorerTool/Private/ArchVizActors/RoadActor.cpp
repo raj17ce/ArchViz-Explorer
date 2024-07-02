@@ -5,7 +5,7 @@
 #include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
-ARoadActor::ARoadActor() : RoadMesh{ nullptr }, State{ ERoadActorState::None }, RoadType{ERoadType::Curved} {
+ARoadActor::ARoadActor() : RoadMesh{ nullptr }, Width{ 0.0 }, State{ ERoadActorState::None }, RoadType{ ERoadType::Curved } {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -40,6 +40,22 @@ void ARoadActor::BeginPlay() {
 // Called every frame
 void ARoadActor::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
+}
+
+TArray<FVector> ARoadActor::GetSplinePoints() const {
+	return SplinePoints;
+}
+
+void ARoadActor::SetSplinePoints(const TArray<FVector>& NewSplinePoints) {
+	SplinePoints = NewSplinePoints;
+}
+
+float ARoadActor::GetWidth() const {
+	return Width;
+}
+
+void ARoadActor::SetWidth(float NewWidth) {
+	Width = NewWidth;
 }
 
 void ARoadActor::AddSplinePoint(const FVector& Location) {
@@ -136,6 +152,21 @@ void ARoadActor::UpdateRoad() {
 	}
 }
 
+void ARoadActor::UpdatePropertyPanelValues() {
+	if (IsValid(PropertyPanelWidget)) {
+		PropertyPanelWidget->RoadWidthSpinbox->SetValue(Width);
+		
+		switch (RoadType) {
+		case ERoadType::Sharp:
+			PropertyPanelWidget->RoadTypeComboBox->SetSelectedOption("Sharp");
+			break;
+		case ERoadType::Curved:
+			PropertyPanelWidget->RoadTypeComboBox->SetSelectedOption("Curved");
+			break;
+		}
+	}
+}
+
 void ARoadActor::SetState(ERoadActorState NewState) {
 	State = NewState;
 
@@ -153,24 +184,6 @@ void ARoadActor::SetRoadType(ERoadType NewRoadType) {
 
 ERoadType ARoadActor::GetRoadType() const {
 	return RoadType;
-}
-
-void ARoadActor::ShowWidget() {
-	if (IsValid(PropertyPanelWidget)) {
-		PropertyPanelWidget->AddToViewport();
-	}
-	if (IsValid(MaterialWidget)) {
-		MaterialWidget->AddToViewport();
-	}
-}
-
-void ARoadActor::HideWidget() {
-	if (IsValid(PropertyPanelWidget)) {
-		PropertyPanelWidget->RemoveFromParent();
-	}
-	if (IsValid(MaterialWidget)) {
-		MaterialWidget->RemoveFromParent();
-	}
 }
 
 void ARoadActor::HandleStateChange() {

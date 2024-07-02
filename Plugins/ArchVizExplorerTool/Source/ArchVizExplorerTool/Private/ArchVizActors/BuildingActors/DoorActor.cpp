@@ -5,9 +5,9 @@
 #include "ArchVizUtility.h"
 #include "ArchVizActors/BuildingActors/WallActor.h"
 
-ADoorActor::ADoorActor() : DoorFrameStaticMesh{nullptr}, DoorStaticMesh{nullptr} {
+ADoorActor::ADoorActor() : DoorFrameStaticMesh{nullptr}, DoorStaticMesh{nullptr}, bIsOpen{false}, ParentWallComponentIndex{-1} {
 	PrimaryActorTick.bCanEverTick = true;
-
+	
 	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Scene Component"));
 	SetRootComponent(SceneComponent);
 
@@ -18,6 +18,53 @@ ADoorActor::ADoorActor() : DoorFrameStaticMesh{nullptr}, DoorStaticMesh{nullptr}
 	DoorComponent->SetupAttachment(DoorFrameComponent, TEXT("Door"));
 
 	//PrimaryActorTick.TickInterval = 0.1;
+}
+
+bool ADoorActor::GetIsOpen() const {
+	return bIsOpen;
+}
+
+void ADoorActor::SetIsOpen(bool bIsDoorOpen) {
+	bIsOpen = bIsDoorOpen;
+
+	if (bIsOpen) {
+		OpenDoor();
+	}
+	else {
+		CloseDoor();
+	}
+}
+
+int32 ADoorActor::GetParentWallComponentIndex() const {
+	return ParentWallComponentIndex;
+}
+
+void ADoorActor::SetParentWallComponentIndex(int32 NewIndex) {
+	ParentWallComponentIndex = NewIndex;
+}
+
+void ADoorActor::ShowWidget() {
+	if (IsValid(PropertyPanelWidget)) {
+		PropertyPanelWidget->AddToViewport();
+	}
+}
+
+void ADoorActor::HideWidget() {
+	if (IsValid(PropertyPanelWidget)) {
+		PropertyPanelWidget->RemoveFromParent();
+	}
+}
+
+void ADoorActor::OpenDoor() {
+	if (IsValid(DoorComponent)) {
+		DoorComponent->SetRelativeRotation(FRotator{ 0.0, 90.0, 0.0 });
+	}
+}
+
+void ADoorActor::CloseDoor() {
+	if (IsValid(DoorComponent)) {
+		DoorComponent->SetRelativeRotation(FRotator{ 0.0, 0.0, 0.0 });
+	}
 }
 
 void ADoorActor::BeginPlay() {

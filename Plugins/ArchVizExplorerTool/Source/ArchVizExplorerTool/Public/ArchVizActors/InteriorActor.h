@@ -28,10 +28,8 @@ public:
 	void SetState(EInteriorActorState NewState);
 	EInteriorActorState GetState() const;
 
-	void HandleStateChange();
 	void SetActorAssetData(const FInteriorAssetData& NewAssetData);
-
-	void AdjustWallInteriorRotation(FRotator& Rotation);
+	const FInteriorAssetData& GetActorAssetData() const;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -50,6 +48,13 @@ private:
 	UPROPERTY()
 	UStaticMeshComponent* InteriorComponent;
 
+	virtual void ShowWidget() override;
+	virtual void HideWidget() override;
+
 	void HandlePreviewState();
 	void HandleMovingState();
+
+	void HandleStateChange();
+
+	void AdjustWallInteriorRotation(FRotator& Rotation);
 };

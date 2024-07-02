@@ -4,7 +4,7 @@
 #include "ArchVizActors/ArchVizActor.h"
 
 // Sets default values
-AArchVizActor::AArchVizActor() {
+AArchVizActor::AArchVizActor() : Material{nullptr} {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -14,6 +14,7 @@ AArchVizActor::AArchVizActor() {
 void AArchVizActor::BeginPlay() {
 	Super::BeginPlay();
 
+	ID = GenerateID();
 }
 
 // Called every frame
@@ -26,11 +27,17 @@ void AArchVizActor::ShowWidget() {
 	if (IsValid(PropertyPanelWidget)) {
 		PropertyPanelWidget->AddToViewport();
 	}
+	if (IsValid(MaterialWidget)) {
+		MaterialWidget->AddToViewport();
+	}
 }
 
 void AArchVizActor::HideWidget() {
 	if (IsValid(PropertyPanelWidget)) {
 		PropertyPanelWidget->RemoveFromParent();
+	}
+	if (IsValid(MaterialWidget)) {
+		MaterialWidget->RemoveFromParent();
 	}
 }
 
@@ -53,6 +60,18 @@ void AArchVizActor::UnhighlightDeselectedActor() {
 			Component->SetRenderCustomDepth(false);
 		}
 	} 
+}
+
+UMaterialInterface* AArchVizActor::GetMaterial() const {
+	return Material;
+}
+
+void AArchVizActor::SetMaterial(UMaterialInterface* NewMaterial) {
+	Material = NewMaterial;
+}
+
+int32 AArchVizActor::GetID() const {
+	return ID;
 }
 
 void AArchVizActor::RotateActor(double Degree) {

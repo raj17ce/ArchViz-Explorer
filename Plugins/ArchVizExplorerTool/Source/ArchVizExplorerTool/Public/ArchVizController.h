@@ -15,6 +15,7 @@
 #include "ArchVizModes/RoadConstructionMode.h"
 #include "ArchVizModes/BuildingConstructionMode.h"
 #include "ArchVizModes/InteriorDesignMode.h"
+#include "ArchVizModes/SaveGameMode.h"
 #include "ArchVizController.generated.h"
 
 /**
@@ -60,6 +61,12 @@ private:
 
 	UPROPERTY()
 	UInteriorDesignMode* InteriorDesignMode;
+
+	UPROPERTY(EditDefaultsOnly, Category="Mode")
+	TSubclassOf<USaveGameMode> SaveGameModeClass;
+
+	UPROPERTY()
+	USaveGameMode* SaveGameMode;
 
 	//Widgets
 	UPROPERTY(EditDefaultsOnly, Category="Widget")

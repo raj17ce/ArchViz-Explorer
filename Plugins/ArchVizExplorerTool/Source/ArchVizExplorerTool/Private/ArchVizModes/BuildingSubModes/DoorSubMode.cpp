@@ -128,7 +128,7 @@ void UDoorSubMode::HandleRKeyPress() {
 }
 
 void UDoorSubMode::HandleMKeyPress() {
-	if (IsValid(CurrentDoorActor)) {
+	if (IsValid(CurrentDoorActor) && CurrentDoorActor->GetState() == EBuildingActorState::Selected) {
 		if (auto* WallActor = Cast<AWallActor>(CurrentDoorActor->GetAttachParentActor())) {
 			WallActor->DetachDoorComponent(CurrentDoorActor);
 		}
@@ -139,12 +139,12 @@ void UDoorSubMode::HandleMKeyPress() {
 }
 
 void UDoorSubMode::HandleOKeyPress() {
-	if (IsValid(CurrentDoorActor)) {
-		if(CurrentDoorActor->DoorComponent->GetRelativeRotation().Yaw == 0.0) {
-			CurrentDoorActor->DoorComponent->SetRelativeRotation(FRotator{0.0, 90.0, 0.0});
+	if (IsValid(CurrentDoorActor) && CurrentDoorActor->GetState() == EBuildingActorState::Selected) {
+		if (CurrentDoorActor->GetIsOpen()) {
+			CurrentDoorActor->SetIsOpen(false);
 		}
 		else {
-			CurrentDoorActor->DoorComponent->SetRelativeRotation(FRotator{ 0.0 });
+			CurrentDoorActor->SetIsOpen(true);
 		}
 	}
 }
@@ -228,7 +228,7 @@ void UDoorSubMode::HandleDoorNewButtonClick() {
 }
 
 void UDoorSubMode::HandleDoorDeleteButtonClick() {
-	if (IsValid(CurrentDoorActor)) {
+	if (IsValid(CurrentDoorActor) && CurrentDoorActor->GetState() == EBuildingActorState::Selected) {
 		if (auto* WallActor = Cast<AWallActor>(CurrentDoorActor->GetAttachParentActor())) {
 			WallActor->DetachDoorComponent(CurrentDoorActor);
 		}

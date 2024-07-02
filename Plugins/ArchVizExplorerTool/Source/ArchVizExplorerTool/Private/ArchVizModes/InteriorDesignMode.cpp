@@ -152,7 +152,7 @@ void UInteriorDesignMode::HandleRKeyPress() {
 }
 
 void UInteriorDesignMode::HandleMKeyPress() {
-	if (IsValid(CurrentInteriorActor)) {
+	if (IsValid(CurrentInteriorActor) && CurrentInteriorActor->GetState() == EInteriorActorState::Selected) {
 		CurrentInteriorActor->SetState(EInteriorActorState::Moving);
 		InteriorModeState = EInteriorModeState::OldObject;
 	}
@@ -285,7 +285,7 @@ void UInteriorDesignMode::HandleInteriorNewButtonClick() {
 }
 
 void UInteriorDesignMode::HandleInteriorDeleteButtonClick() {
-	if (IsValid(CurrentInteriorActor)) {
+	if (IsValid(CurrentInteriorActor) && CurrentInteriorActor->GetState() == EInteriorActorState::Selected) {
 		CurrentInteriorActor->SetState(EInteriorActorState::None);
 		CurrentInteriorActor->Destroy();
 		CurrentInteriorActor = nullptr;

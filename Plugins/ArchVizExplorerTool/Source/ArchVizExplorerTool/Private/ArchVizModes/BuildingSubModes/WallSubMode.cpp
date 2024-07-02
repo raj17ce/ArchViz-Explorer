@@ -125,7 +125,7 @@ void UWallSubMode::HandleRKeyPress() {
 }
 
 void UWallSubMode::HandleMKeyPress() {
-	if (IsValid(CurrentWallActor)) {
+	if (IsValid(CurrentWallActor) && CurrentWallActor->GetState() == EBuildingActorState::Selected) {
 		CurrentWallActor->SetState(EBuildingActorState::Moving);
 		SubModeState = EBuildingSubModeState::OldObject;
 	}
@@ -209,7 +209,8 @@ void UWallSubMode::BindWidgetDelegates() {
 
 void UWallSubMode::HandleWallLengthSpinBoxValueChange(float InLength) {
 	if (IsValid(CurrentWallActor)) {
-		CurrentWallActor->GenerateWallSegments(InLength);
+		CurrentWallActor->SetLength(InLength);
+		CurrentWallActor->GenerateWallSegments();
 	}
 }
 
@@ -232,7 +233,7 @@ void UWallSubMode::HandleWallNewButtonClick() {
 }
 
 void UWallSubMode::HandleWallDeleteButtonClick() {
-	if (IsValid(CurrentWallActor)) {
+	if (IsValid(CurrentWallActor) && CurrentWallActor->GetState() == EBuildingActorState::Selected) {
 		CurrentWallActor->SetState(EBuildingActorState::None);
 		CurrentWallActor->DestroyDoorComponents();
 		CurrentWallActor->Destroy();

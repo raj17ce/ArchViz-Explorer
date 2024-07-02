@@ -7,7 +7,7 @@
 #include "ArchVizUtility.h"
 
 // Sets default values
-ARoofActor::ARoofActor() {
+ARoofActor::ARoofActor() : Dimensions{ 100.0,100.0, 20.0 }, Offset{ 50.0,50.0, 10.0 } {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -30,7 +30,7 @@ void ARoofActor::SetStartPoint(const FVector& NewStartPoint) {
 	StartPoint = NewStartPoint;
 }
 
-const FVector& ARoofActor::GetStartPoint() {
+const FVector& ARoofActor::GetStartPoint() const {
 	return StartPoint;
 }
 
@@ -38,8 +38,24 @@ void ARoofActor::SetEndPoint(const FVector& NewEndPoint) {
 	EndPoint = NewEndPoint;
 }
 
-const FVector& ARoofActor::GetEndPoint() {
+const FVector& ARoofActor::GetEndPoint() const {
 	return EndPoint;
+}
+
+const FVector& ARoofActor::GetDimensions() const {
+	return Dimensions;
+}
+
+void ARoofActor::SetDimensions(const FVector& NewDimensions) {
+	Dimensions = NewDimensions;
+}
+
+const FVector& ARoofActor::GetOffset() const {
+	return Offset;
+}
+
+void ARoofActor::SetOffset(const FVector& NewOffset) {
+	Offset = NewOffset;
 }
 
 // Called when the game starts or when spawned
@@ -97,41 +113,27 @@ void ARoofActor::HandleGeneratingState() {
 	double YDistance = EndPoint.Y - StartPoint.Y;
 	double ZDistance = 20.0;
 
-	FVector Dimensions{ abs(XDistance) + (2 * EdgeOffset), abs(YDistance) + (2 * EdgeOffset), ZDistance };
-	FVector Offset{ abs(XDistance) /2,  abs(YDistance) / 2, ZDistance / 2 };
-	//FVector NewStartPoint{ StartPoint };
+	FVector NewDimensions{ abs(XDistance) + (2 * EdgeOffset), abs(YDistance) + (2 * EdgeOffset), ZDistance };
+	FVector NewOffset{ abs(XDistance) /2,  abs(YDistance) / 2, ZDistance / 2 };
 
 	if (XDistance >= 0.0 && YDistance >= 0.0) {
 		RoofMeshComponent->SetWorldRotation(FRotator{ 0.0 });
 	}
 	else if (XDistance >= 0.0 && YDistance < 0.0) {
 		RoofMeshComponent->SetWorldRotation(FRotator{ 0.0,0.0,180.0 });
-		Offset.Z *= -1.0;
+		NewOffset.Z *= -1.0;
 	}
 	else if (XDistance < 0.0 && YDistance >= 0.0) {
 		RoofMeshComponent->SetWorldRotation(FRotator{ 180.0,0.0,0.0 });
-		Offset.Z *= -1.0;
+		NewOffset.Z *= -1.0;
 	}
 	else {
 		RoofMeshComponent->SetWorldRotation(FRotator{ 180.0,0.0, 180.0 });
 	}
 
-	//if (XDistance >= 0.0) {
-	//	NewStartPoint.X -= EdgeOffset;
-	//}
-	//else {
-	//	NewStartPoint.X += EdgeOffset;
-	//}
-	//if (YDistance >= 0.0) {
-	//	NewStartPoint.Y -= EdgeOffset;
-	//}
-	//else {
-	//	NewStartPoint.Y += EdgeOffset;
-	//}
-
-	//SetActorLocation(NewStartPoint);
-
-	GenerateRoof(Dimensions, Offset);
+	Dimensions = NewDimensions;
+	Offset = NewOffset;
+	GenerateRoof();
 }
 
 void ARoofActor::HandleMovingState() {
@@ -141,9 +143,13 @@ void ARoofActor::HandleMovingState() {
 	SetActorLocation(HitResult.Location);
 }
 
-void ARoofActor::GenerateRoof(const FVector& Dimensions, const FVector& Offset) {
+void ARoofActor::GenerateRoof() {
 	DestroyRoof();
 	ProceduralMeshGenerator::GenerateCube(RoofMeshComponent, 0, Dimensions, Offset);
+
+	if (IsValid(Material)) {
+		RoofMeshComponent->SetMaterial(0, Material);
+	}
 }
 
 void ARoofActor::DestroyRoof() {
@@ -151,19 +157,16 @@ void ARoofActor::DestroyRoof() {
 }
 
 void ARoofActor::UpdateSpinBoxValue() {
-	double XDistance = EndPoint.X - StartPoint.X;
-	double YDistance = EndPoint.Y - StartPoint.Y;
-	double ZDistance = 20.0;
-
 	if (IsValid(PropertyPanelWidget)) {
-		PropertyPanelWidget->RoofLengthSpinbox->SetValue(abs(XDistance));
-		PropertyPanelWidget->RoofWidthSpinbox->SetValue(abs(YDistance));
-		PropertyPanelWidget->RoofHeightSpinbox->SetValue(ZDistance);
+		PropertyPanelWidget->RoofLengthSpinbox->SetValue(Dimensions.X);
+		PropertyPanelWidget->RoofWidthSpinbox->SetValue(Dimensions.Y);
+		PropertyPanelWidget->RoofHeightSpinbox->SetValue(Dimensions.Z);
 	}
 }
 
 void ARoofActor::HandleMaterialChange(FMaterialAssetData MaterialData) {
 	if (MaterialData.Material) {
-		RoofMeshComponent->SetMaterial(0, MaterialData.Material);
+		Material = MaterialData.Material;
+		RoofMeshComponent->SetMaterial(0, Material);
 	}
 }

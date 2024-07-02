@@ -22,6 +22,7 @@ enum class ERoadActorState : uint8 {
 	Generating
 };
 
+UENUM(BlueprintType)
 enum class ERoadType : uint8 {
 	Sharp,
 	Curved
@@ -38,11 +39,11 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
-	void AddSplinePoint(const FVector& Location);
-	void RemoveLastSplinePoint();
+	TArray<FVector> GetSplinePoints() const;
+	void SetSplinePoints(const TArray<FVector>& NewSplinePoints);
 
-	UFUNCTION(BlueprintCallable)
-	void UpdateRoad();
+	float GetWidth() const;
+	void SetWidth(float NewWidth);
 
 	void SetState(ERoadActorState NewState);
 	ERoadActorState GetState() const;
@@ -50,17 +51,17 @@ public:
 	void SetRoadType(ERoadType NewRoadType);
 	ERoadType GetRoadType() const;
 
-	virtual void ShowWidget() override;
-	virtual void HideWidget() override;
+	UFUNCTION()
+	void UpdateRoad();
 
-	void HandleStateChange();
+	void UpdatePropertyPanelValues();
 
 	FOnRoadActorStateChanged OnRoadActorStateChanged;
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+private:
 	UPROPERTY()
 	USceneComponent* SceneComponent;
 
@@ -81,9 +82,11 @@ protected:
 	ERoadActorState State;
 	ERoadType RoadType;
 
-	UPROPERTY()
-	UMaterialInterface* Material;
-private:
+	void AddSplinePoint(const FVector& Location);
+	void RemoveLastSplinePoint();
+
 	void DestroyRoadSegments();
 	void HandleMaterialChange(FMaterialAssetData MaterialData);
+
+	void HandleStateChange();
 };

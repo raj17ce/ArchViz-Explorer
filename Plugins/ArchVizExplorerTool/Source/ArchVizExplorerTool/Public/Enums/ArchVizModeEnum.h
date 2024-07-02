@@ -9,5 +9,6 @@ UENUM(BlueprintType)
 enum class EArchVizMode : uint8 {
 	RoadConstruction,
 	BuildingConstruction,
-	InteriorDesign
+	InteriorDesign,
+	SaveGame
 };

@@ -16,6 +16,17 @@ public:
 	// Sets default values for this actor's properties
 	AArchVizActor();
 
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	UMaterialInterface* GetMaterial() const;
+	void SetMaterial(UMaterialInterface* NewMaterial);
+
+	int32 GetID() const;
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
 	virtual void ShowWidget();
 	virtual void HideWidget();
 
@@ -24,14 +35,7 @@ public:
 
 	virtual void RotateActor(double Degree);
 
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 	virtual FHitResult GetHitResult(const TArray<AActor*>& ActorsToIgnore = TArray<AActor*>{}) const;
-
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UPropertyPanelWidget> PropertyPanelWidgetClass;
@@ -44,4 +48,16 @@ protected:
 	
 	UPROPERTY()
 	UMaterialWidget* MaterialWidget;
+
+	UPROPERTY()
+	UMaterialInterface* Material;
+
+	int32 ID;
+
+private:
+	static inline int32 GeneratedID = 0;
+
+	static int32 GenerateID() {
+		return ++GeneratedID;
+	}
 };

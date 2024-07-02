@@ -33,6 +33,12 @@ void AArchVizController::BeginPlay() {
 		InteriorDesignMode->SetPlayerController(this);
 		InteriorDesignMode->SetupInputComponent();
 	}
+	if (SaveGameModeClass) {
+		SaveGameMode = NewObject<USaveGameMode>(this, SaveGameModeClass);
+		SaveGameMode->Setup();
+		SaveGameMode->SetPlayerController(this);
+		SaveGameMode->SetupInputComponent();
+	}
 
 	if (RoadConstructionMode) {
 		SetArchVizMode(RoadConstructionMode);
@@ -50,29 +56,6 @@ void AArchVizController::BeginPlay() {
 
 void AArchVizController::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
-
-	//if (CurrentArchVizMode == EArchVizMode::BuildingConstruction) {
-	//	/*if (IsValid(WallActorClass) && !IsValid(WallActor)) {
-	//		WallActor = NewObject<AWallActor>(this, WallActorClass);
-	//	}*/
-	//	auto* WallActor = BuildingConstructionMode->GetWallActor();
-
-	//	if (IsValid(WallActor) && !IsValid(WallActor->PreviewWallSegment)) {
-	//		WallActor->PreviewWallSegment = NewObject<UStaticMeshComponent>();
-	//		WallActor->PreviewWallSegment->RegisterComponentWithWorld(GetWorld());
-	//	}
-
-	//	FHitResult HitResult{};
-	//	GetHitResultUnderCursorByChannel(TraceTypeQuery1, true, HitResult);
-	//	HitResult.Location.Z = 0.0;
-
-	//	if (IsValid(WallActor->PreviewWallSegment) && IsValid(WallActor->WallStaticMesh)) {
-	//		WallActor->PreviewWallSegment->SetStaticMesh(WallActor->WallStaticMesh);
-
-	//		WallActor->PreviewWallSegment->SetWorldLocation(ArchVizUtility::GetSnappedLocation(HitResult.Location));
-	//		WallActor->PreviewWallSegment->SetWorldRotation(WallActor->GetSegmentRotation());
-	//	}
-	//}
 }
 
 void AArchVizController::SetupInputComponent() {
@@ -95,6 +78,9 @@ void AArchVizController::UpdateArchVizMode() {
 		break;
 	case EArchVizMode::InteriorDesign:
 		SetArchVizMode(InteriorDesignMode);
+		break;
+	case EArchVizMode::SaveGame:
+		SetArchVizMode(SaveGameMode);
 		break;
 	}
 }

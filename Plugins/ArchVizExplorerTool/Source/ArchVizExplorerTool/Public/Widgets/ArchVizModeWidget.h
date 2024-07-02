@@ -35,7 +35,13 @@ public:
 	void HandleInteriorModeButtonClick();
 
 	UFUNCTION()
+	void HandleSaveGameModeButtonClick();
+
+	UFUNCTION()
 	void HighlightSelectedColour(EArchVizMode NewArchVizMode);
+
+	UFUNCTION()
+	void RemoveHighlights();
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
@@ -55,6 +61,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	UButton* InteriorModeButton;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	UButton* SaveGameModeButton;
 
 private:
 	void SetNormalTint(FButtonStyle& ButtonStyle);

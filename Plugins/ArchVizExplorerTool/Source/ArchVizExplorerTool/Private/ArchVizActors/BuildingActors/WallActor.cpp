@@ -6,7 +6,7 @@
 #include "ArchVizActors/BuildingActors/DoorActor.h"
 
 // Sets default values
-AWallActor::AWallActor() : WallStaticMesh{nullptr}, DoorWallStaticMesh{nullptr} {
+AWallActor::AWallActor() : WallStaticMesh{nullptr}, DoorWallStaticMesh{nullptr}, Length{0.0f} {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -33,6 +33,22 @@ const FVector& AWallActor::GetEndLocation() const {
 	return EndLocation;
 }
 
+float AWallActor::GetLength() const {
+	return Length;
+}
+
+void AWallActor::SetLength(float NewLength) {
+	Length = NewLength;
+}
+
+TArray<UStaticMeshComponent*> AWallActor::GetWallSegments() const {
+	return WallSegments;
+}
+
+void AWallActor::SetWallSegments(TArray<UStaticMeshComponent*> NewWallSegments) {
+	WallSegments = NewWallSegments;
+}
+
 void AWallActor::AttachDoorComponent(UPrimitiveComponent* Component, ADoorActor* DoorActor) {
 	if (auto* DoorComponent = Cast<UStaticMeshComponent>(Component)) {
 		int32 SegmentIndex = WallSegments.Find(DoorComponent);
@@ -44,6 +60,8 @@ void AWallActor::AttachDoorComponent(UPrimitiveComponent* Component, ADoorActor*
 			DoorActor->AttachToComponent(WallSegments[SegmentIndex], FAttachmentTransformRules::KeepRelativeTransform, TEXT("DoorSocket"));
 			DoorActor->SetActorRelativeRotation(FRotator::ZeroRotator);
 			DoorActor->SetActorRelativeLocation(FVector::ZeroVector);
+
+			DoorActor->SetParentWallComponentIndex(SegmentIndex);
 		}
 	}
 }
@@ -105,7 +123,7 @@ void AWallActor::Tick(float DeltaTime) {
 	}
 }
 
-void AWallActor::GenerateWallSegments(double Length) {
+void AWallActor::GenerateWallSegments() {
 	DestroyWallSegments();
 
 	int32 NumberOfSegments{};
@@ -120,11 +138,15 @@ void AWallActor::GenerateWallSegments(double Length) {
 		UStaticMeshComponent* WallMeshComponent = NewObject<UStaticMeshComponent>(this);
 		WallMeshComponent->AttachToComponent(SceneComponent, FAttachmentTransformRules::KeepRelativeTransform);
 		WallMeshComponent->RegisterComponent();
-		// WallMeshComponent->SetMobility(EComponentMobility::Movable);
+		WallMeshComponent->SetMobility(EComponentMobility::Movable);
 
 		if (IsValid(WallStaticMesh)) {
 			WallMeshComponent->SetStaticMesh(WallStaticMesh);
 			WallSegments.Add(WallMeshComponent);
+		}
+
+		if (IsValid(Material)) {
+			WallMeshComponent->SetMaterial(0, Material);
 		}
 
 		WallMeshComponent->SetRelativeLocation(FVector{SegmentIndex * WallSize.X, 0, 0});
@@ -189,7 +211,7 @@ void AWallActor::HandleGeneratingState() {
 
 	if (EndLocation != StartLocation) {
 		if (abs(XDistance) >= abs(YDistance)) {
-			GenerateWallSegments(abs(XDistance));
+			Length = abs(XDistance);
 
 			if (XDistance >= 0) {
 				SetActorRotation(FRotator{ 0.0 });
@@ -199,7 +221,7 @@ void AWallActor::HandleGeneratingState() {
 			}
 		}
 		else {
-			GenerateWallSegments(abs(YDistance));
+			Length = abs(YDistance);
 
 			if (YDistance >= 0) {
 				SetActorRotation(FRotator{ 0.0, 90.0, 0.0 });
@@ -209,6 +231,7 @@ void AWallActor::HandleGeneratingState() {
 			}
 		}
 
+		GenerateWallSegments();
 		HandleEdgeOffset();
 	}
 }
@@ -246,23 +269,14 @@ void AWallActor::HandleEdgeOffset() {
 }
 
 void AWallActor::UpdateLengthSpinBoxValue() {
-	double XDistance = EndLocation.X - StartLocation.X;
-	double YDistance = EndLocation.Y - StartLocation.Y;
-
 	if (IsValid(PropertyPanelWidget)) {
-		if (abs(XDistance) >= abs(YDistance)) {
-			PropertyPanelWidget->WallLengthSpinbox->SetValue(abs(XDistance));
-		}
-		else {
-			PropertyPanelWidget->WallLengthSpinbox->SetValue(abs(YDistance));
-		}
+		PropertyPanelWidget->WallLengthSpinbox->SetValue(Length);
 	}
 }
 
 void AWallActor::HandleMaterialChange(FMaterialAssetData MaterialData) {
-	for (const auto& Component : WallSegments) {
-		if (MaterialData.Material) {
-			Component->SetMaterial(0, MaterialData.Material);
-		}
+	if (MaterialData.Material) {
+		Material = MaterialData.Material;
+		GenerateWallSegments();
 	}
 }
