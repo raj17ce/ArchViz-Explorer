@@ -128,8 +128,11 @@ void ARoofActor::HandleMovingState() {
 
 void ARoofActor::GenerateRoof() {
 	DestroyRoof();
-	AdjustDimensionAndOffset();
-	ProceduralMeshGenerator::GenerateCube(RoofMeshComponent, 0, Dimensions, Offset);
+
+	FVector RoofOffset;
+
+	AdjustOffset(RoofOffset);
+	ProceduralMeshGenerator::GenerateCube(RoofMeshComponent, 0, Dimensions, RoofOffset);
 	ApplyMaterial();
 }
 
@@ -137,21 +140,23 @@ void ARoofActor::DestroyRoof() {
 	RoofMeshComponent->ClearAllMeshSections();
 }
 
-void ARoofActor::AdjustDimensionAndOffset() {
+void ARoofActor::AdjustOffset(FVector& RoofOffset) {
 	double XDistance = EndPoint.X - StartPoint.X;
 	double YDistance = EndPoint.Y - StartPoint.Y;
 	double ZDistance = 20.0;
+
+	RoofOffset = Offset;
 
 	if (XDistance >= 0.0 && YDistance >= 0.0) {
 		RoofMeshComponent->SetWorldRotation(FRotator{ 0.0 });
 	}
 	else if (XDistance >= 0.0 && YDistance < 0.0) {
 		RoofMeshComponent->SetWorldRotation(FRotator{ 0.0,0.0,180.0 });
-		Offset.Z *= -1.0;
+		RoofOffset.Z *= -1.0;
 	}
 	else if (XDistance < 0.0 && YDistance >= 0.0) {
 		RoofMeshComponent->SetWorldRotation(FRotator{ 180.0,0.0,0.0 });
-		Offset.Z *= -1.0;
+		RoofOffset.Z *= -1.0;
 	}
 	else {
 		RoofMeshComponent->SetWorldRotation(FRotator{ 180.0,0.0, 180.0 });

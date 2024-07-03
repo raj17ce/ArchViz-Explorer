@@ -31,7 +31,7 @@ public:
 	void SetOffset(const FVector& NewOffset);
 
 	void GenerateFloor();
-	void AdjustDimensionAndOffset();
+	void AdjustOffset(FVector& FloorOffset);
 	void UpdateSpinBoxValue();
 protected:
 	// Called when the game starts or when spawned

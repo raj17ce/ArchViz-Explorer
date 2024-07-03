@@ -103,6 +103,9 @@ void USaveGameMode::HandleSlotItemNameButtonClick(const FString& SlotName) {
 			// Notify("Project is Already Opened.");
 			return;
 		}
+		else if (!CurrentSlotName.IsEmpty()) {
+			SaveGame(CurrentSlotName);
+		}
 
 		LoadGame(SlotName);
 		CurrentSlotName = SlotName;
@@ -285,8 +288,8 @@ void USaveGameMode::SaveGame(const FString& SlotName) {
 
 	if (UGameplayStatics::SaveGameToSlot(SaveGameInstance, SlotName, 0)) {
 		auto* SlotSaveGameInstance = Cast<UArchVizSlotSaveGame>(UGameplayStatics::CreateSaveGameObject(UArchVizSlotSaveGame::StaticClass()));
-
 		auto* LoadSavedSlotNames = Cast<UArchVizSlotSaveGame>(UGameplayStatics::LoadGameFromSlot(TEXT("SavedSlotNames"), 0));
+
 		if (IsValid(LoadSavedSlotNames) && !LoadSavedSlotNames->SlotsNames.Contains(CurrentSlotName)) {
 			SlotSaveGameInstance->SlotsNames = LoadSavedSlotNames->SlotsNames;
 
@@ -295,8 +298,8 @@ void USaveGameMode::SaveGame(const FString& SlotName) {
 			SlotSaveGameInstance->SlotsNames.Add(NewSlotName);
 
 			SlotsList = SlotSaveGameInstance->SlotsNames;
-			PopulateSlotsList();
 
+			PopulateSlotsList();
 			UGameplayStatics::SaveGameToSlot(SlotSaveGameInstance, "SavedSlotNames", 0);
 		}
 	}

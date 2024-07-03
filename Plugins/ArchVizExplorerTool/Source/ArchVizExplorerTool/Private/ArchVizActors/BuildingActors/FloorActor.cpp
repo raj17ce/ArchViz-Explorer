@@ -124,26 +124,31 @@ void AFloorActor::HandleMovingState() {
 
 void AFloorActor::GenerateFloor() {
 	DestroyFloor();
-	AdjustDimensionAndOffset();
-	ProceduralMeshGenerator::GenerateCube(FloorMeshComponent, 0, Dimensions, Offset);
+
+	FVector FloorOffset;
+
+	AdjustOffset(FloorOffset);
+	ProceduralMeshGenerator::GenerateCube(FloorMeshComponent, 0, Dimensions, FloorOffset);
 	ApplyMaterial();
 }
 
-void AFloorActor::AdjustDimensionAndOffset() {
+void AFloorActor::AdjustOffset(FVector& FloorOffset) {
 	double XDistance = EndPoint.X - StartPoint.X;
 	double YDistance = EndPoint.Y - StartPoint.Y;
 	double ZDistance = 2.0;
+
+	FloorOffset = Offset;
 
 	if (XDistance >= 0.0 && YDistance >= 0.0) {
 		FloorMeshComponent->SetWorldRotation(FRotator{ 0.0 });
 	}
 	else if (XDistance >= 0.0 && YDistance < 0.0) {
 		FloorMeshComponent->SetWorldRotation(FRotator{ 0.0,0.0,180.0 });
-		Offset.Z *= -1.0;
+		FloorOffset.Z *= -1.0;
 	}
 	else if (XDistance < 0.0 && YDistance >= 0.0) {
 		FloorMeshComponent->SetWorldRotation(FRotator{ 180.0,0.0,0.0 });
-		Offset.Z *= -1.0;
+		FloorOffset.Z *= -1.0;
 	}
 	else {
 		FloorMeshComponent->SetWorldRotation(FRotator{ 180.0,0.0, 180.0 });
