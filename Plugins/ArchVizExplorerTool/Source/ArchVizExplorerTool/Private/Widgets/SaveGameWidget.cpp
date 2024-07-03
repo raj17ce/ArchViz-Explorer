@@ -36,9 +36,6 @@ void USaveGameWidget::NativeConstruct() {
 	if (IsValid(LoadProjectButton)) {
 		LoadProjectButton->OnClicked.AddDynamic(this, &USaveGameWidget::HandleLoadProjectButtonClick);
 	}
-	if (IsValid(SaveProjectButton)) {
-		SaveProjectButton->OnClicked.AddDynamic(this, &USaveGameWidget::HandleSaveProjectButtonClick);
-	}
 
 	if (IsValid(SavePopupCloseButton)) {
 		SavePopupCloseButton->OnClicked.AddDynamic(this, &USaveGameWidget::HandleSavePopupCloseButtonClick);
@@ -48,18 +45,39 @@ void USaveGameWidget::NativeConstruct() {
 	}
 }
 
-void USaveGameWidget::HandleSaveProjectButtonClick() {
+void USaveGameWidget::HandleSavePopupCloseButtonClick() {
+	HideSavePopup();
+}
+
+void USaveGameWidget::HandleLoadProjectButtonClick() {
+	ShowLoadPopup();
+}
+
+void USaveGameWidget::HandleLoadPopupCloseButtonClick() {
+	HidelLoadPopup();
+}
+
+void USaveGameWidget::HideAllPopup() {
+	if (IsValid(SavePopupBorderBox)) {
+		SavePopupBorderBox->SetVisibility(ESlateVisibility::Collapsed);
+	}
+	if (IsValid(LoadPopupBorderBox)) {
+		LoadPopupBorderBox->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
+void USaveGameWidget::ShowSavePopup() {
 	HideAllPopup();
 	if (IsValid(SavePopupBorderBox)) {
 		SavePopupBorderBox->SetVisibility(ESlateVisibility::Visible);
-		if(IsValid(BackgroundBlur)) {
+		if (IsValid(BackgroundBlur)) {
 			BackgroundBlur->SetIsEnabled(true);
 			BackgroundBlur->SetBlurStrength(2.0f);
 		}
 	}
 }
 
-void USaveGameWidget::HandleSavePopupCloseButtonClick() {
+void USaveGameWidget::HideSavePopup() {
 	if (IsValid(SavePopupBorderBox)) {
 		SavePopupBorderBox->SetVisibility(ESlateVisibility::Collapsed);
 		if (IsValid(BackgroundBlur)) {
@@ -69,7 +87,7 @@ void USaveGameWidget::HandleSavePopupCloseButtonClick() {
 	}
 }
 
-void USaveGameWidget::HandleLoadProjectButtonClick() {
+void USaveGameWidget::ShowLoadPopup() {
 	HideAllPopup();
 	if (IsValid(LoadPopupBorderBox)) {
 		LoadPopupBorderBox->SetVisibility(ESlateVisibility::Visible);
@@ -80,21 +98,12 @@ void USaveGameWidget::HandleLoadProjectButtonClick() {
 	}
 }
 
-void USaveGameWidget::HandleLoadPopupCloseButtonClick() {
+void USaveGameWidget::HidelLoadPopup() {
 	if (IsValid(LoadPopupBorderBox)) {
 		LoadPopupBorderBox->SetVisibility(ESlateVisibility::Collapsed);
 		if (IsValid(BackgroundBlur)) {
 			BackgroundBlur->SetIsEnabled(false);
 			BackgroundBlur->SetBlurStrength(0.0f);
 		}
-	}
-}
-
-void USaveGameWidget::HideAllPopup() {
-	if (IsValid(SavePopupBorderBox)) {
-		SavePopupBorderBox->SetVisibility(ESlateVisibility::Collapsed);
-	}
-	if (IsValid(LoadPopupBorderBox)) {
-		LoadPopupBorderBox->SetVisibility(ESlateVisibility::Collapsed);
 	}
 }

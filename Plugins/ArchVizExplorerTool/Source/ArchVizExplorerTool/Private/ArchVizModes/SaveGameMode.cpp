@@ -23,6 +23,8 @@ void USaveGameMode::Setup() {
 		if (auto* SaveGameWidget = Cast<USaveGameWidget>(Widget)) {
 			SaveGameWidget->PopulateSavedSlotsList(SlotsList);
 			SaveGameWidget->NewProjectButton->OnClicked.AddDynamic(this, &USaveGameMode::HandleNewProjectButtonClick);
+			SaveGameWidget->SaveProjectButton->OnClicked.AddDynamic(this, &USaveGameMode::HandleSaveProjectButtonClick);
+
 			SaveGameWidget->SavePopupSaveButton->OnClicked.AddDynamic(this, &USaveGameMode::HandleSaveButtonClick);
 			SaveGameWidget->OnSaveSlotReceived.BindUObject(this, &USaveGameMode::HandleSlotItemNameButtonClick);
 			SaveGameWidget->OnSaveSlotDeleteReceived.BindUObject(this, &USaveGameMode::HandleSlotItemDeleteButtonClick);
@@ -71,16 +73,28 @@ void USaveGameMode::HandleNewProjectButtonClick() {
 	if (CurrentSlotName.IsEmpty()) {
 		// To-Do :: Notify to enter a name
 		if (auto* SaveGameWidget = Cast<USaveGameWidget>(Widget)) {
-			SaveGameWidget->HandleSaveProjectButtonClick();
+			SaveGameWidget->ShowSavePopup();
 		}
-		return;
 	}
 	else {	
 		SaveGame(CurrentSlotName);
 	}
 
 	ClearWorld();
-	CurrentSlotName = "";
+	CurrentSlotName = TEXT("");
+}
+
+void USaveGameMode::HandleSaveProjectButtonClick() {
+	if (CurrentSlotName.IsEmpty()) {
+		// To-Do :: Notify to enter a name
+		if (auto* SaveGameWidget = Cast<USaveGameWidget>(Widget)) {
+			SaveGameWidget->ShowSavePopup();
+		}
+		return;
+	}
+	else {
+		SaveGame(CurrentSlotName);
+	}
 }
 
 void USaveGameMode::HandleSlotItemNameButtonClick(const FString& SlotName) {
@@ -90,8 +104,8 @@ void USaveGameMode::HandleSlotItemNameButtonClick(const FString& SlotName) {
 			return;
 		}
 
+		LoadGame(SlotName);
 		CurrentSlotName = SlotName;
-		LoadGame(CurrentSlotName);
 
 		SaveGameWidget->HandleLoadPopupCloseButtonClick();
 		// To-Do :: Success

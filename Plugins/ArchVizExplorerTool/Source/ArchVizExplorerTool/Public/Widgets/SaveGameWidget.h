@@ -41,12 +41,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	UButton* SaveProjectButton;
 
-	UFUNCTION()
-	void HandleLoadProjectButtonClick();
-
-	UFUNCTION()
-	void HandleSaveProjectButtonClick();
-
 	//Save Popup
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	UBorder* SavePopupBorderBox;
@@ -74,6 +68,9 @@ public:
 	UScrollBox* SlotsListScrollBox;
 
 	UFUNCTION()
+	void HandleLoadProjectButtonClick();
+
+	UFUNCTION()
 	void HandleLoadPopupCloseButtonClick();
 
 	//BackGround Blur
@@ -81,6 +78,11 @@ public:
 	UBackgroundBlur* BackgroundBlur;
 
 	void HideAllPopup();
+
+	void ShowSavePopup();
+	void HideSavePopup();
+	void ShowLoadPopup();
+	void HidelLoadPopup();
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Slot Item")
 	TSubclassOf<USaveGameItemWidget> SaveGameItemWidgetClass;
