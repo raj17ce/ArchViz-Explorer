@@ -86,4 +86,10 @@ public:
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Slot Item")
 	TSubclassOf<USaveGameItemWidget> SaveGameItemWidgetClass;
+
+	UFUNCTION()
+	void HandleSlotSelected(const FString& SlotName);
+
+	UFUNCTION()
+	void HandleSlotDeleted(const FString& SlotName);
 };

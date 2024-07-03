@@ -2,8 +2,9 @@
 
 
 #include "ArchVizModes/BuildingSubModes/BuildingConstructionSubMode.h"
+#include "ArchVizController.h"
 
-void UBuildingConstructionSubMode::SetPlayerController(APlayerController* Controller) {
+void UBuildingConstructionSubMode::SetPlayerController(AArchVizController* Controller) {
 	PlayerController = Controller;
 }
 

@@ -45,13 +45,16 @@ void ADoorActor::SetParentWallComponentIndex(int32 NewIndex) {
 
 void ADoorActor::ShowWidget() {
 	if (IsValid(PropertyPanelWidget)) {
-		PropertyPanelWidget->AddToViewport();
+		if (!PropertyPanelWidget->IsInViewport()) {
+			PropertyPanelWidget->AddToViewport();
+		}
+		PropertyPanelWidget->SetVisibility(ESlateVisibility::Visible);
 	}
 }
 
 void ADoorActor::HideWidget() {
 	if (IsValid(PropertyPanelWidget)) {
-		PropertyPanelWidget->RemoveFromParent();
+		PropertyPanelWidget->SetVisibility(ESlateVisibility::Collapsed);
 	}
 }
 

@@ -12,15 +12,8 @@ void USaveGameWidget::PopulateSavedSlotsList(TArray<FString> SavedSlots) {
 			if (SaveGameItemWidgetClass) {
 				if (auto* ItemWidget = CreateWidget<USaveGameItemWidget>(this, SaveGameItemWidgetClass)) {
 					ItemWidget->SetSlotName(SavedSlot);
-					ItemWidget->OnSlotSelected.BindLambda(
-						[this](const FString& SlotName) {
-							OnSaveSlotReceived.ExecuteIfBound(SlotName);
-						});
-
-					ItemWidget->OnSlotDeleted.BindLambda(
-						[this](const FString& SlotName) {
-							OnSaveSlotDeleteReceived.ExecuteIfBound(SlotName);
-						});
+					ItemWidget->OnSlotSelected.BindUObject(this, &USaveGameWidget::HandleSlotSelected);
+					ItemWidget->OnSlotDeleted.BindUObject(this, &USaveGameWidget::HandleSlotDeleted);
 
 					auto* PanelSlot = SlotsListScrollBox->AddChild(ItemWidget);
 					if (auto* ScrollBoxSlot = Cast<UScrollBoxSlot>(PanelSlot)) {
@@ -106,4 +99,12 @@ void USaveGameWidget::HidelLoadPopup() {
 			BackgroundBlur->SetBlurStrength(0.0f);
 		}
 	}
+}
+
+void USaveGameWidget::HandleSlotSelected(const FString& SlotName) {
+	OnSaveSlotReceived.ExecuteIfBound(SlotName);
+}
+
+void USaveGameWidget::HandleSlotDeleted(const FString& SlotName) {
+	OnSaveSlotDeleteReceived.ExecuteIfBound(SlotName);
 }

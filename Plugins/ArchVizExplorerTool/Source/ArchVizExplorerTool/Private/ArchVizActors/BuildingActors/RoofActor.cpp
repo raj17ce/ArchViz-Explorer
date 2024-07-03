@@ -5,6 +5,7 @@
 #include "ProceduralMeshComponent.h"
 #include "ProceduralMeshGenerator.h"
 #include "ArchVizUtility.h"
+#include "ArchVizController.h"
 
 // Sets default values
 ARoofActor::ARoofActor() : Dimensions{ 100.0,100.0, 20.0 }, Offset{ 50.0,50.0, 10.0 } {
@@ -175,6 +176,9 @@ void ARoofActor::HandleMaterialChange(FMaterialAssetData MaterialData) {
 	if (MaterialData.Material) {
 		Material = MaterialData.Material;
 		ApplyMaterial();
+		if (auto* ArchVizController = Cast<AArchVizController>(GetWorld()->GetFirstPlayerController())) {
+			ArchVizController->AddSuccessMessage(FText::FromString("Material Applied Successfully"), 1.5f);
+		}
 	}
 }
 

@@ -36,8 +36,8 @@ public:
 	UFUNCTION()
 	void HandleArchVizModeChange(EArchVizMode NewArchVizMode);
 
-	void AddErrorMessage(FText Message);
-	void AddSuccessMessage(FText Message);
+	void AddErrorMessage(FText Message, float Time = 2.0f);
+	void AddSuccessMessage(FText Message, float Time = 2.0f);
 
 	void BindPropertyDelegatesToActor(AArchVizActor* Actor);
 

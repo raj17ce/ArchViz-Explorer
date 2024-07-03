@@ -3,6 +3,7 @@
 
 #include "ArchVizModes/RoadConstructionMode.h"
 #include "EnhancedInputComponent.h"
+#include "ArchVizController.h"
 #include "EnhancedInputSubsystems.h"
 
 void URoadConstructionMode::Setup() {
@@ -105,6 +106,7 @@ void URoadConstructionMode::HandleFreeState() {
 		CurrentRoadActor = Cast<ARoadActor>(HitResult.GetActor());
 		CurrentRoadActor->SetState(ERoadActorState::Selected);
 		RoadModeState = ERoadModeState::Free;
+		PlayerController->AddSuccessMessage(FText::FromString("Road Selected Successfully"), 1.5f);
 	}
 }
 
@@ -117,6 +119,7 @@ void URoadConstructionMode::HandleNewObjectState() {
 
 		HitResult = CurrentRoadActor->GetHitResult(IgnoredActors);
 		CurrentRoadActor->AddSplinePoint(HitResult.Location);
+		PlayerController->AddSuccessMessage(FText::FromString("New Point Added"), 1.5f);
 	}
 }
 
@@ -125,12 +128,18 @@ void URoadConstructionMode::HandleSaveRoadButtonClick() {
 		CurrentRoadActor->UpdatePropertyPanelValues();
 		CurrentRoadActor->SetState(ERoadActorState::Selected);
 		RoadModeState = ERoadModeState::Free;
+		PlayerController->AddSuccessMessage(FText::FromString("Road Construction Completed Successfully"), 1.5f);
 	}
 }
 
 void URoadConstructionMode::HandleUndoRoadButtonClick() {
 	if (IsValid(CurrentRoadActor) && CurrentRoadActor->GetState() == ERoadActorState::Generating) {
-		CurrentRoadActor->RemoveLastSplinePoint();
+		if (CurrentRoadActor->RemoveLastSplinePoint()) {
+			PlayerController->AddSuccessMessage(FText::FromString("Undo : One Point Removed Successfully"), 1.5f);
+		}
+		else {
+			PlayerController->AddErrorMessage(FText::FromString("Already Removed All Points"), 1.5f);
+		}
 	}
 }
 
@@ -138,15 +147,18 @@ void URoadConstructionMode::HandleRoadWidthChange(float InWidth) {
 	if (IsValid(CurrentRoadActor)) {
 		CurrentRoadActor->Width = InWidth;
 		CurrentRoadActor->UpdateRoad();
+		PlayerController->AddSuccessMessage(FText::FromString("Road Updated Successfully"), 1.5f);
 	}	
 }
 
 void URoadConstructionMode::HandleRoadTypeChange(FString SelectedType, ESelectInfo::Type SelectionType) {
 	if (SelectedType == TEXT("Curved")) {
 		CurrentRoadActor->SetRoadType(ERoadType::Curved);
+		PlayerController->AddSuccessMessage(FText::FromString("Road Type Changed to Curved"), 1.5f);
 	}
 	else if (SelectedType == TEXT("Sharp")) {
 		CurrentRoadActor->SetRoadType(ERoadType::Sharp);
+		PlayerController->AddSuccessMessage(FText::FromString("Road Type Changed to Sharp"), 1.5f);
 	}
 }
 
@@ -161,6 +173,7 @@ void URoadConstructionMode::HandleRoadNewButtonClick() {
 		BindPropertyDelegatesToActor(CurrentRoadActor);
 		CurrentRoadActor->SetState(ERoadActorState::Generating);
 		RoadModeState = ERoadModeState::NewObject;
+		PlayerController->AddSuccessMessage(FText::FromString("New Road Construction Started"), 1.5f);
 	}
 }
 
@@ -171,6 +184,7 @@ void URoadConstructionMode::HandleRoadDeleteButtonClick() {
 		CurrentRoadActor->Destroy();
 		CurrentRoadActor = nullptr;
 		RoadModeState = ERoadModeState::Free;
+		PlayerController->AddSuccessMessage(FText::FromString("Road Deleted Successfully"), 1.5f);
 	}
 }
 
@@ -178,6 +192,7 @@ void URoadConstructionMode::HandleRoadCloseButtonClick() {
 	if (IsValid(CurrentRoadActor)) {
 		CurrentRoadActor->SetState(ERoadActorState::None);
 		CurrentRoadActor = nullptr;
+		PlayerController->AddSuccessMessage(FText::FromString("Road Deselected Successfully"), 1.5f);
 	}
 }
 

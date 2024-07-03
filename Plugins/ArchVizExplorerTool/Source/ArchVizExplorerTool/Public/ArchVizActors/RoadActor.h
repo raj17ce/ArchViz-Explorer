@@ -83,7 +83,7 @@ private:
 	ERoadType RoadType;
 
 	void AddSplinePoint(const FVector& Location);
-	void RemoveLastSplinePoint();
+	bool RemoveLastSplinePoint();
 
 	void DestroyRoadSegments();
 	void HandleMaterialChange(FMaterialAssetData MaterialData);

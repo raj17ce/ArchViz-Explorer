@@ -5,6 +5,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "ArchVizUtility.h"
+#include "ArchVizController.h"
 #include "ArchVizActors/BuildingActors/WallActor.h"
 #include "ArchVizActors/BuildingActors/FloorActor.h"
 #include "ArchVizActors/BuildingActors/RoofActor.h"
@@ -111,6 +112,7 @@ void UDoorSubMode::SelectActor(ADoorActor* DoorActor) {
 
 	if (IsValid(CurrentDoorActor)) {
 		CurrentDoorActor->SetState(EBuildingActorState::Selected);
+		PlayerController->AddSuccessMessage(FText::FromString("Door Selected Successfully"), 1.5f);
 	}
 }
 
@@ -134,6 +136,7 @@ void UDoorSubMode::HandleLeftMouseClick() {
 void UDoorSubMode::HandleRKeyPress() {
 	if (IsValid(CurrentDoorActor)) {
 		CurrentDoorActor->RotateActor(180.0);
+		PlayerController->AddSuccessMessage(FText::FromString("Door Rotated Successfully"), 1.5f);
 	}
 }
 
@@ -152,9 +155,11 @@ void UDoorSubMode::HandleOKeyPress() {
 	if (IsValid(CurrentDoorActor) && CurrentDoorActor->GetState() == EBuildingActorState::Selected) {
 		if (CurrentDoorActor->GetIsOpen()) {
 			CurrentDoorActor->SetIsOpen(false);
+			PlayerController->AddSuccessMessage(FText::FromString("Door Closed Successfully"), 1.5f);
 		}
 		else {
 			CurrentDoorActor->SetIsOpen(true);
+			PlayerController->AddSuccessMessage(FText::FromString("Door Opened Successfully"), 1.5f);
 		}
 	}
 }
@@ -170,6 +175,7 @@ void UDoorSubMode::HandleFreeState() {
 	if (IsValid(HitResult.GetActor()) && HitResult.GetActor()->IsA(ADoorActor::StaticClass())) {
 		CurrentDoorActor = Cast<ADoorActor>(HitResult.GetActor());
 		CurrentDoorActor->SetState(EBuildingActorState::Selected);
+		PlayerController->AddSuccessMessage(FText::FromString("Door Selected Successfully"), 1.5f);
 	}
 	else if (IsValid(HitResult.GetActor()) && HitResult.GetActor()->IsA(AWallActor::StaticClass())) {
 		OnOtherBuildingActorSelected.ExecuteIfBound(EBuildingSubMode::WallConstruction, HitResult.GetActor());
@@ -189,7 +195,7 @@ void UDoorSubMode::HandleFreeState() {
 			BindPropertyDelegatesToActor(CurrentDoorActor);
 			CurrentDoorActor->SetState(EBuildingActorState::Preview);
 			SubModeState = EBuildingSubModeState::NewObject;
-			//To-Do Preview Material
+			PlayerController->AddSuccessMessage(FText::FromString("Door Preview Started"), 1.5f);
 		}
 	}
 }
@@ -207,7 +213,11 @@ void UDoorSubMode::HandleNewObjectState() {
 				CurrentDoorActor->SetState(EBuildingActorState::Selected);
 				WallActor->AttachDoorComponent(HitResult.GetComponent(), CurrentDoorActor);
 				SubModeState = EBuildingSubModeState::Free;
+				PlayerController->AddSuccessMessage(FText::FromString("Door Attached Successfully"), 1.5f);
 			}
+		}
+		else {
+			PlayerController->AddErrorMessage(FText::FromString("Doors Can Only be Attached to a Wall"), 1.5f);
 		}
 	}
 }
@@ -225,6 +235,7 @@ void UDoorSubMode::HandleDoorNewButtonClick() {
 			BindPropertyDelegatesToActor(CurrentDoorActor);
 			CurrentDoorActor->SetState(EBuildingActorState::Preview);
 			SubModeState = EBuildingSubModeState::NewObject;
+			PlayerController->AddSuccessMessage(FText::FromString("Door Preview Started"), 1.5f);
 		}
 	}
 }
@@ -237,6 +248,7 @@ void UDoorSubMode::HandleDoorDeleteButtonClick() {
 		CurrentDoorActor->SetState(EBuildingActorState::None);
 		CurrentDoorActor->Destroy();
 		CurrentDoorActor = nullptr;
+		PlayerController->AddSuccessMessage(FText::FromString("Door Deleted Successfully"), 1.5f);
 	}
 }
 
@@ -244,5 +256,6 @@ void UDoorSubMode::HandleDoorCloseButtonClick() {
 	if (IsValid(CurrentDoorActor)) {
 		CurrentDoorActor->SetState(EBuildingActorState::None);
 		CurrentDoorActor = nullptr;
+		PlayerController->AddSuccessMessage(FText::FromString("Door Deselected Successfully"), 1.5f);
 	}
 }

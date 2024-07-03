@@ -4,6 +4,7 @@
 #include "ArchVizModes/InteriorDesignMode.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "ArchVizController.h"
 #include "ArchVizActors/BuildingActors/FloorActor.h"
 #include "ArchVizActors/BuildingActors/WallActor.h"
 #include "ArchVizActors/BuildingActors/RoofActor.h"
@@ -55,10 +56,6 @@ void UInteriorDesignMode::ExitMode() {
 			Cleanup();
 		}
 	}
-}
-
-void UInteriorDesignMode::SetPlayerController(APlayerController* Controller) {
-	PlayerController = Controller;
 }
 
 void UInteriorDesignMode::SetupInputComponent() {
@@ -139,6 +136,7 @@ void UInteriorDesignMode::HandleInteriorAssetSelect(FInteriorAssetData AssetData
 		CurrentInteriorActor->SetActorAssetData(AssetData);
 		CurrentInteriorActor->SetState(EInteriorActorState::Preview);
 		InteriorModeState = EInteriorModeState::NewObject;
+		PlayerController->AddSuccessMessage(FText::FromString("Interior Preview Started"), 1.5f);
 	}
 }
 
@@ -159,6 +157,7 @@ void UInteriorDesignMode::HandleLeftMouseClick() {
 void UInteriorDesignMode::HandleRKeyPress() {
 	if (IsValid(CurrentInteriorActor)) {
 		CurrentInteriorActor->RotateActor(90.0);
+		PlayerController->AddSuccessMessage(FText::FromString("Interior Rotated Successfully"), 1.5f);
 	}
 }
 
@@ -180,13 +179,14 @@ void UInteriorDesignMode::HandleFreeState() {
 	if (IsValid(HitResult.GetActor()) && HitResult.GetActor()->IsA(AInteriorActor::StaticClass())) {
 		CurrentInteriorActor = Cast<AInteriorActor>(HitResult.GetActor());
 		CurrentInteriorActor->SetState(EInteriorActorState::Selected);
+		PlayerController->AddSuccessMessage(FText::FromString("Interior Selected Successfully"), 1.5f);
 
 		if (auto* InteriorWidget = Cast<UInteriorDesignWidget>(Widget)) {
 			InteriorWidget->HideScrollBox();
 		}
 	}
 	else {
-		//To-Do : Notification, Please Select An Object
+		PlayerController->AddErrorMessage(FText::FromString("Please Select an Interior Object"), 1.5f);
 	}
 }
 
@@ -194,6 +194,7 @@ void UInteriorDesignMode::HandleOldObjectState() {
 	if (IsValid(CurrentInteriorActor)) {
 		InteriorModeState = EInteriorModeState::Free;
 		CurrentInteriorActor->SetState(EInteriorActorState::Selected);
+		PlayerController->AddSuccessMessage(FText::FromString("Interior Moved Successfully"), 1.5f);
 	}
 }
 
@@ -215,7 +216,7 @@ void UInteriorDesignMode::HandleNewObjectState() {
 					}
 				}
 				else {
-					//Notification
+					PlayerController->AddErrorMessage(FText::FromString("This Interior can only be placed on a Floor"), 1.5f);
 				}
 				break;
 			case EInteriorAssetType::WallPlaceable:
@@ -232,7 +233,7 @@ void UInteriorDesignMode::HandleNewObjectState() {
 					}
 				}
 				else {
-					//Notification
+					PlayerController->AddErrorMessage(FText::FromString("This Interior can only be placed on a Wall"), 1.5f);
 				}
 				break;
 			case EInteriorAssetType::RoofPlaceable:
@@ -246,7 +247,7 @@ void UInteriorDesignMode::HandleNewObjectState() {
 					}
 				}
 				else {
-					//Notification
+					PlayerController->AddErrorMessage(FText::FromString("This Interior can only be placed on a Roof"), 1.5f);
 				}
 				break;
 			case EInteriorAssetType::InteriorPlaceable:
@@ -260,7 +261,7 @@ void UInteriorDesignMode::HandleNewObjectState() {
 					}
 				}
 				else {
-					//Notification
+					PlayerController->AddErrorMessage(FText::FromString("This Interior can only be placed on an Interior"), 1.5f);
 				}
 				break;
 			}
@@ -283,6 +284,7 @@ void UInteriorDesignMode::HandleInteriorNewButtonClick() {
 			CurrentInteriorActor->SetActorAssetData(PreviousAssetData);
 			CurrentInteriorActor->SetState(EInteriorActorState::Preview);
 			InteriorModeState = EInteriorModeState::NewObject;
+			PlayerController->AddSuccessMessage(FText::FromString("Interior Preview Started"), 1.5f);
 		}
 	}
 }
@@ -292,6 +294,7 @@ void UInteriorDesignMode::HandleInteriorDeleteButtonClick() {
 		CurrentInteriorActor->SetState(EInteriorActorState::None);
 		CurrentInteriorActor->Destroy();
 		CurrentInteriorActor = nullptr;
+		PlayerController->AddSuccessMessage(FText::FromString("Interior Deleted Successfully"), 1.5f);
 	}
 }
 
@@ -299,5 +302,6 @@ void UInteriorDesignMode::HandleInteriorCloseButtonClick() {
 	if (IsValid(CurrentInteriorActor)) {
 		CurrentInteriorActor->SetState(EInteriorActorState::None);
 		CurrentInteriorActor = nullptr;
+		PlayerController->AddSuccessMessage(FText::FromString("Interior Deselected Successfully"), 1.5f);
 	}
 }

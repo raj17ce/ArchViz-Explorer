@@ -51,7 +51,7 @@ void AArchVizController::BeginPlay() {
 	}
 	if (IsValid(NotificationWidgetClass)) {
 		NotificationWidget = CreateWidget<UNotificationWidget>(this, NotificationWidgetClass, "Notification Widget");
-		ArchVizModeWidget->AddToViewport(-1);
+		NotificationWidget->AddToViewport(2);
 	}
 
 	SetInputMode(InputModeGameAndUI);
@@ -72,15 +72,15 @@ void AArchVizController::HandleArchVizModeChange(EArchVizMode NewArchVizMode) {
 	UpdateArchVizMode();
 }
 
-void AArchVizController::AddErrorMessage(FText Message) {
+void AArchVizController::AddErrorMessage(FText Message, float Time) {
 	if (IsValid(NotificationWidget)) {
-		NotificationWidget->ShowErrorMessage(Message);
+		NotificationWidget->ShowErrorMessage(Message, Time);
 	}
 }
 
-void AArchVizController::AddSuccessMessage(FText Message) {
+void AArchVizController::AddSuccessMessage(FText Message, float Time) {
 	if (IsValid(NotificationWidget)) {
-		NotificationWidget->ShowErrorMessage(Message);
+		NotificationWidget->ShowSuccessMessage(Message, Time);
 	}
 }  
 

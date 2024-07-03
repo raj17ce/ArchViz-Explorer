@@ -21,8 +21,8 @@ public:
 	void ShowNotificationMessage();
 	void HideNotificationMessage();
 
-	void ShowErrorMessage(FText Message);
-	void ShowSuccessMessage(FText Message);
+	void ShowErrorMessage(FText Message, float Time);
+	void ShowSuccessMessage(FText Message, float Time);
 
 	void DisplayNotificationMessageTimer(float Time);
 

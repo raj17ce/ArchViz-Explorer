@@ -2,20 +2,24 @@
 
 
 #include "ArchVizModes/ArchVizMode.h"
+#include "ArchVizController.h"
 
-void UArchVizMode::SetPlayerController(APlayerController* Controller) {
+void UArchVizMode::SetPlayerController(AArchVizController* Controller) {
 	PlayerController = Controller;
 }
 
 void UArchVizMode::ShowWidget() {
 	if (IsValid(Widget)) {
-		Widget->AddToViewport();
+		if (!Widget->IsInViewport()) {
+			Widget->AddToViewport();
+		}
+		Widget->SetVisibility(ESlateVisibility::Visible);
 	}
 }
 
 void UArchVizMode::HideWidget() {
 	if (IsValid(Widget)) {
-		Widget->RemoveFromParent();
+		Widget->SetVisibility(ESlateVisibility::Collapsed);
 	}
 }
 

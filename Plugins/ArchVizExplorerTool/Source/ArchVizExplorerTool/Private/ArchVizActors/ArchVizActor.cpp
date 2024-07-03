@@ -25,19 +25,25 @@ void AArchVizActor::Tick(float DeltaTime) {
 
 void AArchVizActor::ShowWidget() {
 	if (IsValid(PropertyPanelWidget)) {
-		PropertyPanelWidget->AddToViewport();
+		if (!PropertyPanelWidget->IsInViewport()) {
+			PropertyPanelWidget->AddToViewport();
+		}
+		PropertyPanelWidget->SetVisibility(ESlateVisibility::Visible);
 	}
 	if (IsValid(MaterialWidget)) {
-		MaterialWidget->AddToViewport();
+		if(!MaterialWidget->IsInViewport()) {
+			MaterialWidget->AddToViewport();
+		}
+		MaterialWidget->SetVisibility(ESlateVisibility::Visible);
 	}
 }
 
 void AArchVizActor::HideWidget() {
 	if (IsValid(PropertyPanelWidget)) {
-		PropertyPanelWidget->RemoveFromParent();
+		PropertyPanelWidget->SetVisibility(ESlateVisibility::Collapsed);
 	}
 	if (IsValid(MaterialWidget)) {
-		MaterialWidget->RemoveFromParent();
+		MaterialWidget->SetVisibility(ESlateVisibility::Collapsed);
 	}
 }
 

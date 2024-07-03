@@ -4,6 +4,7 @@
 #include "ArchVizActors/BuildingActors/WallActor.h"
 #include "ArchVizUtility.h"
 #include "ArchVizActors/BuildingActors/DoorActor.h"
+#include "ArchVizController.h"
 
 // Sets default values
 AWallActor::AWallActor() : WallStaticMesh{nullptr}, DoorWallStaticMesh{nullptr}, Length{0.0f} {
@@ -275,6 +276,9 @@ void AWallActor::HandleMaterialChange(FMaterialAssetData MaterialData) {
 	if (MaterialData.Material) {
 		Material = MaterialData.Material;
 		ApplyMaterial();
+		if (auto* ArchVizController = Cast<AArchVizController>(GetWorld()->GetFirstPlayerController())) {
+			ArchVizController->AddSuccessMessage(FText::FromString("Material Applied Successfully"), 1.5f);
+		}
 	}
 }
 

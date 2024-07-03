@@ -6,6 +6,7 @@
 #include "ProceduralMeshGenerator.h"
 #include "ArchVizUtility.h"
 #include "Widgets/MaterialWidget.h"
+#include "ArchVizController.h"
 
 // Sets default values
 AFloorActor::AFloorActor() : Dimensions{ 100.0,100.0, 2.0 }, Offset{ 50.0,50.0, 1.0 } {
@@ -171,6 +172,9 @@ void AFloorActor::HandleMaterialChange(FMaterialAssetData MaterialData) {
 	if (MaterialData.Material) {
 		Material = MaterialData.Material;
 		ApplyMaterial();
+		if (auto* ArchVizController = Cast<AArchVizController>(GetWorld()->GetFirstPlayerController())) {
+			ArchVizController->AddSuccessMessage(FText::FromString("Material Applied Successfully"), 1.5f);
+		}
 	}
 }
 

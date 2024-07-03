@@ -5,6 +5,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "ArchVizUtility.h"
+#include "ArchVizController.h"
 #include "ArchVizActors/BuildingActors/WallActor.h"
 #include "ArchVizActors/BuildingActors/DoorActor.h"
 #include "ArchVizActors/BuildingActors/RoofActor.h"
@@ -107,6 +108,7 @@ void UFloorSubMode::SelectActor(AFloorActor* FloorActor) {
 
 	if (IsValid(CurrentFloorActor)) {
 		CurrentFloorActor->SetState(EBuildingActorState::Selected);
+		PlayerController->AddSuccessMessage(FText::FromString("Floor Selected Successfully"), 1.5f);
 	}
 }
 
@@ -130,6 +132,7 @@ void UFloorSubMode::HandleLeftMouseClick() {
 void UFloorSubMode::HandleRKeyPress() {
 	if (IsValid(CurrentFloorActor)) {
 		CurrentFloorActor->RotateActor(90.0);
+		PlayerController->AddSuccessMessage(FText::FromString("Floor Rotated Successfully"), 1.5f);
 	}
 }
 
@@ -151,6 +154,7 @@ void UFloorSubMode::HandleFreeState() {
 	if (IsValid(HitResult.GetActor()) && HitResult.GetActor()->IsA(AFloorActor::StaticClass())) {
 		CurrentFloorActor = Cast<AFloorActor>(HitResult.GetActor());
 		CurrentFloorActor->SetState(EBuildingActorState::Selected);
+		PlayerController->AddSuccessMessage(FText::FromString("Floor Selected Successfully"), 1.5f);
 	}
 	else if (IsValid(HitResult.GetActor()) && HitResult.GetActor()->IsA(AWallActor::StaticClass())) {
 		OnOtherBuildingActorSelected.ExecuteIfBound(EBuildingSubMode::WallConstruction, HitResult.GetActor());
@@ -171,7 +175,7 @@ void UFloorSubMode::HandleFreeState() {
 			CurrentFloorActor->GenerateFloor();
 			CurrentFloorActor->SetState(EBuildingActorState::Preview);
 			SubModeState = EBuildingSubModeState::NewObject;
-			//To-Do Preview Material
+			PlayerController->AddSuccessMessage(FText::FromString("Floor Preview Started"), 1.5f);
 		}
 	}
 }
@@ -180,6 +184,7 @@ void UFloorSubMode::HandleOldObjectState() {
 	if (IsValid(CurrentFloorActor)) {
 		SubModeState = EBuildingSubModeState::Free;
 		CurrentFloorActor->SetState(EBuildingActorState::Selected);
+		PlayerController->AddSuccessMessage(FText::FromString("Floor Moved Successfully"), 1.5f);
 	}
 }
 
@@ -194,6 +199,7 @@ void UFloorSubMode::HandleNewObjectState() {
 			CurrentFloorActor->SetActorLocation(HitResult.Location);
 			CurrentFloorActor->SetStartPoint(HitResult.Location);
 			CurrentFloorActor->SetState(EBuildingActorState::Generating);
+			PlayerController->AddSuccessMessage(FText::FromString("Floor Generation Started"), 1.5f);
 		}
 		else {
 			bNewFloorStart = false;
@@ -201,6 +207,7 @@ void UFloorSubMode::HandleNewObjectState() {
 			CurrentFloorActor->UpdateSpinBoxValue();
 			CurrentFloorActor->SetState(EBuildingActorState::Selected);
 			SubModeState = EBuildingSubModeState::Free;
+			PlayerController->AddSuccessMessage(FText::FromString("Floor Generated Successfully"), 1.5f);
 		}
 	}
 }
@@ -217,6 +224,7 @@ void UFloorSubMode::HandleFloorSpinBoxValueChange(float InLength) {
 		CurrentFloorActor->SetOffset(FVector{ Length / 2 , Width / 2, Height / 2 });
 		
 		CurrentFloorActor->GenerateFloor();
+		PlayerController->AddSuccessMessage(FText::FromString("Floor Updated Successfully"), 1.5f);
 	}
 }
 
@@ -234,6 +242,7 @@ void UFloorSubMode::HandleFloorNewButtonClick() {
 			CurrentFloorActor->GenerateFloor();
 			CurrentFloorActor->SetState(EBuildingActorState::Preview);
 			SubModeState = EBuildingSubModeState::NewObject;
+			PlayerController->AddSuccessMessage(FText::FromString("Floor Preview Started"), 1.5f);
 		}
 	}
 }
@@ -243,6 +252,7 @@ void UFloorSubMode::HandleFloorDeleteButtonClick() {
 		CurrentFloorActor->SetState(EBuildingActorState::None);
 		CurrentFloorActor->Destroy();
 		CurrentFloorActor = nullptr;
+		PlayerController->AddSuccessMessage(FText::FromString("Floor Deleted Successfully"), 1.5f);
 	}
 }
 
@@ -250,5 +260,6 @@ void UFloorSubMode::HandleFloorCloseButtonClick() {
 	if (IsValid(CurrentFloorActor)) {
 		CurrentFloorActor->SetState(EBuildingActorState::None);
 		CurrentFloorActor = nullptr;
+		PlayerController->AddSuccessMessage(FText::FromString("Floor Deselected Successfully"), 1.5f);
 	}
 }

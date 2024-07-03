@@ -5,6 +5,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "ArchVizUtility.h"
+#include "ArchVizController.h"
 #include "ArchVizActors/BuildingActors/DoorActor.h"
 #include "ArchVizActors/BuildingActors/FloorActor.h"
 #include "ArchVizActors/BuildingActors/RoofActor.h"
@@ -107,6 +108,7 @@ void UWallSubMode::SelectActor(AWallActor* WallActor) {
 
 	if (IsValid(CurrentWallActor)) {
 		CurrentWallActor->SetState(EBuildingActorState::Selected);
+		PlayerController->AddSuccessMessage(FText::FromString("Wall Selected Successfully"), 1.5f);
 	}
 }
 
@@ -132,6 +134,7 @@ void UWallSubMode::HandleRKeyPress() {
 	if (IsValid(CurrentWallActor)) {
 		CurrentWallActor->RotateActor(90.0);
 		CurrentWallActor->HandleEdgeOffset();
+		PlayerController->AddSuccessMessage(FText::FromString("Wall Rotated Successfully"), 1.5f);
 	}
 }
 
@@ -154,6 +157,7 @@ void UWallSubMode::HandleFreeState() {
 	if (IsValid(HitResult.GetActor()) && HitResult.GetActor()->IsA(AWallActor::StaticClass())) {
 		CurrentWallActor = Cast<AWallActor>(HitResult.GetActor());
 		CurrentWallActor->SetState(EBuildingActorState::Selected);
+		PlayerController->AddSuccessMessage(FText::FromString("Wall Selected Successfully"), 1.5f);
 	}
 	else if (IsValid(HitResult.GetActor()) && HitResult.GetActor()->IsA(ADoorActor::StaticClass())) {
 		OnOtherBuildingActorSelected.ExecuteIfBound(EBuildingSubMode::DoorConstruction, HitResult.GetActor());
@@ -174,7 +178,7 @@ void UWallSubMode::HandleFreeState() {
 			CurrentWallActor->GenerateWallSegments();
 			CurrentWallActor->SetState(EBuildingActorState::Preview);
 			SubModeState = EBuildingSubModeState::NewObject;
-			//To-Do Preview Material
+			PlayerController->AddSuccessMessage(FText::FromString("Wall Preview Started"), 1.5f);
 		}
 	}
 }
@@ -183,6 +187,7 @@ void UWallSubMode::HandleOldObjectState() {
 	if (IsValid(CurrentWallActor)) {
 		SubModeState = EBuildingSubModeState::Free;
 		CurrentWallActor->SetState(EBuildingActorState::Selected);
+		PlayerController->AddSuccessMessage(FText::FromString("Wall Moved Successfully"), 1.5f);
 	}
 }
 
@@ -198,6 +203,7 @@ void UWallSubMode::HandleNewObjectState() {
 			CurrentWallActor->SetActorLocation(HitResult.Location);
 			CurrentWallActor->SetStartLocation(HitResult.Location);
 			CurrentWallActor->SetState(EBuildingActorState::Generating);
+			PlayerController->AddSuccessMessage(FText::FromString("Wall Generation Started"), 1.5f);
 		}
 		else {
 			bNewWallStart = false;
@@ -205,6 +211,7 @@ void UWallSubMode::HandleNewObjectState() {
 			CurrentWallActor->UpdateLengthSpinBoxValue();
 			CurrentWallActor->SetState(EBuildingActorState::Selected);
 			SubModeState = EBuildingSubModeState::Free;
+			PlayerController->AddSuccessMessage(FText::FromString("Wall Generated Successfully"), 1.5f);
 		}
 	}
 }
@@ -213,6 +220,7 @@ void UWallSubMode::HandleWallLengthSpinBoxValueChange(float InLength) {
 	if (IsValid(CurrentWallActor)) {
 		CurrentWallActor->SetLength(InLength);
 		CurrentWallActor->GenerateWallSegments();
+		PlayerController->AddSuccessMessage(FText::FromString("Wall Updated Successfully"), 1.5f);
 	}
 }
 
@@ -230,6 +238,7 @@ void UWallSubMode::HandleWallNewButtonClick() {
 			CurrentWallActor->GenerateWallSegments();
 			CurrentWallActor->SetState(EBuildingActorState::Preview);
 			SubModeState = EBuildingSubModeState::NewObject;
+			PlayerController->AddSuccessMessage(FText::FromString("Wall Preview Started"), 1.5f);
 		}
 	}
 }
@@ -240,6 +249,7 @@ void UWallSubMode::HandleWallDeleteButtonClick() {
 		CurrentWallActor->DestroyDoorComponents();
 		CurrentWallActor->Destroy();
 		CurrentWallActor = nullptr;
+		PlayerController->AddSuccessMessage(FText::FromString("Wall Deleted Successfully"), 1.5f);
 	}
 }
 
@@ -247,5 +257,6 @@ void UWallSubMode::HandleWallCloseButtonClick() {
 	if (IsValid(CurrentWallActor)) {
 		CurrentWallActor->SetState(EBuildingActorState::None);
 		CurrentWallActor = nullptr;
+		PlayerController->AddSuccessMessage(FText::FromString("Wall Deselected Successfully"), 1.5f);
 	}
 }

@@ -30,7 +30,6 @@ public:
     virtual void Cleanup() override;
     virtual void EnterMode() override;
     virtual void ExitMode() override;
-    virtual void SetPlayerController(APlayerController* Controller) override;
     virtual void SetupInputComponent() override;
     virtual void BindPropertyDelegatesToActor(AArchVizActor* Actor) override;
 

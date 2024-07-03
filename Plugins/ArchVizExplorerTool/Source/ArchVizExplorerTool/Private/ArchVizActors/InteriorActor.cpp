@@ -18,13 +18,16 @@ AInteriorActor::AInteriorActor() : State{ EInteriorActorState::None } {
 
 void AInteriorActor::ShowWidget() {
 	if (IsValid(PropertyPanelWidget)) {
-		PropertyPanelWidget->AddToViewport();
+		if (!PropertyPanelWidget->IsInViewport()) {
+			PropertyPanelWidget->AddToViewport();
+		}
+		PropertyPanelWidget->SetVisibility(ESlateVisibility::Visible);
 	}
 }
 
 void AInteriorActor::HideWidget() {
 	if (IsValid(PropertyPanelWidget)) {
-		PropertyPanelWidget->RemoveFromParent();
+		PropertyPanelWidget->SetVisibility(ESlateVisibility::Collapsed);
 	}
 }
 

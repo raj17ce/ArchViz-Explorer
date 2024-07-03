@@ -5,6 +5,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "ArchVizUtility.h"
+#include "ArchVizController.h"
 #include "ArchVizActors/BuildingActors/WallActor.h"
 #include "ArchVizActors/BuildingActors/DoorActor.h"
 #include "ArchVizActors/BuildingActors/FloorActor.h"
@@ -107,6 +108,7 @@ void URoofSubMode::SelectActor(ARoofActor* RoofActor) {
 
 	if (IsValid(CurrentRoofActor)) {
 		CurrentRoofActor->SetState(EBuildingActorState::Selected);
+		PlayerController->AddSuccessMessage(FText::FromString("Roof Selected Successfully"), 1.5f);
 	}
 }
 
@@ -130,6 +132,7 @@ void URoofSubMode::HandleLeftMouseClick() {
 void URoofSubMode::HandleRKeyPress() {
 	if (IsValid(CurrentRoofActor)) {
 		CurrentRoofActor->RotateActor(90.0);
+		PlayerController->AddSuccessMessage(FText::FromString("Roof Rotated Successfully"), 1.5f);
 	}
 }
 
@@ -151,6 +154,7 @@ void URoofSubMode::HandleFreeState() {
 	if (IsValid(HitResult.GetActor()) && HitResult.GetActor()->IsA(ARoofActor::StaticClass())) {
 		CurrentRoofActor = Cast<ARoofActor>(HitResult.GetActor());
 		CurrentRoofActor->SetState(EBuildingActorState::Selected);
+		PlayerController->AddSuccessMessage(FText::FromString("Roof Selected Successfully"), 1.5f);
 	}
 	else if (IsValid(HitResult.GetActor()) && HitResult.GetActor()->IsA(AWallActor::StaticClass())) {
 		OnOtherBuildingActorSelected.ExecuteIfBound(EBuildingSubMode::WallConstruction, HitResult.GetActor());
@@ -171,7 +175,7 @@ void URoofSubMode::HandleFreeState() {
 			CurrentRoofActor->GenerateRoof();
 			CurrentRoofActor->SetState(EBuildingActorState::Preview);
 			SubModeState = EBuildingSubModeState::NewObject;
-			//To-Do Preview Material
+			PlayerController->AddSuccessMessage(FText::FromString("Roof Preview Successfully"), 1.5f);
 		}
 	}
 }
@@ -180,6 +184,7 @@ void URoofSubMode::HandleOldObjectState() {
 	if (IsValid(CurrentRoofActor)) {
 		SubModeState = EBuildingSubModeState::Free;
 		CurrentRoofActor->SetState(EBuildingActorState::Selected);
+		PlayerController->AddSuccessMessage(FText::FromString("Roof Moved Successfully"), 1.5f);
 	}
 }
 
@@ -195,6 +200,7 @@ void URoofSubMode::HandleNewObjectState() {
 				CurrentRoofActor->SetActorLocation(HitResult.Location);
 				CurrentRoofActor->SetStartPoint(HitResult.Location);
 				CurrentRoofActor->SetState(EBuildingActorState::Generating);
+				PlayerController->AddSuccessMessage(FText::FromString("Roof Generation Started"), 1.5f);
 			}
 			else {
 				bNewRoofStart = false;
@@ -202,10 +208,11 @@ void URoofSubMode::HandleNewObjectState() {
 				CurrentRoofActor->UpdateSpinBoxValue();
 				CurrentRoofActor->SetState(EBuildingActorState::Selected);
 				SubModeState = EBuildingSubModeState::Free;
+				PlayerController->AddSuccessMessage(FText::FromString("Roof Generated Successfully"), 1.5f);
 			}
 		}
 		else {
-			//To-Do Notification
+			PlayerController->AddErrorMessage(FText::FromString("Roof Can Only be Generated on a Wall"), 1.5f);
 		}
 	}
 }
@@ -221,6 +228,7 @@ void URoofSubMode::HandleRoofSpinBoxValueChange(float InLength) {
 		CurrentRoofActor->SetDimensions(FVector{ Length + (2 * EdgeOffset), Width + (2 * EdgeOffset), Height });
 		CurrentRoofActor->SetOffset(FVector{ Length / 2 , Width / 2, Height / 2 });
 		CurrentRoofActor->GenerateRoof();
+		PlayerController->AddSuccessMessage(FText::FromString("Roof Updated Successfully"), 1.5f);
 	}
 }
 
@@ -238,6 +246,7 @@ void URoofSubMode::HandleRoofNewButtonClick() {
 			CurrentRoofActor->GenerateRoof();
 			CurrentRoofActor->SetState(EBuildingActorState::Preview);
 			SubModeState = EBuildingSubModeState::NewObject;
+			PlayerController->AddSuccessMessage(FText::FromString("Roof Preview Started"), 1.5f);
 		}
 	}
 }
@@ -247,6 +256,7 @@ void URoofSubMode::HandleRoofDeleteButtonClick() {
 		CurrentRoofActor->SetState(EBuildingActorState::None);
 		CurrentRoofActor->Destroy();
 		CurrentRoofActor = nullptr;
+		PlayerController->AddSuccessMessage(FText::FromString("Roof Deleted Successfully"), 1.5f);
 	}
 }
 
@@ -254,5 +264,6 @@ void URoofSubMode::HandleRoofCloseButtonClick() {
 	if (IsValid(CurrentRoofActor)) {
 		CurrentRoofActor->SetState(EBuildingActorState::None);
 		CurrentRoofActor = nullptr;
+		PlayerController->AddSuccessMessage(FText::FromString("Roof Deselected Successfully"), 1.5f);
 	}
 }

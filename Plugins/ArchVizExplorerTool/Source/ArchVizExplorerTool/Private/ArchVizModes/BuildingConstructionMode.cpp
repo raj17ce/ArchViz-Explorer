@@ -4,6 +4,7 @@
 #include "ArchVizModes/BuildingConstructionMode.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "ArchVizController.h"
 #include "Components/StaticMeshComponent.h"
 #include "Widgets/BuildingConstructionWidget.h"
 
@@ -64,7 +65,7 @@ void UBuildingConstructionMode::ExitMode() {
 	}
 }
 
-void UBuildingConstructionMode::SetPlayerController(APlayerController* Controller) {
+void UBuildingConstructionMode::SetPlayerController(AArchVizController* Controller) {
 	if (IsValid(WallSubMode)) {
 		WallSubMode->SetPlayerController(Controller);
 	}

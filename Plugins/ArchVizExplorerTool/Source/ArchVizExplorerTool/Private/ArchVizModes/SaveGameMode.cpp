@@ -53,17 +53,18 @@ void USaveGameMode::HandleSaveButtonClick() {
 		FString SlotName = SaveGameWidget->SaveSlotName->GetText().ToString();
 
 		if (SlotName.IsEmpty()) {
-			// To-Do :: Notify the name is empty
+			PlayerController->AddErrorMessage(FText::FromString("Project Name Can't be Empty"), 1.5f);
 			return;
 		}
 
 		if (GetSavedSlotsList().Contains(SlotName) && SlotName != CurrentSlotName) {
-			// To-Do :: Notify("This Name Already Exists. Please Choose Differnet Name");
+			PlayerController->AddErrorMessage(FText::FromString("Project Already Exists, Choose Another Name"), 1.5f);
 			return;
 		}
 
 		CurrentSlotName = SlotName;
 		SaveGame(CurrentSlotName);
+		PlayerController->AddSuccessMessage(FText::FromString("Project " + SlotName + " Saved Successfully"), 1.5f);
 
 		SaveGameWidget->HandleSavePopupCloseButtonClick();
 	}
@@ -71,7 +72,7 @@ void USaveGameMode::HandleSaveButtonClick() {
 
 void USaveGameMode::HandleNewProjectButtonClick() {
 	if (CurrentSlotName.IsEmpty()) {
-		// To-Do :: Notify to enter a name
+		PlayerController->AddErrorMessage(FText::FromString("Enter Project Name to Save the Current Project"), 1.5f);
 		if (auto* SaveGameWidget = Cast<USaveGameWidget>(Widget)) {
 			SaveGameWidget->ShowSavePopup();
 		}
@@ -82,11 +83,12 @@ void USaveGameMode::HandleNewProjectButtonClick() {
 
 	ClearWorld();
 	CurrentSlotName = TEXT("");
+	PlayerController->AddSuccessMessage(FText::FromString("New Project Created Successfully"), 1.5f);
 }
 
 void USaveGameMode::HandleSaveProjectButtonClick() {
 	if (CurrentSlotName.IsEmpty()) {
-		// To-Do :: Notify to enter a name
+		PlayerController->AddErrorMessage(FText::FromString("Enter Project Name"), 1.5f);
 		if (auto* SaveGameWidget = Cast<USaveGameWidget>(Widget)) {
 			SaveGameWidget->ShowSavePopup();
 		}
@@ -94,13 +96,14 @@ void USaveGameMode::HandleSaveProjectButtonClick() {
 	}
 	else {
 		SaveGame(CurrentSlotName);
+		PlayerController->AddSuccessMessage(FText::FromString("Project " + CurrentSlotName + " Saved Successfully"), 1.5f);
 	}
 }
 
 void USaveGameMode::HandleSlotItemNameButtonClick(const FString& SlotName) {
 	if (auto* SaveGameWidget = Cast<USaveGameWidget>(Widget)) {
 		if (CurrentSlotName == SlotName) {
-			// Notify("Project is Already Opened.");
+			PlayerController->AddErrorMessage(FText::FromString("Project " + CurrentSlotName + " is already Opened"), 1.5f);
 			return;
 		}
 		else if (!CurrentSlotName.IsEmpty()) {
@@ -111,13 +114,13 @@ void USaveGameMode::HandleSlotItemNameButtonClick(const FString& SlotName) {
 		CurrentSlotName = SlotName;
 
 		SaveGameWidget->HandleLoadPopupCloseButtonClick();
-		// To-Do :: Success
+		PlayerController->AddSuccessMessage(FText::FromString("Project " + CurrentSlotName + " Loaded Successfully"), 1.5f);
 	}
 }
 
 void USaveGameMode::HandleSlotItemDeleteButtonClick(const FString& SlotName) {
 	if (SlotName == CurrentSlotName) {
-		// To-Do :: Notify("Can Not Delete Running Project.");
+		PlayerController->AddErrorMessage(FText::FromString("Currently Opened Project Can't be Deleted"), 1.5f);
 		return;
 	}
 
@@ -125,7 +128,7 @@ void USaveGameMode::HandleSlotItemDeleteButtonClick(const FString& SlotName) {
 		if (UGameplayStatics::DeleteGameInSlot(SlotName, 0)) {
 			DeleteSlotData(SlotName);
 
-			// To-Do :: Notify("Project " + SlotInfo + " Deleted");
+			PlayerController->AddSuccessMessage(FText::FromString("Project " + SlotName + " Deleted Successfully"), 1.5f);
 		}
 	}
 }
@@ -286,6 +289,10 @@ void USaveGameMode::SaveGame(const FString& SlotName) {
 		SaveGameInstance->InteriorActors.Add(InteriorData);
 	}
 
+	if (UGameplayStatics::DoesSaveGameExist(SlotName, 0)) {
+		UGameplayStatics::DeleteGameInSlot(SlotName, 0);
+	}
+
 	if (UGameplayStatics::SaveGameToSlot(SaveGameInstance, SlotName, 0)) {
 		auto* SlotSaveGameInstance = Cast<UArchVizSlotSaveGame>(UGameplayStatics::CreateSaveGameObject(UArchVizSlotSaveGame::StaticClass()));
 		auto* LoadSavedSlotNames = Cast<UArchVizSlotSaveGame>(UGameplayStatics::LoadGameFromSlot(TEXT("SavedSlotNames"), 0));
@@ -325,8 +332,8 @@ void USaveGameMode::LoadGame(const FString& SlotName) {
 			RoadActor->SetRoadType(RoadData.RoadType);
 			RoadActor->SetWidth(RoadData.Width);
 			RoadActor->SetMaterial(RoadData.Material);
-			if (auto ArchVizController = Cast<AArchVizController>(PlayerController)) {
-				ArchVizController->BindPropertyDelegatesToActor(RoadActor);
+			if (IsValid(PlayerController)) {
+				PlayerController->BindPropertyDelegatesToActor(RoadActor);
 			}
 			RoadActor->UpdatePropertyPanelValues();
 			RoadActor->UpdateRoad();
@@ -345,8 +352,8 @@ void USaveGameMode::LoadGame(const FString& SlotName) {
 			WallActor->UpdateLengthSpinBoxValue();
 			WallActor->SetMaterial(WallData.Material);
 			WallActor->GenerateWallSegments();
-			if (auto ArchVizController = Cast<AArchVizController>(PlayerController)) {
-				ArchVizController->BindPropertyDelegatesToActor(WallActor);
+			if (IsValid(PlayerController)) {
+				PlayerController->BindPropertyDelegatesToActor(WallActor);
 			}
 
 			IDToActorMap.Add(WallData.ID, WallActor);
@@ -364,8 +371,8 @@ void USaveGameMode::LoadGame(const FString& SlotName) {
 			FloorActor->SetDimensions(FloorData.Dimensions);
 			FloorActor->SetOffset(FloorData.Offset);
 			FloorActor->SetMaterial(FloorData.Material);
-			if (auto ArchVizController = Cast<AArchVizController>(PlayerController)) {
-				ArchVizController->BindPropertyDelegatesToActor(FloorActor);
+			if (IsValid(PlayerController)) {
+				PlayerController->BindPropertyDelegatesToActor(FloorActor);
 			}
 			FloorActor->UpdateSpinBoxValue();
 			FloorActor->GenerateFloor();
@@ -384,8 +391,8 @@ void USaveGameMode::LoadGame(const FString& SlotName) {
 			RoofActor->SetDimensions(RoofData.Dimensions);
 			RoofActor->SetOffset(RoofData.Offset);
 			RoofActor->SetMaterial(RoofData.Material);
-			if (auto ArchVizController = Cast<AArchVizController>(PlayerController)) {
-				ArchVizController->BindPropertyDelegatesToActor(RoofActor);
+			if (IsValid(PlayerController)) {
+				PlayerController->BindPropertyDelegatesToActor(RoofActor);
 			}
 			RoofActor->UpdateSpinBoxValue();
 			RoofActor->GenerateRoof();

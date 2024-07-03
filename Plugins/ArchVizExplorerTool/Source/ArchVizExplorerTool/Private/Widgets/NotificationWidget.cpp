@@ -5,36 +5,36 @@
 
 void UNotificationWidget::ShowNotificationMessage() {
 	if (IsValid(NotificationMessage)) {
-		NotificationMessage->SetVisibility(ESlateVisibility::Hidden);
+		NotificationMessage->SetVisibility(ESlateVisibility::Visible);
 	}
 }
 
 void UNotificationWidget::HideNotificationMessage() {
 	if (IsValid(NotificationMessage)) {
-		NotificationMessage->SetVisibility(ESlateVisibility::Visible);
+		NotificationMessage->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
 
-void UNotificationWidget::ShowErrorMessage(FText Message) {
+void UNotificationWidget::ShowErrorMessage(FText Message, float Time) {
 	if (IsValid(NotificationMessage)) {
 		NotificationMessage->SetText(Message);
-		NotificationMessage->SetColorAndOpacity(FSlateColor{ FLinearColor{} });
-		DisplayNotificationMessageTimer(3.0f);
+		NotificationMessage->SetColorAndOpacity(FSlateColor{ FLinearColor{0.938686, 0.078187, 0.030713}});
+		DisplayNotificationMessageTimer(Time);
 	}
 }
 
-void UNotificationWidget::ShowSuccessMessage(FText Message) {
+void UNotificationWidget::ShowSuccessMessage(FText Message, float Time) {
 	if (IsValid(NotificationMessage)) {
 		NotificationMessage->SetText(Message);
-		NotificationMessage->SetColorAndOpacity(FSlateColor{ FLinearColor{} });
-		DisplayNotificationMessageTimer(3.0f);
+		NotificationMessage->SetColorAndOpacity(FSlateColor{ FLinearColor{0.016807, 0.558341, 0.084376}});
+		DisplayNotificationMessageTimer(Time);
 	}
 }
 
 void UNotificationWidget::DisplayNotificationMessageTimer(float Time) {
 	ShowNotificationMessage();
 
-	if (GetWorld()->GetTimerManager().GetTimerElapsed(TimerHandle) != -1.f) {
+	if (GetWorld()->GetTimerManager().GetTimerElapsed(TimerHandle) != -1.0f) {
 		GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 	}
 

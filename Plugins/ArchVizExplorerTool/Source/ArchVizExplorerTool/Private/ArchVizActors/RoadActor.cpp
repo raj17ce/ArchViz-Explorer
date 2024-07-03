@@ -3,6 +3,7 @@
 
 #include "ArchVizActors/RoadActor.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "ArchVizController.h"
 
 // Sets default values
 ARoadActor::ARoadActor() : RoadMesh{ nullptr }, Width{ 0.0 }, State{ ERoadActorState::None }, RoadType{ ERoadType::Curved } {
@@ -72,13 +73,16 @@ void ARoadActor::AddSplinePoint(const FVector& Location) {
 	UpdateRoad();
 }
 
-void ARoadActor::RemoveLastSplinePoint() {
-	if (State != ERoadActorState::Generating) return;
+bool ARoadActor::RemoveLastSplinePoint() {
+	if (State != ERoadActorState::Generating) return false;
 
 	if (!SplinePoints.IsEmpty()) {
 		SplinePoints.RemoveAt(SplinePoints.Num() - 1);
 		UpdateRoad();
+		return true;
 	}
+
+	return false;
 }
 
 void ARoadActor::UpdateRoad() {
@@ -215,5 +219,8 @@ void ARoadActor::HandleMaterialChange(FMaterialAssetData MaterialData) {
 	if (IsValid(MaterialData.Material)) {
 		Material = MaterialData.Material;
 		UpdateRoad();
+		if (auto* ArchVizController = Cast<AArchVizController>(GetWorld()->GetFirstPlayerController())) {
+			ArchVizController->AddSuccessMessage(FText::FromString("Material Applied Successfully"), 1.5f);
+		}
 	}
 }

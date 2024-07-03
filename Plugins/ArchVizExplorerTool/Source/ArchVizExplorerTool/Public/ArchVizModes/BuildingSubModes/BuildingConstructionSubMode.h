@@ -8,15 +8,15 @@
 #include "ArchVizActors/BuildingActor.h"
 #include "BuildingConstructionSubMode.generated.h"
 
+class UInputMappingContext;
+class AArchVizController;
+
 UENUM(BlueprintType)
 enum class EBuildingSubModeState : uint8 {
 	Free,
 	OldObject,
 	NewObject
 };
-
-class UInputMappingContext;
-class APlayerController;
 
 DECLARE_DELEGATE_TwoParams(FOnOtherBuildingActorSelected, EBuildingSubMode, AActor*)
 
@@ -36,7 +36,7 @@ public:
 	virtual void SetupInputComponent() PURE_VIRTUAL(UArchVizMode::SetupInputComponent, );
 
 	//Virtual
-	virtual void SetPlayerController(APlayerController* Controller);
+	virtual void SetPlayerController(AArchVizController* Controller);
 	virtual void BindPropertyDelegatesToActor(ABuildingActor* Actor);
 
 	FHitResult GetHitResult(const TArray<AActor*>& ActorsToIgnore = TArray<AActor*>{}) const;
@@ -45,7 +45,7 @@ public:
 
 protected:
 	UPROPERTY()
-	APlayerController* PlayerController;
+	AArchVizController* PlayerController;
 
 	UPROPERTY()
 	UInputMappingContext* MappingContext;

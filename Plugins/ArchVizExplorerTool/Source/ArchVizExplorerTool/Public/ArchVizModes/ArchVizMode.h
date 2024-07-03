@@ -9,7 +9,7 @@
 #include "ArchVizMode.generated.h"
 
 class UInputMappingContext;
-class APlayerController;
+class AArchVizController;
 
 
 /**
@@ -27,7 +27,7 @@ public:
 	virtual void SetupInputComponent() PURE_VIRTUAL(UArchVizMode::SetupInputComponent, );
 	
 	//Virtual Functions
-	virtual void SetPlayerController(APlayerController* Controller);
+	virtual void SetPlayerController(AArchVizController* Controller);
 	virtual void ShowWidget();
 	virtual void HideWidget();
 
@@ -36,7 +36,7 @@ public:
 	FHitResult GetHitResult(const TArray<AActor*>& ActorsToIgnore = TArray<AActor*>{}) const;
 protected:
 	UPROPERTY()
-	APlayerController* PlayerController;
+	AArchVizController* PlayerController;
 
 	UPROPERTY()
 	UInputMappingContext* MappingContext;
