@@ -29,6 +29,7 @@ public:
     virtual void EnterMode() override;
     virtual void ExitMode() override;
     virtual void SetupInputComponent() override;
+    virtual void BindPropertyDelegatesToActor(AArchVizActor* Actor) override;
 
 protected:
     UPROPERTY(EditDefaultsOnly)
@@ -42,10 +43,7 @@ private:
 
     void HandleLeftMouseClick();
 
-    void BindPropertyWidgetDelegates();
-
     //Main-Widget
-
 	UFUNCTION()
 	void HandleSaveRoadButtonClick();
 

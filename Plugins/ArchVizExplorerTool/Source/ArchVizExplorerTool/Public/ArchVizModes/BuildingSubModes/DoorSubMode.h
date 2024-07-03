@@ -22,6 +22,7 @@ public:
 	virtual void EnterSubMode() override;
 	virtual void ExitSubMode() override;
 	virtual void SetupInputComponent() override;
+	virtual void BindPropertyDelegatesToActor(ABuildingActor* Actor) override;
 
 	void SelectActor(ADoorActor* DoorActor);
 protected:
@@ -36,8 +37,6 @@ private:
 
 	void HandleFreeState();
 	void HandleNewObjectState();
-
-	void BindWidgetDelegates();
 
 	UFUNCTION()
 	void HandleDoorNewButtonClick();

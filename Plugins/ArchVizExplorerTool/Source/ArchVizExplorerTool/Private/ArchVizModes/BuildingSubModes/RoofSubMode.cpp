@@ -84,6 +84,19 @@ void URoofSubMode::SetupInputComponent() {
 	}
 }
 
+void URoofSubMode::BindPropertyDelegatesToActor(ABuildingActor* Actor) {
+	if (auto* RoofActor = Cast<ARoofActor>(Actor)) {
+		if (IsValid(RoofActor) && IsValid(RoofActor->PropertyPanelWidget)) {
+			RoofActor->PropertyPanelWidget->RoofNewButton->OnClicked.AddDynamic(this, &URoofSubMode::HandleRoofNewButtonClick);
+			RoofActor->PropertyPanelWidget->RoofDeleteButton->OnClicked.AddDynamic(this, &URoofSubMode::HandleRoofDeleteButtonClick);
+			RoofActor->PropertyPanelWidget->RoofCloseButton->OnClicked.AddDynamic(this, &URoofSubMode::HandleRoofCloseButtonClick);
+			RoofActor->PropertyPanelWidget->RoofLengthSpinbox->OnValueChanged.AddDynamic(this, &URoofSubMode::HandleRoofSpinBoxValueChange);
+			RoofActor->PropertyPanelWidget->RoofWidthSpinbox->OnValueChanged.AddDynamic(this, &URoofSubMode::HandleRoofSpinBoxValueChange);
+			RoofActor->PropertyPanelWidget->RoofHeightSpinbox->OnValueChanged.AddDynamic(this, &URoofSubMode::HandleRoofSpinBoxValueChange);
+		}
+	}
+}
+
 void URoofSubMode::SelectActor(ARoofActor* RoofActor) {
 	if (IsValid(CurrentRoofActor)) {
 		CurrentRoofActor->SetState(EBuildingActorState::None);
@@ -154,7 +167,7 @@ void URoofSubMode::HandleFreeState() {
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 			CurrentRoofActor = GetWorld()->SpawnActor<ARoofActor>(RoofActorClass, SpawnParams);
-			BindWidgetDelegates();
+			BindPropertyDelegatesToActor(CurrentRoofActor);
 			CurrentRoofActor->GenerateRoof();
 			CurrentRoofActor->SetState(EBuildingActorState::Preview);
 			SubModeState = EBuildingSubModeState::NewObject;
@@ -197,17 +210,6 @@ void URoofSubMode::HandleNewObjectState() {
 	}
 }
 
-void URoofSubMode::BindWidgetDelegates() {
-	if (IsValid(CurrentRoofActor) && IsValid(CurrentRoofActor->PropertyPanelWidget)) {
-		CurrentRoofActor->PropertyPanelWidget->RoofNewButton->OnClicked.AddDynamic(this, &URoofSubMode::HandleRoofNewButtonClick);
-		CurrentRoofActor->PropertyPanelWidget->RoofDeleteButton->OnClicked.AddDynamic(this, &URoofSubMode::HandleRoofDeleteButtonClick);
-		CurrentRoofActor->PropertyPanelWidget->RoofCloseButton->OnClicked.AddDynamic(this, &URoofSubMode::HandleRoofCloseButtonClick);
-		CurrentRoofActor->PropertyPanelWidget->RoofLengthSpinbox->OnValueChanged.AddDynamic(this, &URoofSubMode::HandleRoofSpinBoxValueChange);
-		CurrentRoofActor->PropertyPanelWidget->RoofWidthSpinbox->OnValueChanged.AddDynamic(this, &URoofSubMode::HandleRoofSpinBoxValueChange);
-		CurrentRoofActor->PropertyPanelWidget->RoofHeightSpinbox->OnValueChanged.AddDynamic(this, &URoofSubMode::HandleRoofSpinBoxValueChange);
-	}
-}
-
 void URoofSubMode::HandleRoofSpinBoxValueChange(float InLength) {
 	if (IsValid(CurrentRoofActor) && IsValid(CurrentRoofActor->PropertyPanelWidget)) {
 		float Length = CurrentRoofActor->PropertyPanelWidget->RoofLengthSpinbox->GetValue();
@@ -245,7 +247,7 @@ void URoofSubMode::HandleRoofNewButtonClick() {
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 			CurrentRoofActor = GetWorld()->SpawnActor<ARoofActor>(RoofActorClass, SpawnParams);
-			BindWidgetDelegates();
+			BindPropertyDelegatesToActor(CurrentRoofActor);
 			CurrentRoofActor->GenerateRoof();
 			CurrentRoofActor->SetState(EBuildingActorState::Preview);
 			SubModeState = EBuildingSubModeState::NewObject;

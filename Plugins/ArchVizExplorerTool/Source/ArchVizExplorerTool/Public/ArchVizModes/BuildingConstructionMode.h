@@ -28,6 +28,7 @@ public:
 	virtual void ExitMode() override;
 	virtual void SetPlayerController(APlayerController* Controller) override;
 	virtual void SetupInputComponent() override;
+	virtual void BindPropertyDelegatesToActor(AArchVizActor* Actor) override;
 
 	UFUNCTION()
 	void HandleBuildingSubModeChange(EBuildingSubMode NewBuildingSubMode);

@@ -94,6 +94,31 @@ void UBuildingConstructionMode::SetupInputComponent() {
 	}
 }
 
+void UBuildingConstructionMode::BindPropertyDelegatesToActor(AArchVizActor* Actor) {
+	if (auto* BuildingActor = Cast<ABuildingActor>(Actor)) {
+		if (BuildingActor->IsA(AWallActor::StaticClass())) {
+			if (IsValid(WallSubMode)) {
+				WallSubMode->BindPropertyDelegatesToActor(BuildingActor);
+			}
+		}
+		else if (BuildingActor->IsA(ADoorActor::StaticClass())) {
+			if (IsValid(DoorSubMode)) {
+				DoorSubMode->BindPropertyDelegatesToActor(BuildingActor);
+			}
+		}
+		else if (BuildingActor->IsA(AFloorActor::StaticClass())) {
+			if (IsValid(FloorSubMode)) {
+				FloorSubMode->BindPropertyDelegatesToActor(BuildingActor);
+			}
+		}
+		else if (BuildingActor->IsA(ARoofActor::StaticClass())) {
+			if (IsValid(RoofSubMode)) {
+				RoofSubMode->BindPropertyDelegatesToActor(BuildingActor);
+			}
+		}
+	}
+}
+
 void UBuildingConstructionMode::HandleBuildingSubModeChange(EBuildingSubMode NewBuildingSubMode) {
 	CurrentBuildingSubMode = NewBuildingSubMode;
 

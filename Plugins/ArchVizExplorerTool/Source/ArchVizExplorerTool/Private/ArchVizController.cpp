@@ -84,6 +84,24 @@ void AArchVizController::AddSuccessMessage(FText Message) {
 	}
 }  
 
+void AArchVizController::BindPropertyDelegatesToActor(AArchVizActor* Actor) {
+	if (Actor->IsA(ARoadActor::StaticClass())) {
+		if (IsValid(RoadConstructionMode)) {
+			RoadConstructionMode->BindPropertyDelegatesToActor(Actor);
+		}
+	} 
+	else if (Actor->IsA(ABuildingActor::StaticClass())) {
+		if (IsValid(BuildingConstructionMode)) {
+			BuildingConstructionMode->BindPropertyDelegatesToActor(Actor);
+		}
+	}
+	else if (Actor->IsA(AInteriorActor::StaticClass())) {
+		if (IsValid(InteriorDesignMode)) {
+			InteriorDesignMode->BindPropertyDelegatesToActor(Actor);
+		}
+	}
+}
+
 void AArchVizController::UpdateArchVizMode() {
 	switch (CurrentArchVizMode) {
 	case EArchVizMode::RoadConstruction:

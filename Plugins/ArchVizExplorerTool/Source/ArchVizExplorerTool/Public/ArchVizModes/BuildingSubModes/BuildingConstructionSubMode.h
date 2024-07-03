@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "Enums/BuildingSubModeEnum.h"
+#include "ArchVizActors/BuildingActor.h"
 #include "BuildingConstructionSubMode.generated.h"
 
 UENUM(BlueprintType)
@@ -36,6 +37,7 @@ public:
 
 	//Virtual
 	virtual void SetPlayerController(APlayerController* Controller);
+	virtual void BindPropertyDelegatesToActor(ABuildingActor* Actor);
 
 	FHitResult GetHitResult(const TArray<AActor*>& ActorsToIgnore = TArray<AActor*>{}) const;
 

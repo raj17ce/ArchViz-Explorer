@@ -29,3 +29,7 @@ FHitResult UBuildingConstructionSubMode::GetHitResult(const TArray<AActor*>& Act
 
 	return HitResult;
 }
+
+void UBuildingConstructionSubMode::BindPropertyDelegatesToActor(ABuildingActor* Actor) {
+	//No-Implementation
+}

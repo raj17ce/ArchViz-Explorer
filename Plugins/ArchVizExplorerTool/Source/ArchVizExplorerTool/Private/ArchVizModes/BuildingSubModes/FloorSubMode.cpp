@@ -84,6 +84,19 @@ void UFloorSubMode::SetupInputComponent() {
 	}
 }
 
+void UFloorSubMode::BindPropertyDelegatesToActor(ABuildingActor* Actor) {
+	if (auto* FloorActor = Cast<AFloorActor>(Actor)) {
+		if (IsValid(FloorActor) && IsValid(FloorActor->PropertyPanelWidget)) {
+			FloorActor->PropertyPanelWidget->FloorNewButton->OnClicked.AddDynamic(this, &UFloorSubMode::HandleFloorNewButtonClick);
+			FloorActor->PropertyPanelWidget->FloorDeleteButton->OnClicked.AddDynamic(this, &UFloorSubMode::HandleFloorDeleteButtonClick);
+			FloorActor->PropertyPanelWidget->FloorCloseButton->OnClicked.AddDynamic(this, &UFloorSubMode::HandleFloorCloseButtonClick);
+			FloorActor->PropertyPanelWidget->FloorLengthSpinbox->OnValueChanged.AddDynamic(this, &UFloorSubMode::HandleFloorSpinBoxValueChange);
+			FloorActor->PropertyPanelWidget->FloorWidthSpinbox->OnValueChanged.AddDynamic(this, &UFloorSubMode::HandleFloorSpinBoxValueChange);
+			FloorActor->PropertyPanelWidget->FloorHeightSpinbox->OnValueChanged.AddDynamic(this, &UFloorSubMode::HandleFloorSpinBoxValueChange);
+		}
+	}
+}
+
 void UFloorSubMode::SelectActor(AFloorActor* FloorActor) {
 	if (IsValid(CurrentFloorActor)) {
 		CurrentFloorActor->SetState(EBuildingActorState::None);
@@ -154,7 +167,7 @@ void UFloorSubMode::HandleFreeState() {
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 			CurrentFloorActor = GetWorld()->SpawnActor<AFloorActor>(FloorActorClass, SpawnParams);
-			BindWidgetDelegates();
+			BindPropertyDelegatesToActor(CurrentFloorActor);
 			CurrentFloorActor->GenerateFloor();
 			CurrentFloorActor->SetState(EBuildingActorState::Preview);
 			SubModeState = EBuildingSubModeState::NewObject;
@@ -189,17 +202,6 @@ void UFloorSubMode::HandleNewObjectState() {
 			CurrentFloorActor->SetState(EBuildingActorState::Selected);
 			SubModeState = EBuildingSubModeState::Free;
 		}
-	}
-}
-
-void UFloorSubMode::BindWidgetDelegates() {
-	if (IsValid(CurrentFloorActor) && IsValid(CurrentFloorActor->PropertyPanelWidget)) {
-		CurrentFloorActor->PropertyPanelWidget->FloorNewButton->OnClicked.AddDynamic(this, &UFloorSubMode::HandleFloorNewButtonClick);
-		CurrentFloorActor->PropertyPanelWidget->FloorDeleteButton->OnClicked.AddDynamic(this, &UFloorSubMode::HandleFloorDeleteButtonClick);
-		CurrentFloorActor->PropertyPanelWidget->FloorCloseButton->OnClicked.AddDynamic(this, &UFloorSubMode::HandleFloorCloseButtonClick);
-		CurrentFloorActor->PropertyPanelWidget->FloorLengthSpinbox->OnValueChanged.AddDynamic(this, &UFloorSubMode::HandleFloorSpinBoxValueChange);
-		CurrentFloorActor->PropertyPanelWidget->FloorWidthSpinbox->OnValueChanged.AddDynamic(this, &UFloorSubMode::HandleFloorSpinBoxValueChange);
-		CurrentFloorActor->PropertyPanelWidget->FloorHeightSpinbox->OnValueChanged.AddDynamic(this, &UFloorSubMode::HandleFloorSpinBoxValueChange);
 	}
 }
 
@@ -240,7 +242,7 @@ void UFloorSubMode::HandleFloorNewButtonClick() {
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 			CurrentFloorActor = GetWorld()->SpawnActor<AFloorActor>(FloorActorClass, SpawnParams);
-			BindWidgetDelegates();
+			BindPropertyDelegatesToActor(CurrentFloorActor);
 			CurrentFloorActor->GenerateFloor();
 			CurrentFloorActor->SetState(EBuildingActorState::Preview);
 			SubModeState = EBuildingSubModeState::NewObject;

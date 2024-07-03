@@ -86,6 +86,17 @@ void UWallSubMode::SetupInputComponent() {
 	}
 }
 
+void UWallSubMode::BindPropertyDelegatesToActor(ABuildingActor* Actor) {
+	if (auto* WallActor = Cast<AWallActor>(Actor)) {
+		if (IsValid(WallActor) && IsValid(WallActor->PropertyPanelWidget)) {
+			WallActor->PropertyPanelWidget->WallNewButton->OnClicked.AddDynamic(this, &UWallSubMode::HandleWallNewButtonClick);
+			WallActor->PropertyPanelWidget->WallDeleteButton->OnClicked.AddDynamic(this, &UWallSubMode::HandleWallDeleteButtonClick);
+			WallActor->PropertyPanelWidget->WallCloseButton->OnClicked.AddDynamic(this, &UWallSubMode::HandleWallCloseButtonClick);
+			WallActor->PropertyPanelWidget->WallLengthSpinbox->OnValueChanged.AddDynamic(this, &UWallSubMode::HandleWallLengthSpinBoxValueChange);
+		}
+	}
+}
+
 void UWallSubMode::SelectActor(AWallActor* WallActor) {
 	if (IsValid(CurrentWallActor)) {
 		CurrentWallActor->SetState(EBuildingActorState::None);
@@ -159,7 +170,7 @@ void UWallSubMode::HandleFreeState() {
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 			CurrentWallActor = GetWorld()->SpawnActor<AWallActor>(WallActorClass, SpawnParams);
-			BindWidgetDelegates();
+			BindPropertyDelegatesToActor(CurrentWallActor);
 			CurrentWallActor->GenerateWallSegments();
 			CurrentWallActor->SetState(EBuildingActorState::Preview);
 			SubModeState = EBuildingSubModeState::NewObject;
@@ -198,15 +209,6 @@ void UWallSubMode::HandleNewObjectState() {
 	}
 }
 
-void UWallSubMode::BindWidgetDelegates() {
-	if (IsValid(CurrentWallActor) && IsValid(CurrentWallActor->PropertyPanelWidget)) {
-		CurrentWallActor->PropertyPanelWidget->WallNewButton->OnClicked.AddDynamic(this, &UWallSubMode::HandleWallNewButtonClick);
-		CurrentWallActor->PropertyPanelWidget->WallDeleteButton->OnClicked.AddDynamic(this, &UWallSubMode::HandleWallDeleteButtonClick);
-		CurrentWallActor->PropertyPanelWidget->WallCloseButton->OnClicked.AddDynamic(this, &UWallSubMode::HandleWallCloseButtonClick);
-		CurrentWallActor->PropertyPanelWidget->WallLengthSpinbox->OnValueChanged.AddDynamic(this, &UWallSubMode::HandleWallLengthSpinBoxValueChange);
-	}
-}
-
 void UWallSubMode::HandleWallLengthSpinBoxValueChange(float InLength) {
 	if (IsValid(CurrentWallActor)) {
 		CurrentWallActor->SetLength(InLength);
@@ -224,7 +226,7 @@ void UWallSubMode::HandleWallNewButtonClick() {
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 			CurrentWallActor = GetWorld()->SpawnActor<AWallActor>(WallActorClass, SpawnParams);
-			BindWidgetDelegates();
+			BindPropertyDelegatesToActor(CurrentWallActor);
 			CurrentWallActor->GenerateWallSegments();
 			CurrentWallActor->SetState(EBuildingActorState::Preview);
 			SubModeState = EBuildingSubModeState::NewObject;

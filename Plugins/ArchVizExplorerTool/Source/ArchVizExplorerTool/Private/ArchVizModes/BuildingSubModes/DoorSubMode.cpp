@@ -16,7 +16,7 @@ void UDoorSubMode::Setup() {
 
 void UDoorSubMode::Cleanup() {
 	if (IsValid(CurrentDoorActor)) {
-		if ((CurrentDoorActor->GetState() == EBuildingActorState::Preview) || (CurrentDoorActor->GetState() == EBuildingActorState::Moving)) {	
+		if ((CurrentDoorActor->GetState() == EBuildingActorState::Preview) || (CurrentDoorActor->GetState() == EBuildingActorState::Moving)) {
 			CurrentDoorActor->SetState(EBuildingActorState::None);
 			CurrentDoorActor->Destroy();
 		}
@@ -87,6 +87,16 @@ void UDoorSubMode::SetupInputComponent() {
 
 			MappingContext->MapKey(DeleteKeyPressAction, EKeys::Delete);
 			EIC->BindAction(DeleteKeyPressAction, ETriggerEvent::Completed, this, &UDoorSubMode::HandleDoorDeleteButtonClick);
+		}
+	}
+}
+
+void UDoorSubMode::BindPropertyDelegatesToActor(ABuildingActor* Actor) {
+	if (auto* DoorActor = Cast<ADoorActor>(Actor)) {
+		if (IsValid(DoorActor) && IsValid(DoorActor->PropertyPanelWidget)) {
+			DoorActor->PropertyPanelWidget->DoorNewButton->OnClicked.AddDynamic(this, &UDoorSubMode::HandleDoorNewButtonClick);
+			DoorActor->PropertyPanelWidget->DoorDeleteButton->OnClicked.AddDynamic(this, &UDoorSubMode::HandleDoorDeleteButtonClick);
+			DoorActor->PropertyPanelWidget->DoorCloseButton->OnClicked.AddDynamic(this, &UDoorSubMode::HandleDoorCloseButtonClick);
 		}
 	}
 }
@@ -176,7 +186,7 @@ void UDoorSubMode::HandleFreeState() {
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 			CurrentDoorActor = GetWorld()->SpawnActor<ADoorActor>(DoorActorClass, SpawnParams);
-			BindWidgetDelegates();
+			BindPropertyDelegatesToActor(CurrentDoorActor);
 			CurrentDoorActor->SetState(EBuildingActorState::Preview);
 			SubModeState = EBuildingSubModeState::NewObject;
 			//To-Do Preview Material
@@ -202,14 +212,6 @@ void UDoorSubMode::HandleNewObjectState() {
 	}
 }
 
-void UDoorSubMode::BindWidgetDelegates() {
-	if (IsValid(CurrentDoorActor) && IsValid(CurrentDoorActor->PropertyPanelWidget)) {
-		CurrentDoorActor->PropertyPanelWidget->DoorNewButton->OnClicked.AddDynamic(this, &UDoorSubMode::HandleDoorNewButtonClick);
-		CurrentDoorActor->PropertyPanelWidget->DoorDeleteButton->OnClicked.AddDynamic(this, &UDoorSubMode::HandleDoorDeleteButtonClick);
-		CurrentDoorActor->PropertyPanelWidget->DoorCloseButton->OnClicked.AddDynamic(this, &UDoorSubMode::HandleDoorCloseButtonClick);
-	}
-}
-
 void UDoorSubMode::HandleDoorNewButtonClick() {
 	if (IsValid(CurrentDoorActor)) {
 		CurrentDoorActor->SetState(EBuildingActorState::None);
@@ -220,7 +222,7 @@ void UDoorSubMode::HandleDoorNewButtonClick() {
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 			CurrentDoorActor = GetWorld()->SpawnActor<ADoorActor>(DoorActorClass, SpawnParams);
-			BindWidgetDelegates();
+			BindPropertyDelegatesToActor(CurrentDoorActor);
 			CurrentDoorActor->SetState(EBuildingActorState::Preview);
 			SubModeState = EBuildingSubModeState::NewObject;
 		}

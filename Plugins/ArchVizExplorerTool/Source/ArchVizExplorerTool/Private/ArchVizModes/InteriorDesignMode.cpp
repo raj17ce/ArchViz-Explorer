@@ -8,6 +8,7 @@
 #include "ArchVizActors/BuildingActors/WallActor.h"
 #include "ArchVizActors/BuildingActors/RoofActor.h"
 #include "Widgets/InteriorDesignWidget.h"
+#include "ArchVizActors/InteriorActor.h"
 
 void UInteriorDesignMode::Setup() {
 	CurrentInteriorActor = nullptr;
@@ -95,6 +96,16 @@ void UInteriorDesignMode::SetupInputComponent() {
 	}
 }
 
+void UInteriorDesignMode::BindPropertyDelegatesToActor(AArchVizActor* Actor) {
+	if (auto InteriorActor = Cast<AInteriorActor>(Actor)) {
+		if(IsValid(InteriorActor->PropertyPanelWidget)) {
+			InteriorActor->PropertyPanelWidget->InteriorNewButton->OnClicked.AddDynamic(this, &UInteriorDesignMode::HandleInteriorNewButtonClick);
+			InteriorActor->PropertyPanelWidget->InteriorDeleteButton->OnClicked.AddDynamic(this, &UInteriorDesignMode::HandleInteriorDeleteButtonClick);
+			InteriorActor->PropertyPanelWidget->InteriorCloseButton->OnClicked.AddDynamic(this, &UInteriorDesignMode::HandleInteriorCloseButtonClick);
+		}
+	}
+}
+
 void UInteriorDesignMode::Cleanup() {
 	if (IsValid(CurrentInteriorActor)) {
 		if ((CurrentInteriorActor->GetState() == EInteriorActorState::Preview)) {
@@ -124,7 +135,7 @@ void UInteriorDesignMode::HandleInteriorAssetSelect(FInteriorAssetData AssetData
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 		CurrentInteriorActor = GetWorld()->SpawnActor<AInteriorActor>(InteriorActorClass, SpawnParams);
-		BindPropertyWidgetDelegates();
+		BindPropertyDelegatesToActor(CurrentInteriorActor);
 		CurrentInteriorActor->SetActorAssetData(AssetData);
 		CurrentInteriorActor->SetState(EInteriorActorState::Preview);
 		InteriorModeState = EInteriorModeState::NewObject;
@@ -257,14 +268,6 @@ void UInteriorDesignMode::HandleNewObjectState() {
 	}
 }
 
-void UInteriorDesignMode::BindPropertyWidgetDelegates() {
-	if (IsValid(CurrentInteriorActor) && IsValid(CurrentInteriorActor->PropertyPanelWidget)) {
-		CurrentInteriorActor->PropertyPanelWidget->InteriorNewButton->OnClicked.AddDynamic(this, &UInteriorDesignMode::HandleInteriorNewButtonClick);
-		CurrentInteriorActor->PropertyPanelWidget->InteriorDeleteButton->OnClicked.AddDynamic(this, &UInteriorDesignMode::HandleInteriorDeleteButtonClick);
-		CurrentInteriorActor->PropertyPanelWidget->InteriorCloseButton->OnClicked.AddDynamic(this, &UInteriorDesignMode::HandleInteriorCloseButtonClick);
-	}
-}
-
 void UInteriorDesignMode::HandleInteriorNewButtonClick() {
 	if (IsValid(CurrentInteriorActor)) {
 		FInteriorAssetData PreviousAssetData = CurrentInteriorActor->AssetData;
@@ -276,7 +279,7 @@ void UInteriorDesignMode::HandleInteriorNewButtonClick() {
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 			CurrentInteriorActor = GetWorld()->SpawnActor<AInteriorActor>(InteriorActorClass, SpawnParams);
-			BindPropertyWidgetDelegates();
+			BindPropertyDelegatesToActor(CurrentInteriorActor);
 			CurrentInteriorActor->SetActorAssetData(PreviousAssetData);
 			CurrentInteriorActor->SetState(EInteriorActorState::Preview);
 			InteriorModeState = EInteriorModeState::NewObject;

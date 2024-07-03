@@ -39,6 +39,8 @@ public:
 	void AddErrorMessage(FText Message);
 	void AddSuccessMessage(FText Message);
 
+	void BindPropertyDelegatesToActor(AArchVizActor* Actor);
+
 private:
 	FInputModeGameAndUI InputModeGameAndUI{};
 

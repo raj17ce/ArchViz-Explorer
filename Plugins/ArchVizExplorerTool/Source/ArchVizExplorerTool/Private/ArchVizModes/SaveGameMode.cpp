@@ -8,6 +8,7 @@
 #include "ArchVizActors/ArchVizActor.h"
 #include "EngineUtils.h"
 #include "SaveGame/ArchVizSaveGame.h"
+#include "ArchVizController.h"
 
 USaveGameMode::USaveGameMode(): CurrentSlotName{ TEXT("") } {
 
@@ -67,7 +68,6 @@ void USaveGameMode::HandleSaveButtonClick() {
 		SaveGame(CurrentSlotName);
 
 		SaveGameWidget->HandleSavePopupCloseButtonClick();
-		//SaveGameWidget->SaveSlotName->SetText(FText{});
 	}
 }
 
@@ -133,15 +133,6 @@ TArray<FString> USaveGameMode::GetSavedSlotsList() {
 }
 
 void USaveGameMode::SaveGame(const FString& SlotName) {
-	/*FString SaveDirectory = FPaths::ProjectSavedDir();
-	if (!FPlatformFileManager::Get().GetPlatformFile().DirectoryExists(*SaveDirectory)) {
-		UE_LOG(LogTemp, Warning, TEXT("Save directory does not exist. Attempting to create: %s"), *SaveDirectory);
-		if (!FPlatformFileManager::Get().GetPlatformFile().CreateDirectory(*SaveDirectory)) {
-			UE_LOG(LogTemp, Error, TEXT("Failed to create save directory: %s"), *SaveDirectory);
-			return;
-		}
-	}*/
-
 	auto* SaveGameInstance = Cast<UArchVizSaveGame>(UGameplayStatics::CreateSaveGameObject(UArchVizSaveGame::StaticClass()));
 
 	if (!IsValid(SaveGameInstance)) {
@@ -316,6 +307,9 @@ void USaveGameMode::LoadGame(const FString& SlotName) {
 			RoadActor->SetRoadType(RoadData.RoadType);
 			RoadActor->SetWidth(RoadData.Width);
 			RoadActor->SetMaterial(RoadData.Material);
+			if (auto ArchVizController = Cast<AArchVizController>(PlayerController)) {
+				ArchVizController->BindPropertyDelegatesToActor(RoadActor);
+			}
 			RoadActor->UpdatePropertyPanelValues();
 			RoadActor->UpdateRoad();
 			IDToActorMap.Add(RoadData.ID, RoadActor);
@@ -332,6 +326,9 @@ void USaveGameMode::LoadGame(const FString& SlotName) {
 			WallActor->SetLength(WallData.Length);
 			WallActor->SetMaterial(WallData.Material);
 			WallActor->GenerateWallSegments();
+			if (auto ArchVizController = Cast<AArchVizController>(PlayerController)) {
+				ArchVizController->BindPropertyDelegatesToActor(WallActor);
+			}
 			WallActor->UpdateLengthSpinBoxValue();
 			IDToActorMap.Add(WallData.ID, WallActor);
 
@@ -348,6 +345,9 @@ void USaveGameMode::LoadGame(const FString& SlotName) {
 			FloorActor->SetDimensions(FloorData.Dimensions);
 			FloorActor->SetOffset(FloorData.Offset);
 			FloorActor->SetMaterial(FloorData.Material);
+			if (auto ArchVizController = Cast<AArchVizController>(PlayerController)) {
+				ArchVizController->BindPropertyDelegatesToActor(FloorActor);
+			}
 			FloorActor->UpdateSpinBoxValue();
 			FloorActor->GenerateFloor();
 			IDToActorMap.Add(FloorData.ID, FloorActor);
@@ -365,6 +365,9 @@ void USaveGameMode::LoadGame(const FString& SlotName) {
 			RoofActor->SetDimensions(RoofData.Dimensions);
 			RoofActor->SetOffset(RoofData.Offset);
 			RoofActor->SetMaterial(RoofData.Material);
+			if (auto ArchVizController = Cast<AArchVizController>(PlayerController)) {
+				ArchVizController->BindPropertyDelegatesToActor(RoofActor);
+			}
 			RoofActor->UpdateSpinBoxValue();
 			RoofActor->AdjustDimensionAndOffset();
 			RoofActor->GenerateRoof();

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "ArchVizActors/ArchVizActor.h"
 #include "UMG/Public/Blueprint/UserWidget.h"
 #include "ArchVizMode.generated.h"
 
@@ -24,11 +25,13 @@ public:
 	virtual void EnterMode() PURE_VIRTUAL(UArchVizMode::EnterMode, );
 	virtual void ExitMode() PURE_VIRTUAL(UArchVizMode::ExitMode, );
 	virtual void SetupInputComponent() PURE_VIRTUAL(UArchVizMode::SetupInputComponent, );
-
+	
 	//Virtual Functions
 	virtual void SetPlayerController(APlayerController* Controller);
 	virtual void ShowWidget();
 	virtual void HideWidget();
+
+	virtual void BindPropertyDelegatesToActor(AArchVizActor* Actor);
 
 	FHitResult GetHitResult(const TArray<AActor*>& ActorsToIgnore = TArray<AActor*>{}) const;
 protected:

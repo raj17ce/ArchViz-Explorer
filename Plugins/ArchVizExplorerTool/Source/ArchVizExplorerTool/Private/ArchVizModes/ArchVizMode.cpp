@@ -19,6 +19,10 @@ void UArchVizMode::HideWidget() {
 	}
 }
 
+void UArchVizMode::BindPropertyDelegatesToActor(AArchVizActor* Actor) {
+	//No-Implementation
+}
+
 FHitResult UArchVizMode::GetHitResult(const TArray<AActor*>& ActorsToIgnore) const {
 	FHitResult HitResult{};
 	FVector WorldLocation{}, WorldDirection{};

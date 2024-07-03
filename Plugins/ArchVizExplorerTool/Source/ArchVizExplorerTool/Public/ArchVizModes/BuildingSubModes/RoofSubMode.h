@@ -22,6 +22,7 @@ public:
 	virtual void EnterSubMode() override;
 	virtual void ExitSubMode() override;
 	virtual void SetupInputComponent() override;
+	virtual void BindPropertyDelegatesToActor(ABuildingActor* Actor) override;
 
 	void SelectActor(ARoofActor* RoofActor);
 protected:
@@ -36,8 +37,6 @@ private:
 	void HandleFreeState();
 	void HandleOldObjectState();
 	void HandleNewObjectState();
-
-	void BindWidgetDelegates();
 
 	UFUNCTION()
 	void HandleRoofSpinBoxValueChange(float InLength);

@@ -42,9 +42,6 @@ public:
 	UButton* SaveProjectButton;
 
 	UFUNCTION()
-	void HandleNewProjectButtonClick();
-
-	UFUNCTION()
 	void HandleLoadProjectButtonClick();
 
 	UFUNCTION()

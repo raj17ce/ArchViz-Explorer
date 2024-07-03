@@ -69,6 +69,19 @@ void URoadConstructionMode::SetupInputComponent() {
 	}
 }
 
+void URoadConstructionMode::BindPropertyDelegatesToActor(AArchVizActor* Actor) {
+	if (auto* RoadActor = Cast<ARoadActor>(Actor)) {
+		RoadActor->OnRoadActorStateChanged.BindUObject(this, &URoadConstructionMode::HandleRoadActorStateChange);
+		if (IsValid(RoadActor->PropertyPanelWidget)) {
+			RoadActor->PropertyPanelWidget->RoadNewButton->OnClicked.AddDynamic(this, &URoadConstructionMode::HandleRoadNewButtonClick);
+			RoadActor->PropertyPanelWidget->RoadDeleteButton->OnClicked.AddDynamic(this, &URoadConstructionMode::HandleRoadDeleteButtonClick);
+			RoadActor->PropertyPanelWidget->RoadCloseButton->OnClicked.AddDynamic(this, &URoadConstructionMode::HandleRoadCloseButtonClick);
+			RoadActor->PropertyPanelWidget->RoadWidthSpinbox->OnValueChanged.AddDynamic(this, &URoadConstructionMode::HandleRoadWidthChange);
+			RoadActor->PropertyPanelWidget->RoadTypeComboBox->OnSelectionChanged.AddDynamic(this, &URoadConstructionMode::HandleRoadTypeChange);
+		}
+	}
+}
+
 void URoadConstructionMode::HandleLeftMouseClick() {
 	switch (RoadModeState) {
 	case ERoadModeState::Free:
@@ -104,19 +117,6 @@ void URoadConstructionMode::HandleNewObjectState() {
 
 		HitResult = CurrentRoadActor->GetHitResult(IgnoredActors);
 		CurrentRoadActor->AddSplinePoint(HitResult.Location);
-	}
-}
-
-void URoadConstructionMode::BindPropertyWidgetDelegates() {
-	if (IsValid(CurrentRoadActor)) {
-		CurrentRoadActor->OnRoadActorStateChanged.BindUObject(this, &URoadConstructionMode::HandleRoadActorStateChange);
-		if (IsValid(CurrentRoadActor->PropertyPanelWidget)) {
-			CurrentRoadActor->PropertyPanelWidget->RoadNewButton->OnClicked.AddDynamic(this, &URoadConstructionMode::HandleRoadNewButtonClick);
-			CurrentRoadActor->PropertyPanelWidget->RoadDeleteButton->OnClicked.AddDynamic(this, &URoadConstructionMode::HandleRoadDeleteButtonClick);
-			CurrentRoadActor->PropertyPanelWidget->RoadCloseButton->OnClicked.AddDynamic(this, &URoadConstructionMode::HandleRoadCloseButtonClick);
-			CurrentRoadActor->PropertyPanelWidget->RoadWidthSpinbox->OnValueChanged.AddDynamic(this, &URoadConstructionMode::HandleRoadWidthChange);
-			CurrentRoadActor->PropertyPanelWidget->RoadTypeComboBox->OnSelectionChanged.AddDynamic(this, &URoadConstructionMode::HandleRoadTypeChange);
-		}
 	}
 }
 
@@ -158,7 +158,7 @@ void URoadConstructionMode::HandleRoadNewButtonClick() {
 
 	if (IsValid(RoadActorClass) && !IsValid(CurrentRoadActor)) {
 		CurrentRoadActor = GetWorld()->SpawnActor<ARoadActor>(RoadActorClass, FTransform{});
-		BindPropertyWidgetDelegates();
+		BindPropertyDelegatesToActor(CurrentRoadActor);
 		CurrentRoadActor->SetState(ERoadActorState::Generating);
 		RoadModeState = ERoadModeState::NewObject;
 	}

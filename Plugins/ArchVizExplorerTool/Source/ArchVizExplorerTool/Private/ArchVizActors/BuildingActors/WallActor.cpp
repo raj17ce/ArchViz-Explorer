@@ -281,7 +281,7 @@ void AWallActor::HandleMaterialChange(FMaterialAssetData MaterialData) {
 void AWallActor::ApplyMaterial() {
 	if (IsValid(Material)) {
 		if (auto* Dynamicmaterial = UMaterialInstanceDynamic::Create(Material, this)) {
-			Dynamicmaterial->SetVectorParameterValue(FName("Tiling/Offset"), FLinearColor(033, 0.33, 0, 0));
+			Dynamicmaterial->SetVectorParameterValue(FName("Tiling/Offset"), FLinearColor(0.33, 0.33, 0, 0));
 			
 			for (auto Segment : WallSegments) {
 				if (IsValid(Segment)) {

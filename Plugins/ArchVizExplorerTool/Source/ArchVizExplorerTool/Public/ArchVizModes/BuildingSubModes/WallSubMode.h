@@ -24,6 +24,7 @@ public:
 	virtual void EnterSubMode() override;
 	virtual void ExitSubMode() override;
 	virtual void SetupInputComponent() override;
+	virtual void BindPropertyDelegatesToActor(ABuildingActor* Actor) override;
 
 	void SelectActor(AWallActor* WallActor);
 protected:
@@ -38,8 +39,6 @@ private:
 	void HandleFreeState();
 	void HandleOldObjectState();
 	void HandleNewObjectState();
-
-	void BindWidgetDelegates();
 
 	UFUNCTION()
 	void HandleWallLengthSpinBoxValueChange(float InLength);
