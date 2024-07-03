@@ -15,8 +15,8 @@ const FString& USaveGameItemWidget::GetSlotName() const {
 	return SlotName;
 }
 
-void USaveGameItemWidget::NativeConstruct() {
-	Super::NativeConstruct();
+void USaveGameItemWidget::NativeOnInitialized() {
+	Super::NativeOnInitialized();
 
 	if (IsValid(SlotNameButton)) {
 		SlotNameButton->OnClicked.AddDynamic(this, &USaveGameItemWidget::HandleSlotNameButtonClick);

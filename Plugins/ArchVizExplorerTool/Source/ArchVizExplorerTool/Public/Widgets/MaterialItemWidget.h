@@ -33,7 +33,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	UImage* ItemImage;
 
-	virtual void NativeConstruct() override;
+	virtual void NativeOnInitialized() override;
 private:
 	FMaterialAssetData ItemData;
 

@@ -21,7 +21,7 @@ class ARCHVIZEXPLORERTOOL_API UInteriorDesignWidget : public UUserWidget {
 	GENERATED_BODY()
 	
 public:
-	virtual void NativeConstruct() override;
+	virtual void NativeOnInitialized() override;
 
 	//ScrollBox
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))

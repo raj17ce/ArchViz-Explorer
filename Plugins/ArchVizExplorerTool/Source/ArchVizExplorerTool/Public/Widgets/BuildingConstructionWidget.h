@@ -20,7 +20,7 @@ class ARCHVIZEXPLORERTOOL_API UBuildingConstructionWidget : public UUserWidget {
 	GENERATED_BODY()
 
 public:
-	virtual void NativeConstruct() override;
+	virtual void NativeOnInitialized() override;
 
 	FOnBuildingSubModeChange OnBuildingSubModeChange;
 

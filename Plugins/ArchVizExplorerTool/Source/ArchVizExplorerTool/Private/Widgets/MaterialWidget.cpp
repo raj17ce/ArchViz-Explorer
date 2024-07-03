@@ -3,6 +3,6 @@
 
 #include "Widgets/MaterialWidget.h"
 
-void UMaterialWidget::NativeConstruct() {
-	Super::NativeConstruct();
+void UMaterialWidget::NativeOnInitialized() {
+	Super::NativeOnInitialized();
 }

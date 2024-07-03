@@ -25,7 +25,8 @@ void USaveGameWidget::PopulateSavedSlotsList(TArray<FString> SavedSlots) {
 	}
 }
 
-void USaveGameWidget::NativeConstruct() {
+void USaveGameWidget::NativeOnInitialized() {
+	Super::NativeOnInitialized();
 	if (IsValid(LoadProjectButton)) {
 		LoadProjectButton->OnClicked.AddDynamic(this, &USaveGameWidget::HandleLoadProjectButtonClick);
 	}

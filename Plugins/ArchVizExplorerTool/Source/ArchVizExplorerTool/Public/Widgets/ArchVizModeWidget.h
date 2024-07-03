@@ -21,7 +21,7 @@ class ARCHVIZEXPLORERTOOL_API UArchVizModeWidget : public UUserWidget {
 	GENERATED_BODY()
 
 public:
-	virtual void NativeConstruct() override;
+	virtual void NativeOnInitialized() override;
 
 	FOnArchVizModeChange OnArchVizModeChange;
 

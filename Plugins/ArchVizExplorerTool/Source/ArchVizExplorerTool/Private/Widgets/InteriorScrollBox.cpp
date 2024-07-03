@@ -29,8 +29,8 @@ void UInteriorScrollBox::HandleItemButtonClicked(FInteriorAssetData Asset) {
 	OnItemSelected.ExecuteIfBound(Asset);
 }
 
-void UInteriorScrollBox::NativeConstruct() {
-	Super::NativeConstruct();
+void UInteriorScrollBox::NativeOnInitialized() {
+	Super::NativeOnInitialized();
 
 	/*if (!InteriorItemWidgetClass) {
 		if (GEngine) {

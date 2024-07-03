@@ -11,8 +11,8 @@ void UMaterialItemWidget::SetItemData(const FMaterialAssetData& NewItemData) {
 	}
 }
 
-void UMaterialItemWidget::NativeConstruct() {
-	Super::NativeConstruct();
+void UMaterialItemWidget::NativeOnInitialized() {
+	Super::NativeOnInitialized();
 
 	if (IsValid(ItemButton)) {
 		ItemButton->OnClicked.AddDynamic(this, &UMaterialItemWidget::HandleItemButtonClick);

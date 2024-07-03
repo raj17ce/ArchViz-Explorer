@@ -11,8 +11,8 @@ void UInteriorItemWidget::SetItemData(const FInteriorAssetData& NewItemData) {
 	}
 }
 
-void UInteriorItemWidget::NativeConstruct() {
-	Super::NativeConstruct();
+void UInteriorItemWidget::NativeOnInitialized() {
+	Super::NativeOnInitialized();
 
 	if (IsValid(ItemButton)) {
 		ItemButton->OnClicked.AddDynamic(this, &UInteriorItemWidget::HandleItemButtonClick);

@@ -19,8 +19,8 @@ void UBuildingConstructionWidget::HandleRoofSubModeButtonClick() {
 	OnBuildingSubModeChange.Broadcast(EBuildingSubMode::RoofConstruction);
 }
 
-void UBuildingConstructionWidget::NativeConstruct() {
-	Super::NativeConstruct();
+void UBuildingConstructionWidget::NativeOnInitialized() {
+	Super::NativeOnInitialized();
 
 	if (IsValid(WallSubModeButton)) {
 		WallSubModeButton->OnClicked.AddDynamic(this, &UBuildingConstructionWidget::HandleWallSubModeButtonClick);

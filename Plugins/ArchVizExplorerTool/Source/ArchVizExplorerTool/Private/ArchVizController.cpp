@@ -47,11 +47,11 @@ void AArchVizController::BeginPlay() {
 	if (IsValid(ArchVizModeWidgetClass)) {
 		ArchVizModeWidget = CreateWidget<UArchVizModeWidget>(this, ArchVizModeWidgetClass, "Controller Mode Widget");
 		ArchVizModeWidget->OnArchVizModeChange.AddUObject(this, &AArchVizController::HandleArchVizModeChange);
-		ArchVizModeWidget->AddToViewport(1);
+		ArchVizModeWidget->AddToViewport();
 	}
 	if (IsValid(NotificationWidgetClass)) {
 		NotificationWidget = CreateWidget<UNotificationWidget>(this, NotificationWidgetClass, "Notification Widget");
-		NotificationWidget->AddToViewport(2);
+		NotificationWidget->AddToViewport();
 	}
 
 	SetInputMode(InputModeGameAndUI);

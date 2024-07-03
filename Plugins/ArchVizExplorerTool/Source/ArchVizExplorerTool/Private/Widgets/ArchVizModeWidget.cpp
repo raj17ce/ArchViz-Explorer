@@ -20,8 +20,8 @@ void UArchVizModeWidget::HandleSaveGameModeButtonClick() {
 	OnArchVizModeChange.Broadcast(EArchVizMode::SaveGame);
 }
 
-void UArchVizModeWidget::NativeConstruct() {
-	Super::NativeConstruct();
+void UArchVizModeWidget::NativeOnInitialized() {
+	Super::NativeOnInitialized();
 
 	OnArchVizModeChange.AddUObject(this, &UArchVizModeWidget::HighlightSelectedColour);
 

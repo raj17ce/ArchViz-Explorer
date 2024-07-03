@@ -3,8 +3,8 @@
 
 #include "Widgets/InteriorDesignWidget.h"
 
-void UInteriorDesignWidget::NativeConstruct() {
-	Super::NativeConstruct();
+void UInteriorDesignWidget::NativeOnInitialized() {
+	Super::NativeOnInitialized();
 
 	if (IsValid(ChairButton)) {
 		ChairButton->OnClicked.AddDynamic(this, &UInteriorDesignWidget::HandleChairButtonClick);

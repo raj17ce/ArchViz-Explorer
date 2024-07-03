@@ -4,8 +4,8 @@
 #include "Widgets/MaterialScrollBox.h"
 #include "UMG/Public/Components/ScrollBoxSlot.h"
 
-void UMaterialScrollBox::NativeConstruct() {
-	Super::NativeConstruct();
+void UMaterialScrollBox::NativeOnInitialized() {
+	Super::NativeOnInitialized();
 }
 
 void UMaterialScrollBox::PopulateWidget(UMaterialDataAsset* DataAsset) {

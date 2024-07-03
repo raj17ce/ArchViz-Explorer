@@ -19,7 +19,7 @@ UCLASS()
 class ARCHVIZEXPLORERTOOL_API UMaterialScrollBox : public UUserWidget {
 	GENERATED_BODY()
 public:
-	virtual void NativeConstruct() override;
+	virtual void NativeOnInitialized() override;
 
 	void PopulateWidget(UMaterialDataAsset* DataAsset);
 
