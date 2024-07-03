@@ -112,7 +112,6 @@ void AFloorActor::HandleGeneratingState() {
 	Dimensions = FVector{ abs(XDistance) + (2 * EdgeOffset), abs(YDistance) + (2 * EdgeOffset), ZDistance };
 	Offset = FVector{ abs(XDistance) / 2 , abs(YDistance) / 2, ZDistance / 2 };
 
-	AdjustDimensionAndOffset();
 	GenerateFloor();
 }
 
@@ -125,8 +124,8 @@ void AFloorActor::HandleMovingState() {
 
 void AFloorActor::GenerateFloor() {
 	DestroyFloor();
+	AdjustDimensionAndOffset();
 	ProceduralMeshGenerator::GenerateCube(FloorMeshComponent, 0, Dimensions, Offset);
-
 	ApplyMaterial();
 }
 

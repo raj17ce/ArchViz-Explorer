@@ -116,7 +116,6 @@ void ARoofActor::HandleGeneratingState() {
 	Dimensions = FVector{ abs(XDistance) + (2 * EdgeOffset), abs(YDistance) + (2 * EdgeOffset), ZDistance };
 	Offset = FVector{ abs(XDistance) / 2,  abs(YDistance) / 2, ZDistance / 2 };
 
-	AdjustDimensionAndOffset();
 	GenerateRoof();
 }
 
@@ -129,8 +128,8 @@ void ARoofActor::HandleMovingState() {
 
 void ARoofActor::GenerateRoof() {
 	DestroyRoof();
+	AdjustDimensionAndOffset();
 	ProceduralMeshGenerator::GenerateCube(RoofMeshComponent, 0, Dimensions, Offset);
-
 	ApplyMaterial();
 }
 

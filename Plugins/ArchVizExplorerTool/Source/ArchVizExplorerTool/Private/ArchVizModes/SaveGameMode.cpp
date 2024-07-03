@@ -60,10 +60,6 @@ void USaveGameMode::HandleSaveButtonClick() {
 			return;
 		}
 
-		if (GetSavedSlotsList().Contains(SlotName) && SlotName == CurrentSlotName) {
-			
-		}
-
 		CurrentSlotName = SlotName;
 		SaveGame(CurrentSlotName);
 
@@ -72,14 +68,19 @@ void USaveGameMode::HandleSaveButtonClick() {
 }
 
 void USaveGameMode::HandleNewProjectButtonClick() {
-	//if (!CurrentSlotName.IsEmpty()) {
-	//	// To-Do :: Notify the name is empty
-	//	return;
-	//}
-	//SaveGame(CurrentSlotName);
+	if (CurrentSlotName.IsEmpty()) {
+		// To-Do :: Notify to enter a name
+		if (auto* SaveGameWidget = Cast<USaveGameWidget>(Widget)) {
+			SaveGameWidget->HandleSaveProjectButtonClick();
+		}
+		return;
+	}
+	else {	
+		SaveGame(CurrentSlotName);
+	}
 
-	//CurrentSlotName = "";
-
+	ClearWorld();
+	CurrentSlotName = "";
 }
 
 void USaveGameMode::HandleSlotItemNameButtonClick(const FString& SlotName) {
@@ -192,7 +193,7 @@ void USaveGameMode::SaveGame(const FString& SlotName) {
 		FloorData.StartPoint = FloorActor->GetStartPoint();
 		FloorData.EndPoint = FloorActor->GetEndPoint();
 		FloorData.Dimensions = FloorActor->GetDimensions();
-		FloorData.Dimensions = FloorActor->GetOffset();
+		FloorData.Offset = FloorActor->GetOffset();
 		if (IsValid(FloorActor->GetAttachParentActor())) {
 			if (auto ParentActor = Cast<AArchVizActor>(FloorActor->GetAttachParentActor())) {
 				FloorData.ParentActorID = ParentActor->GetID();
@@ -281,9 +282,9 @@ void USaveGameMode::SaveGame(const FString& SlotName) {
 
 			SlotsList = SlotSaveGameInstance->SlotsNames;
 			PopulateSlotsList();
-		}
 
-		UGameplayStatics::SaveGameToSlot(SlotSaveGameInstance, "SavedSlotNames", 0);
+			UGameplayStatics::SaveGameToSlot(SlotSaveGameInstance, "SavedSlotNames", 0);
+		}
 	}
 }
 
@@ -324,12 +325,13 @@ void USaveGameMode::LoadGame(const FString& SlotName) {
 			auto* WallActor = GetWorld()->SpawnActor<AWallActor>(WallActorClass, WallData.Transform, SpawnParams);
 			WallActor->SetActorTransform(WallData.Transform);
 			WallActor->SetLength(WallData.Length);
+			WallActor->UpdateLengthSpinBoxValue();
 			WallActor->SetMaterial(WallData.Material);
 			WallActor->GenerateWallSegments();
 			if (auto ArchVizController = Cast<AArchVizController>(PlayerController)) {
 				ArchVizController->BindPropertyDelegatesToActor(WallActor);
 			}
-			WallActor->UpdateLengthSpinBoxValue();
+
 			IDToActorMap.Add(WallData.ID, WallActor);
 
 			if (WallData.ParentActorID != -1) {
@@ -369,7 +371,6 @@ void USaveGameMode::LoadGame(const FString& SlotName) {
 				ArchVizController->BindPropertyDelegatesToActor(RoofActor);
 			}
 			RoofActor->UpdateSpinBoxValue();
-			RoofActor->AdjustDimensionAndOffset();
 			RoofActor->GenerateRoof();
 			IDToActorMap.Add(RoofData.ID, RoofActor);
 

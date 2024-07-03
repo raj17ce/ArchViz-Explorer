@@ -213,21 +213,9 @@ void UFloorSubMode::HandleFloorSpinBoxValueChange(float InLength) {
 
 		double EdgeOffset{ 10.0 };
 
-		FVector NewDimensions{ Length + (2 * EdgeOffset), Width + (2 * EdgeOffset), Height };
-		FVector NewOffset{ Length / 2 , Width / 2, Height / 2 };
-
-		double XDistance = CurrentFloorActor->EndPoint.X - CurrentFloorActor->StartPoint.X;
-		double YDistance = CurrentFloorActor->EndPoint.Y - CurrentFloorActor->StartPoint.Y;
-
-		if (XDistance >= 0.0 && YDistance < 0.0) {
-			NewOffset.Z *= -1.0;
-		}
-		else if (XDistance < 0.0 && YDistance >= 0.0) {
-			NewOffset.Z *= -1.0;
-		}
-
-		CurrentFloorActor->SetDimensions(NewDimensions);
-		CurrentFloorActor->SetOffset(NewOffset);
+		CurrentFloorActor->SetDimensions(FVector{ Length + (2 * EdgeOffset), Width + (2 * EdgeOffset), Height });
+		CurrentFloorActor->SetOffset(FVector{ Length / 2 , Width / 2, Height / 2 });
+		
 		CurrentFloorActor->GenerateFloor();
 	}
 }
