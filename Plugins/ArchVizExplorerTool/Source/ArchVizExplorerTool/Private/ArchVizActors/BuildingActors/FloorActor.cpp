@@ -130,7 +130,7 @@ void AFloorActor::GenerateFloor() {
 
 	AdjustOffset(FloorOffset);
 	ProceduralMeshGenerator::GenerateCube(FloorMeshComponent, 0, Dimensions, FloorOffset);
-	ApplyMaterial();
+	ApplyPreviewMaterial();
 }
 
 void AFloorActor::AdjustOffset(FVector& FloorOffset) {
@@ -181,6 +181,15 @@ void AFloorActor::HandleMaterialChange(FMaterialAssetData MaterialData) {
 void AFloorActor::ApplyMaterial() {
 	if (IsValid(Material)) {
 		if (auto* Dynamicmaterial = UMaterialInstanceDynamic::Create(Material, this)) {
+			Dynamicmaterial->SetVectorParameterValue(FName("Tiling/Offset"), FLinearColor(Dimensions.Y / 600.0f, Dimensions.X / 600.0f, 0, 0));
+			FloorMeshComponent->SetMaterial(0, Dynamicmaterial);
+		}
+	}
+}
+
+void AFloorActor::ApplyPreviewMaterial() {
+	if (IsValid(PreviewMaterial)) {
+		if (auto* Dynamicmaterial = UMaterialInstanceDynamic::Create(PreviewMaterial, this)) {
 			Dynamicmaterial->SetVectorParameterValue(FName("Tiling/Offset"), FLinearColor(Dimensions.Y / 600.0f, Dimensions.X / 600.0f, 0, 0));
 			FloorMeshComponent->SetMaterial(0, Dynamicmaterial);
 		}

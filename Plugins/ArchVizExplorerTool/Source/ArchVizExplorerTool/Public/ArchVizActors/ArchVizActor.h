@@ -40,7 +40,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UPropertyPanelWidget> PropertyPanelWidgetClass;
 	
-	UPROPERTY()
+	UPROPERTY() 
 	UPropertyPanelWidget* PropertyPanelWidget;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -49,8 +49,11 @@ protected:
 	UPROPERTY()
 	UMaterialWidget* MaterialWidget;
 
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly)
 	UMaterialInterface* Material;
+
+	UPROPERTY(EditDefaultsOnly)
+	UMaterialInterface* PreviewMaterial;
 
 	int32 ID;
 

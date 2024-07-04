@@ -149,7 +149,7 @@ void AWallActor::GenerateWallSegments() {
 		WallMeshComponent->SetRelativeLocation(FVector{SegmentIndex * WallSize.X, 0, 0});
 	}
 
-	ApplyMaterial();
+	ApplyPreviewMaterial();
 	UpdateDoorSegments();
 }
 
@@ -287,6 +287,20 @@ void AWallActor::ApplyMaterial() {
 		if (auto* Dynamicmaterial = UMaterialInstanceDynamic::Create(Material, this)) {
 			Dynamicmaterial->SetVectorParameterValue(FName("Tiling/Offset"), FLinearColor(0.33, 0.33, 0, 0));
 			
+			for (auto Segment : WallSegments) {
+				if (IsValid(Segment)) {
+					Segment->SetMaterial(0, Dynamicmaterial);
+				}
+			}
+		}
+	}
+}
+
+void AWallActor::ApplyPreviewMaterial() {
+	if (IsValid(PreviewMaterial)) {
+		if (auto* Dynamicmaterial = UMaterialInstanceDynamic::Create(PreviewMaterial, this)) {
+			Dynamicmaterial->SetVectorParameterValue(FName("Tiling/Offset"), FLinearColor(0.33, 0.33, 0, 0));
+
 			for (auto Segment : WallSegments) {
 				if (IsValid(Segment)) {
 					Segment->SetMaterial(0, Dynamicmaterial);

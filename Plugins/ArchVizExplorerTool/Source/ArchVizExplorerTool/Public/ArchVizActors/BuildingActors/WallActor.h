@@ -77,5 +77,6 @@ private:
 	UFUNCTION()
 	void HandleMaterialChange(FMaterialAssetData MaterialData);
 
-	void ApplyMaterial();
+	virtual void ApplyMaterial() override;
+	virtual void ApplyPreviewMaterial() override;
 };

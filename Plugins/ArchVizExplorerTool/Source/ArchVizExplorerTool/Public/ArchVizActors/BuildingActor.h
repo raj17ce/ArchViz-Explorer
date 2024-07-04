@@ -33,6 +33,9 @@ protected:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	virtual void ApplyPreviewMaterial();
+	virtual void ApplyMaterial();
+
 	void HandleStateChange();
 
 	EBuildingActorState State;

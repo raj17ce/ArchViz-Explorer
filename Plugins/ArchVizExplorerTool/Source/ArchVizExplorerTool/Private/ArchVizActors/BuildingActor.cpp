@@ -21,6 +21,7 @@ EBuildingActorState ABuildingActor::GetState() const {
 }
 
 void ABuildingActor::HandleStateChange() {
+	//Widget
 	if (State == EBuildingActorState::Selected) {
 		ShowWidget();
 		HighlightSelectedActor();
@@ -28,6 +29,13 @@ void ABuildingActor::HandleStateChange() {
 	else {
 		HideWidget();
 		UnhighlightDeselectedActor();
+	}
+	//Material
+	if (State == EBuildingActorState::Preview || State == EBuildingActorState::Generating) {
+		ApplyPreviewMaterial();
+	}
+	else {
+		ApplyMaterial();
 	}
 }
 
@@ -41,4 +49,12 @@ void ABuildingActor::BeginPlay() {
 void ABuildingActor::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
+}
+
+void ABuildingActor::ApplyPreviewMaterial() {
+	//No-Implementation
+}
+
+void ABuildingActor::ApplyMaterial() {
+	//No-Implementation
 }

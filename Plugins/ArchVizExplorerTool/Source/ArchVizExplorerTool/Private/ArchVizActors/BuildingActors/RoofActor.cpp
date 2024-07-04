@@ -134,7 +134,7 @@ void ARoofActor::GenerateRoof() {
 
 	AdjustOffset(RoofOffset);
 	ProceduralMeshGenerator::GenerateCube(RoofMeshComponent, 0, Dimensions, RoofOffset);
-	ApplyMaterial();
+	ApplyPreviewMaterial();
 }
 
 void ARoofActor::DestroyRoof() {
@@ -185,6 +185,15 @@ void ARoofActor::HandleMaterialChange(FMaterialAssetData MaterialData) {
 void ARoofActor::ApplyMaterial() {
 	if (IsValid(Material)) {
 		if (auto* Dynamicmaterial = UMaterialInstanceDynamic::Create(Material, this)) {
+			Dynamicmaterial->SetVectorParameterValue(FName("Tiling/Offset"), FLinearColor(Dimensions.X / 400.0f, Dimensions.Y / 400.0f, 0, 0));
+			RoofMeshComponent->SetMaterial(0, Dynamicmaterial);
+		}
+	}
+}
+
+void ARoofActor::ApplyPreviewMaterial() {
+	if (IsValid(PreviewMaterial)) {
+		if (auto* Dynamicmaterial = UMaterialInstanceDynamic::Create(PreviewMaterial, this)) {
 			Dynamicmaterial->SetVectorParameterValue(FName("Tiling/Offset"), FLinearColor(Dimensions.X / 400.0f, Dimensions.Y / 400.0f, 0, 0));
 			RoofMeshComponent->SetMaterial(0, Dynamicmaterial);
 		}
