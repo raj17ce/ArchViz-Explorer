@@ -149,7 +149,12 @@ void AWallActor::GenerateWallSegments() {
 		WallMeshComponent->SetRelativeLocation(FVector{SegmentIndex * WallSize.X, 0, 0});
 	}
 
-	ApplyPreviewMaterial();
+	if (State == EBuildingActorState::Preview || State == EBuildingActorState::Generating) {
+		ApplyPreviewMaterial();
+	}
+	else {
+		ApplyMaterial();
+	}
 	UpdateDoorSegments();
 }
 

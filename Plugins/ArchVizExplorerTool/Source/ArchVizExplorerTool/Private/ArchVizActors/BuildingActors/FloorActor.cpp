@@ -130,7 +130,13 @@ void AFloorActor::GenerateFloor() {
 
 	AdjustOffset(FloorOffset);
 	ProceduralMeshGenerator::GenerateCube(FloorMeshComponent, 0, Dimensions, FloorOffset);
-	ApplyPreviewMaterial();
+	
+	if (State == EBuildingActorState::Preview || State == EBuildingActorState::Generating) {
+		ApplyPreviewMaterial();
+	}
+	else {
+		ApplyMaterial();
+	}
 }
 
 void AFloorActor::AdjustOffset(FVector& FloorOffset) {

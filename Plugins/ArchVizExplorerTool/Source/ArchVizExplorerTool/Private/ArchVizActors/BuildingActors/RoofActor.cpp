@@ -134,7 +134,13 @@ void ARoofActor::GenerateRoof() {
 
 	AdjustOffset(RoofOffset);
 	ProceduralMeshGenerator::GenerateCube(RoofMeshComponent, 0, Dimensions, RoofOffset);
-	ApplyPreviewMaterial();
+	
+	if (State == EBuildingActorState::Preview || State == EBuildingActorState::Generating) {
+		ApplyPreviewMaterial();
+	}
+	else {
+		ApplyMaterial();
+	}
 }
 
 void ARoofActor::DestroyRoof() {
